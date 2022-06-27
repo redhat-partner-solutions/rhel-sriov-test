@@ -1,0 +1,17 @@
+dut:
+  host: "" 
+  username: "" 
+  password: "" 
+  interface:
+    pf1:
+      name: "ens7f3"
+      pci: "0000:ca:00.3"
+    vf1:
+      name: "ens7f3v0"
+      pci: "0000:ca:19.0"
+traffigen:
+  host: "" 
+  username: "" 
+  password: "" 
+  interface:
+    pf1: "ens8f1"
