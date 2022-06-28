@@ -107,7 +107,7 @@ class ShellHandler:
         return exit_status
         
                           
-    def execute(self, cmd):
+    def execute(self, cmd, timeout=5):
         """
         :param cmd: the command to be executed on the remote computer
         """
@@ -122,7 +122,7 @@ class ShellHandler:
         sherr = []
         exit_status = 0
         signal.signal(signal.SIGALRM, self.timeout_handler)
-        signal.alarm(5)
+        signal.alarm(timeout)
         try:
             for line in self.stdout:
                 if str(line).startswith(cmd) or str(line).startswith(echo_cmd):
