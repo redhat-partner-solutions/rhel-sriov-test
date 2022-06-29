@@ -40,3 +40,26 @@ def reset_command(dut, settings, pf_net_path):
     clear_vfs = "echo 0 > " + pf_net_path + "/sriov_numvfs"
     code, out, err = dut.execute(clear_vfs, 60)
     assert code == 0
+
+@pytest.fixture
+def trafficgen(settings):
+    host = settings.config["trafficgen"]["host"]
+    user = settings.config["trafficgen"]["username"]
+    password = settings.config["trafficgen"]["password"]
+    return ShellHandler(host, user, password)
+
+@pytest.fixture(autouse=True)
+def _cleanup(dut):
+    yield
+    dut.stop_testpmd()
+
+@pytest.fixture
+def testdata(settings):
+    data = dict()
+    data['vlan'] = 10
+    data['dut_ip'] = "101.1.1.2"
+    data['dut_mac'] = "aa:bb:cc:dd:ee:00"
+    data['trafficgen_ip'] = "101.1.1.1"
+    data['qos'] = 5
+    data['max_tx_rate'] = 10
+    return data

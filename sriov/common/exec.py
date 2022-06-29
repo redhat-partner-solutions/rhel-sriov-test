@@ -82,11 +82,12 @@ class ShellHandler:
         return active
     
     def stop_testpmd(self):
+        """stop testpmd if the ssh session has a testpmd running
+        
+        :return: 0 on success; non-zero on failure
         """
-        stop testpmd if the ssh session has a testpmd running
-        """
-        if not self.testpmd_active:
-            return
+        if not self.testpmd_active():
+            return 0
         self.stdin.write('quit\n')
         finish = 'Bye...'
         self.stdin.flush()
@@ -106,9 +107,36 @@ class ShellHandler:
 
         return exit_status
         
-                          
-    def execute(self, cmd, timeout=5):
+    def testpmd_cmd(self, cmd):
+        """send cmd in the testpmd session
+        
+        :param cmd: the command to be executed in the testpmd session
+        
+        :return: True on success
         """
+        if not self.testpmd_active():
+            return False
+        cmd = cmd.strip('\n')
+        self.stdin.write(cmd + '\n')
+        self.stdin.flush()
+        finish = 'testpmd>'
+        signal.signal(signal.SIGALRM, self.timeout_handler)
+        signal.alarm(1)
+        exit_code = 0
+        try:
+            for line in self.stdout:
+               if str(line).startswith(finish):
+                   break
+        except Exception:
+            exit_code = -1
+        finally:
+            signal.alarm(0)
+            
+        return exit_code
+                                  
+    def execute(self, cmd, timeout=5):
+        """execute cmd in the ssh session
+        
         :param cmd: the command to be executed on the remote computer
         """
         cmd = cmd.strip('\n')
