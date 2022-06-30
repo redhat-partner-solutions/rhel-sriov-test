@@ -47,6 +47,7 @@ def testdata(settings):
     data['vlan'] = 10
     data['dut_ip'] = "101.1.1.2"
     data['dut_mac'] = "aa:bb:cc:dd:ee:00"
+    data['dut_spoof_mac'] = "aa:bb:cc:dd:ee:ff"
     data['trafficgen_ip'] = "101.1.1.1"
     data['qos'] = 5
     data['max_tx_rate'] = 10
@@ -61,4 +62,12 @@ def testdata(settings):
                     '/sys/class/net/' + settings.config['dut']['interface'][interface]['name'] + '/device'
         else:
             data['vfs'][interface] = settings.config['dut']['interface'][interface]
+    data["tmux_session_name"] = "sriov_job"
+    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
+    dpdk_img = settings.config["dpdk_img"]
+    cpus = settings.config["dut"]["pmd_cpus"]
+    data['podman_cmd'] = "podman run -it --rm --privileged "\
+                 "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "\
+                 "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "\
+                 "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
     return data
