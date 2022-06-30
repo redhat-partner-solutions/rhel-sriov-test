@@ -1,3 +1,4 @@
+dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
 dut:
   host: "" 
   username: "" 
@@ -14,4 +15,6 @@ traffigen:
   username: "" 
   password: "" 
   interface:
-    pf1: "ens8f1"
+    pf1:
+      name: "ens8f0"
+      mac: "40:a6:b7:2b:19:a0"
