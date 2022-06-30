@@ -1,11 +1,11 @@
 
-# Case: SR-IOV.Permutation
+## Case: SR-IOV.Permutation
 
-## Objective(s): Test VFs (virtual function) configuration with different properties combined
+### Objective(s): Test VFs (virtual function) configuration with different properties combined
 
-## Preconfig:  If a switch is used between the DUT and the trafficgen, the DUT facing switchport should be configured as dot1q trunk to allowed vlan tag from the DUT
+### Preconfig:  If a switch is used between the DUT and the trafficgen, the DUT facing switchport should be configured as dot1q trunk to allowed vlan tag from the DUT
 
-## Test procedure
+### Test procedure
 
 * On DUT, create 1 VF; set VF 0 with a permutation of the following permutations, 
 
@@ -41,7 +41,7 @@ ping -W 1 -c 1 ${DUT_IP}
 
 * Repeat test with next permutation
 
-## Clean up
+### Clean up
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
