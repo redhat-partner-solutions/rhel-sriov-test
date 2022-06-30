@@ -26,7 +26,8 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         check_vfs = "ip -d link show " + testdata['pfs'][pf]['name']
         code, out, err = dut.execute(check_vfs)
         assert code == 0
-        assert "00:00:00:00:00:00" not in out[1]
+        for out_slice in out:
+            assert "00:00:00:00:00:00" not in out_slice
     
         split_out = out[1].split()
         max_mtu = split_out[split_out.index("maxmtu") + 1]
