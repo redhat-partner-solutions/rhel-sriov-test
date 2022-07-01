@@ -38,8 +38,24 @@ def _cleanup(dut, testdata):
     reset_command(dut, testdata)
 
 @pytest.fixture(autouse=True)
-def _report_extras(extra):
-    extra.append(extras.json({"test": "test string"}))
+def _report_extras(extra, request):
+    #extra.append(extras.json({"test": "test string"}))
+    #print(request.node.name)
+    # This is assuming report is in the same directory as the test and README.
+    lines = []
+    with open('README.md') as f:
+        lines = f.readlines()
+    f.close()
+    
+    case_name = ''
+    for line in lines: 
+        case_index = line.find('Case:')
+        if case_index != -1:
+            case_name = (line[case_index + 6:]).strip()
+            break
+    
+    extra.append(extras.html('<p>Link to the README: <a href="README.md">' + case_name + ' Documentation</a></p>'))
+    extra.append(extras.json({"test case": case_name}))
 
 @pytest.fixture
 def testdata(settings):
