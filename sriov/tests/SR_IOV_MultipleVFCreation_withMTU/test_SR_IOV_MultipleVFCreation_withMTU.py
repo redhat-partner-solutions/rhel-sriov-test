@@ -23,6 +23,9 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         code, out, err = dut.execute(set_vfs)
         assert code == 0
 
+        code, out, err = dut.execute('sleep 2')
+        assert code == 0
+
         check_vfs = "ip -d link show " + testdata['pfs'][pf]['name']
         code, out, err = dut.execute(check_vfs)
         assert code == 0

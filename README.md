@@ -38,6 +38,9 @@ The script will look for `tests/config.yaml` in order to access the TrafficGen a
 
 ```
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
+github_tests_path: 	    # URL to the test directory
+tests_doc_file: 	    # test README name with extension
+tests_name_field: 	    # name field in test README 
 dut:
   host:                     # DUT ip address
   username: root            # need root access
@@ -76,6 +79,11 @@ To run a specific test case, say SR_IOV_Permutation,
 pytest -v SR_IOV_Permutation
 ```
 
+To run a specific test case which generates an HTML report file, you must run it from its test directory. For example, to run SR_IOV_Permutation, it must be run from the SR_IOV_Permutation directory,
+```
+pytest -v --html=report.html --self-contained-html
+```
+
 ## Test Case Description
 
-Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
+Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description and test case name. `test_<testcase>.py` is an reference implementation of this test case.
