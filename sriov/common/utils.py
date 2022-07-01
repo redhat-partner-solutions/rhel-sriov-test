@@ -24,6 +24,7 @@ def bind_driver(ssh_obj, pci, driver):
              "echo {} > /sys/bus/pci/drivers/{}/bind".format(pci, driver)
             ]
     for step in steps:
+        print(step)
         code, out, err = ssh_obj.execute(step)
         if code != 0:
             return False
@@ -74,6 +75,7 @@ def clear_interface(ssh_obj, intf, vlan=0):
     else:
         steps = [f"ip addr flush dev {intf} || true"]
     for step in steps:
+        print(step)
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
@@ -90,6 +92,7 @@ def add_arp_entry(ssh_obj, ip, mac):
         Exception: stderr msg in array
     """
     cmd = f"arp -s {ip} {mac}"
+    print(cmd)
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -150,4 +153,18 @@ def get_intf_mac(ssh_obj, intf):
     code, out, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
-    return out[0].strip("\n")
+    for line in out:
+        if len(line.split(":")) == 6:
+            return line.strip("\n")
+    raise ValueError("can't parse mac address")
+
+def get_vf_mac(ssh_obj, intf, vf_id):
+    cmd = f"ip link show {intf} | awk '/vf {vf_id}/" + "{print $4;}'"
+    print(cmd)
+    code, out, err = ssh_obj.execute(cmd)
+    if code != 0:
+        raise Exception(err)
+    for line in out:
+        if len(line.split(":")) == 6:
+            return line.strip("\n")
+    raise ValueError("can't parse mac address")

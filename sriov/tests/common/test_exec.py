@@ -52,5 +52,9 @@ def test_start_and_stop_testpmd(dut, settings):
     assert code == 0
     assert dut.testpmd_active()
     assert dut.stop_testpmd() == 0
-                 
+    # test after quit from testpmd session, ssh session is ready for shell cmd
+    code, out, err = dut.execute("echo ALIVE")
+    assert code == 0, err
+    assert out[0].strip("\n") == "ALIVE", out
+
     
