@@ -56,7 +56,7 @@ def _report_extras(extra, request):
     link = 'https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests/' + test_dir + '/README.md'
 
     extra.append(extras.html('<p>Link to the README: <a href="' + link + '">' + case_name + ' Documentation</a></p>'))
-    extra.append(extras.json({"test case": case_name, "module": os.path.dirname(request.module.__file__)}))
+    extra.append(extras.json({"test case": case_name, "test dir": os.path.dirname(request.module.__file__)}))
 
 @pytest.fixture
 def testdata(settings):
