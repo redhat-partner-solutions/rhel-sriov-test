@@ -1,10 +1,10 @@
 import time
 from sriov.common.utils import *
 
-def test_SR_IOV_macAddress(dut, trafficgen, settings):
-    trafficgen_ip = "101.1.1.1"
-    dut_ip = "101.1.1.2"
-    vf0_mac = "aa:bb:cc:dd:ee:00"
+def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
+    trafficgen_ip = testdata['trafficgen_ip']
+    dut_ip = testdata['dut_ip']
+    vf0_mac = testdata['dut_mac']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
         "echo 0 > /sys/class/net/{}/device/sriov_numvfs".format(pf),
@@ -21,9 +21,13 @@ def test_SR_IOV_macAddress(dut, trafficgen, settings):
         time.sleep(0.1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    trafficgen.execute("arp -s {} {}".format(dut_ip, vf0_mac))
-    trafficgen.execute("ip address add {}/24 dev {}".format(trafficgen_ip, trafficgen_pf))
-    code, out, err = trafficgen.execute("ping -W 1 -c 1 {}".format(dut_ip))
+    trafficgen_vlan = 0
+    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
+    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+    add_arp_entry(trafficgen, dut_ip, vf0_mac)
+    code, out, err = trafficgen.execute("ping -W 1 -c 1 {}".format(testdata['dut_ip']))
+    rm_arp_entry(trafficgen, trafficgen_ip)
+    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
     assert code == 0, err
 
         
