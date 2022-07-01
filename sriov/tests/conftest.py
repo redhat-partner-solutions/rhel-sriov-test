@@ -54,8 +54,12 @@ def _report_extras(extra, request):
             case_name = (line[case_index + 6:]).strip()
             break
     
-    extra.append(extras.html('<p>Link to the README: <a href="README.md">' + case_name + ' Documentation</a></p>'))
-    extra.append(extras.json({"test case": case_name}))
+    test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
+    link = 'https://github.com/redhat-partner-solutions/intel-sriov-test/tree/extras_uuid/sriov/tests/' + test_dir + '/README.md'
+
+    #extra.append(extras.html('<p>Link to the README: <a href="README.md">' + case_name + ' Documentation</a></p>'))
+    extra.append(extras.html('<p>Link to the README: <a href="' + link + '">' + case_name + ' Documentation</a></p>'))
+    extra.append(extras.json({"test case": case_name, "module": os.path.dirname(request.module.__file__)}))
 
 @pytest.fixture
 def testdata(settings):
