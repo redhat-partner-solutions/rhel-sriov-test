@@ -39,9 +39,7 @@ def _cleanup(dut, testdata):
 
 @pytest.fixture(autouse=True)
 def _report_extras(extra, request):
-    #extra.append(extras.json({"test": "test string"}))
-    #print(request.node.name)
-    # This is assuming report is in the same directory as the test and README.
+    # This is assuming report is in the same directory as the test and README.md.
     lines = []
     with open('README.md') as f:
         lines = f.readlines()
@@ -57,7 +55,6 @@ def _report_extras(extra, request):
     test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
     link = 'https://github.com/redhat-partner-solutions/intel-sriov-test/tree/extras_uuid/sriov/tests/' + test_dir + '/README.md'
 
-    #extra.append(extras.html('<p>Link to the README: <a href="README.md">' + case_name + ' Documentation</a></p>'))
     extra.append(extras.html('<p>Link to the README: <a href="' + link + '">' + case_name + ' Documentation</a></p>'))
     extra.append(extras.json({"test case": case_name, "module": os.path.dirname(request.module.__file__)}))
 
