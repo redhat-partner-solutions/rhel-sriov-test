@@ -1,7 +1,7 @@
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
-github_tests_path: ""
-tests_doc_file: ""
-tests_name_field: ""
+github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
+tests_doc_file: "README.md"
+tests_name_field: "Test Case Name:"
 dut:
   host: "" 
   username: "" 
