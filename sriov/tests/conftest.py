@@ -38,7 +38,7 @@ def _cleanup(dut, testdata):
     reset_command(dut, testdata)
 
 @pytest.fixture(autouse=True)
-def _report_extras(extra, request):
+def _report_extras(extra, request, settings):
     # This is assuming report is in the same directory as the test and README.md.
     lines = []
     with open('README.md') as f:
@@ -47,15 +47,17 @@ def _report_extras(extra, request):
     
     case_name = ''
     for line in lines: 
-        case_index = line.find('Case:')
+        case_index = line.find(settings.config['tests_name_field'])
         if case_index != -1:
-            case_name = (line[case_index + 6:]).strip()
+            case_name = (line[case_index + len(settings.config['tests_name_field']):]).strip()
             break
-    
-    test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
-    link = 'https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests/' + test_dir + '/README.md'
-
-    extra.append(extras.html('<p>Link to the README: <a href="' + link + '">' + case_name + ' Documentation</a></p>'))
+   
+    if case_name != '':
+        test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
+        link = settings.config['github_tests_path'] + '/' + test_dir + '/' + settings.config['tests_doc_file']
+        extra.append(extras.html('<p>Link to the README: <a href="' + link + '">' + case_name + ' Documentation</a></p>'))
+    else:
+        extra.append(extras.html('<p>README Missing Test Case Name. No link available</p>'))
     extra.append(extras.json({"test case": case_name, "test dir": os.path.dirname(request.module.__file__)}))
 
 @pytest.fixture
