@@ -1,5 +1,6 @@
 import pytest
 import os
+import time
 from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 from pytest_html import extras
@@ -20,8 +21,7 @@ def dut(settings):
 def reset_command(dut, testdata):
     for pf in testdata['pf_net_paths']:
         clear_vfs = "echo 0 > " + testdata['pf_net_paths'][pf] + "/sriov_numvfs"
-        code, out, err = dut.execute(clear_vfs, 60)
-        assert code == 0
+        dut.execute(clear_vfs, 60)
 
 @pytest.fixture
 def trafficgen(settings):

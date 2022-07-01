@@ -10,7 +10,13 @@ from sriov.common.utils import *
 @pytest.mark.parametrize('max_tx_rate', (True, False))
 def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof, 
                                 trust, qos, vlan, max_tx_rate):
+    # For some reason, if these steps are executed line by line over ssh session
+    # the mac address for the VF may not get set
+    # If all these steps are put in a script and run the script over the ssh session,
+    # then it is much better
+    # this is only needed for DPDK case
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
+    dut.execute("> steps.sh")
     steps = [
         f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
         f"echo 1 > /sys/class/net/{pf}/device/sriov_numvfs",
@@ -26,13 +32,18 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
 
     for step in steps:
         print(step)
-        code, out, err = dut.execute(step)
+        code, out, err = dut.execute(f"echo '{step}' >> steps.sh")
         assert code == 0, err
-        time.sleep(0.1)
-
+        #time.sleep(1)
+    code, out, err = dut.execute("sh steps.sh")
+    assert code == 0, err
+    
     pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver(dut, pci, "vfio-pci")
 
+    vf0_mac = get_vf_mac(dut, pf, 0)
+    assert vf0_mac == testdata['dut_mac']
+    
     dut.start_testpmd(testdata['podman_cmd'])
     assert dut.testpmd_active()
     
@@ -41,9 +52,9 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
         "start"
         ]
     for step in steps:
+        print(step)
         code = dut.testpmd_cmd(step)
         assert code == 0
-            
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_vlan = testdata['vlan'] if vlan else 0
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 

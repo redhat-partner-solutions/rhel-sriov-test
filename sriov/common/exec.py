@@ -3,6 +3,7 @@ from logging import Logger
 import paramiko
 import re
 import signal
+import time
 
 
 class ShellHandler:
@@ -34,6 +35,7 @@ class ShellHandler:
         :example: podman run -it --rm --privileged patrickkutch/dpdk:v21.11 dpdk-testpmd
         """
         cmd = cmd.strip("\n")
+        print(cmd)
         self.stdin.write(cmd + '\n')
         self.stdin.write('\n')
         finish = 'testpmd>'
@@ -104,7 +106,8 @@ class ShellHandler:
             exit_status = -1
         finally:
             signal.alarm(0)
-
+        # sleep before return
+        time.sleep(1)
         return exit_status
         
     def testpmd_cmd(self, cmd):
