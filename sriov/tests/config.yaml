@@ -1,4 +1,7 @@
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
+github_tests_path: ""
+tests_doc_file: ""
+tests_name_field: ""
 dut:
   host: "" 
   username: "" 
