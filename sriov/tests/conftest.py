@@ -31,6 +31,9 @@ def dut():
 
 
 def reset_command(dut, testdata):
+    dut.execute("ip netns del ns0 2>/dev/null || true")
+    dut.execute("ip netns del ns1 2>/dev/null || true")
+    
     for pf in testdata['pf_net_paths']:
         clear_vfs = "echo 0 > " + \
             testdata['pf_net_paths'][pf] + "/sriov_numvfs"
