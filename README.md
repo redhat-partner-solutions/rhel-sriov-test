@@ -38,9 +38,12 @@ The script will look for `tests/config.yaml` in order to access the TrafficGen a
 
 ```
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
-github_tests_path: 	    # URL to the test directory
-tests_doc_file: 	    # test README name with extension
-tests_name_field: 	    # name field in test README 
+github_tests_path:          # URL to the test directory
+                            # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
+tests_doc_file: 	          # test specification name under the test case directory
+                            # example: "README.md"
+tests_name_field: 	        # name field in the test specification
+                            # example: "Test Case Name:"
 dut:
   host:                     # DUT ip address
   username: root            # need root access
@@ -79,11 +82,20 @@ To run a specific test case, say SR_IOV_Permutation,
 pytest -v SR_IOV_Permutation
 ```
 
-To run a specific test case which generates an HTML report file, you must run it from its test directory. For example, to run SR_IOV_Permutation, it must be run from the SR_IOV_Permutation directory,
+To run a specific test case and generate an HTML report file,
 ```
-pytest -v --html=report.html --self-contained-html
+pytest -v --html=report.html --self-contained-html SR_IOV_Permutation
 ```
+
+To run all SR-IOV test cases and generate an HTML report file,
+```
+pytest -v --html=report.html --self-contained-html SR*
+```
+
+After the test is completed, report.html will be generated under the current working directory.
 
 ## Test Case Description
 
-Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description and test case name. `test_<testcase>.py` is an reference implementation of this test case.
+Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
+
+In order for the html test reported generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.

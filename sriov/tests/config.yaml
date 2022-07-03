@@ -1,11 +1,12 @@
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
-github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
-tests_doc_file: "README.md"
 tests_name_field: "Test Case Name:"
+tests_doc_file: "README.md"
+github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
 dut:
-  host: "" 
-  username: "" 
-  password: "" 
+  host: "DUT ip address"
+  username: root
+  password: "root password"
+  pmd_cpus: "cpu list for testpmd"
   interface:
     pf1:
       name: "ens7f3"
@@ -13,10 +14,10 @@ dut:
     vf1:
       name: "ens7f3v0"
       pci: "0000:ca:19.0"
-traffigen:
-  host: "" 
-  username: "" 
-  password: "" 
+trafficgen:
+  host: "TrafficGen ip address"
+  username: root
+  password: "root password"
   interface:
     pf1:
       name: "ens8f0"
