@@ -23,6 +23,13 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
         f"echo 2 > /sys/class/net/{pf}/device/sriov_numvfs",
     ]
+    for step in steps:
+        print(step)
+        code, out, err = dut.execute(step)
+        assert code == 0, err
+        time.sleep(1)
+    
+    steps = [] 
     for i in range(2):
         steps.extend([
             f"ip link set {pf} vf {i} mac {mac_prefix}{i}",
@@ -37,18 +44,14 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
             steps.append(
                 f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
         
-    dut.execute("> steps.sh")
     for step in steps:
         print(step)
-        code, out, err = dut.execute(f"echo '{step}' >> steps.sh")
+        code, out, err = dut.execute(step)
         assert code == 0, err
-
-    code, out, err = dut.execute("sh steps.sh")
-    assert code == 0, err
+        time.sleep(0.1)
 
     # bind VF0 to vfio-pci
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
-    print(f"vf_pci: {vf_pci}")
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
     # start first instance testpmd in echo mode
@@ -62,12 +65,25 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
     print(tmux_cmd)
     tmux_session = testdata['tmux_session_name']
     start_tmux(dut, tmux_session, tmux_cmd)
-    time.sleep(10)
+    
+    # make sure tmux testpmd session has started
+    for i in range(15):
+        time.sleep(1)
+        code, out, err = dut.execute(f"tmux capture-pane -pt {tmux_session}")
+        started = False
+        for line in out:
+            if line.startswith("Press enter to exit"):
+                started = True
+                break
+        if started:
+            print("tmux: testpmd started")
+            break
 
+    vf_1_mac = get_vf_mac(dut, pf, 0)
     steps = [
         f"ip addr add {ip_prefix}1/24 dev {pf}v1",
         f"ip link set {pf}v1 up",
-        f"arp -s {ip_prefix}0 {mac_prefix}0",
+        f"arp -s {ip_prefix}0 {vf_1_mac}",
         f"ping -W 1 -c 1 {ip_prefix}0",
         f"arp -d {ip_prefix}0",
         f"ip addr del {ip_prefix}1/24 dev {pf}v1"
@@ -78,4 +94,5 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         if code != 0:
             stop_testpmd_in_tmux(dut, tmux_session)
             assert False, err
+        time.sleep(0.1)
     stop_testpmd_in_tmux(dut, tmux_session)
