@@ -5,8 +5,6 @@ import logging
 from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 
-from pytest_html import extras
-
 LOGGER = logging.getLogger(__name__)
 
 @pytest.mark.parametrize('execution_number', range(1))
