@@ -181,3 +181,19 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
             return True
         time.sleep(1)
     raise RuntimeError("VFs not created before timeout")
+
+def no_zero_macs(ssh_obj, pf_interface, timeout = 10):
+    check_vfs = "ip -d link show " + pf_interface
+    for i in range(timeout):
+        code, out, err = ssh_obj.execute(check_vfs)
+        if code != 0:
+            raise Exception(err)
+        no_zeros = True
+        for out_slice in out:
+            if "00:00:00:00:00:00" in out_slice:
+                no_zeros = False
+                break
+        if no_zeros:
+            return True
+        time.sleep(1)
+    raise RuntimeError("Zero MAC addresses present during timeout")

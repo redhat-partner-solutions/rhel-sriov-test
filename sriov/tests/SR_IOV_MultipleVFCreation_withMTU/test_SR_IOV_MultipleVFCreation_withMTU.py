@@ -24,18 +24,16 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         code, out, err = dut.execute(set_vfs)
         assert code == 0
 
-        code, out, err = dut.execute('sleep 2')
-        assert code == 0
-        
         check_vfs_created = vfs_created(dut, testdata['pfs'][pf]['name'], max_vfs)
         assert check_vfs_created == True
 
-        check_vfs = "ip -d link show " + testdata['pfs'][pf]['name']
-        code, out, err = dut.execute(check_vfs)
+        check_no_zero_macs = no_zero_macs(dut, testdata['pfs'][pf]['name'])
+        assert check_no_zero_macs == True
+        
+        check_mtu = "ip -d link show " + testdata['pfs'][pf]['name']
+        code, out, err = dut.execute(check_mtu)
         assert code == 0
-        for out_slice in out:
-            assert "00:00:00:00:00:00" not in out_slice
-    
+        
         split_out = out[1].split()
         max_mtu = split_out[split_out.index("maxmtu") + 1]
 
