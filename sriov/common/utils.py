@@ -192,8 +192,8 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
         time.sleep(1)
     raise RuntimeError("VFs not created before timeout")
 
-def no_zero_macs(ssh_obj, pf_interface, timeout = 10):
-    ''' Check that none of the pf_interface VFs have all zero MAC addresses
+def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
+    ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
 
     Args:
         ssh_obj: ssh connection obj
@@ -213,6 +213,33 @@ def no_zero_macs(ssh_obj, pf_interface, timeout = 10):
             if "00:00:00:00:00:00" in out_slice:
                 no_zeros = False
                 break
+        if no_zeros:
+            return True
+        time.sleep(1)
+    raise RuntimeError("Zero MAC addresses present during timeout")
+
+def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
+    ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the vf reports)
+
+    Args:
+        ssh_obj: ssh connection obj
+        pf_interface: name of the PF
+        timout (optional): times to check for VFs (default 10)
+
+    Returns:
+        True if no interfaces have all zero MAC addresses, throws RuntimeError otherwise
+    '''
+    check_vfs = "ip -d link show " + pf_interface
+    for i in range(timeout):
+        no_zeros = True
+        for i in range(int(num_vfs)):
+            code, out, err = ssh_obj.execute(check_vfs + "v" + str(i))
+            if code != 0:
+                raise Exception(err)
+            for out_slice in out:
+                if "00:00:00:00:00:00" in out_slice:
+                    no_zeros = False
+                    break
         if no_zeros:
             return True
         time.sleep(1)

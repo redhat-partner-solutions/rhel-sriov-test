@@ -27,9 +27,12 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         check_vfs_created = vfs_created(dut, testdata['pfs'][pf]['name'], max_vfs)
         assert check_vfs_created == True
 
-        check_no_zero_macs = no_zero_macs(dut, testdata['pfs'][pf]['name'])
-        assert check_no_zero_macs == True
+        check_no_zero_macs_pf = no_zero_macs_pf(dut, testdata['pfs'][pf]['name'])
+        assert check_no_zero_macs_pf == True
         
+        check_no_zero_macs_vf = no_zero_macs_vf(dut, testdata['pfs'][pf]['name'], max_vfs)
+        assert check_no_zero_macs_vf == True
+
         check_mtu = "ip -d link show " + testdata['pfs'][pf]['name']
         code, out, err = dut.execute(check_mtu)
         assert code == 0
