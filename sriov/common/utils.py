@@ -224,6 +224,7 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
     Args:
         ssh_obj: ssh connection obj
         pf_interface: name of the PF
+        num_vfs: number of VFs to check under PF
         timout (optional): times to check for VFs (default 10)
 
     Returns:
