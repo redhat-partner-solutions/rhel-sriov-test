@@ -6,6 +6,7 @@ from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 
 from pytest_html import extras
+from sriov.common.utils import *
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,6 +26,9 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
 
         code, out, err = dut.execute('sleep 2')
         assert code == 0
+        
+        check_vfs_created = vfs_created(dut, testdata['pfs'][pf]['name'], max_vfs)
+        assert check_vfs_created == True
 
         check_vfs = "ip -d link show " + testdata['pfs'][pf]['name']
         code, out, err = dut.execute(check_vfs)

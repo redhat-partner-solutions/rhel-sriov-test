@@ -1,3 +1,5 @@
+import time 
+
 def get_pci_address(ssh_obj, iface):
     """
     :param ssh_obj: ssh_obj to the remote host
@@ -168,3 +170,14 @@ def get_vf_mac(ssh_obj, intf, vf_id):
         if len(line.split(":")) == 6:
             return line.strip("\n")
     raise ValueError("can't parse mac address")
+
+def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
+    cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
+    for i in range(timeout):
+        code, out, err = ssh_obj.execute(cmd)
+        if code != 0:
+            raise Exception(err)
+        if int(out[0].strip()) == int(num_vfs):
+            return True
+        time.sleep(1)
+    raise RuntimeError("VFs not created before timeout")
