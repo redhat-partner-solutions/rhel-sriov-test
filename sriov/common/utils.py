@@ -172,6 +172,16 @@ def get_vf_mac(ssh_obj, intf, vf_id):
     raise ValueError("can't parse mac address")
 
 def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
+    ''' Check that the num_vfs of pf_interface are created before timeout
+    
+    Args:
+        ssh_obj: ssh connection obj
+        pf_interface: name of the PF
+        num_vfs: number of VFs to check under PF
+        timout (optional): times to check for VFs (default 10)
+    Returns:
+        True if all VFs are created, throws RuntimeError otherwise
+    '''
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     for i in range(timeout):
         code, out, err = ssh_obj.execute(cmd)
@@ -183,6 +193,16 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     raise RuntimeError("VFs not created before timeout")
 
 def no_zero_macs(ssh_obj, pf_interface, timeout = 10):
+    ''' Check that none of the pf_interface VFs have all zero MAC addresses
+
+    Args:
+        ssh_obj: ssh connection obj
+        pf_interface: name of the PF
+        timout (optional): times to check for VFs (default 10)
+
+    Returns:
+        True if no interfaces have all zero MAC addresses, throws RuntimeError otherwise
+    '''
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
         code, out, err = ssh_obj.execute(check_vfs)
