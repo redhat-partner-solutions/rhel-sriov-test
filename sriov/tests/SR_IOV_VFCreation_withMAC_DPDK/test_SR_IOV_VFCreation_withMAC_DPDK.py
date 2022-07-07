@@ -22,6 +22,7 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
              "ip link set " + testdata['pfs'][pf]['name'] + " vf 0 vlan 10 qos 5"
             ]
     for step in steps:
+        print(step)
         code, out, err = dut.execute(step)
         assert code == 0, step
 
