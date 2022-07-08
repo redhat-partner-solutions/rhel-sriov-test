@@ -1,13 +1,5 @@
-from docutils import SettingsSpec
 import pytest
-import os
-import logging
-from sriov.common.exec import ShellHandler
-from sriov.common.config import Config
-
 from sriov.common.utils import *
-
-LOGGER = logging.getLogger(__name__)
 
 # Adjust the execution_number parameter for desired amount of repeated tests (or to 100 for actual testing)
 @pytest.mark.parametrize('execution_number', range(1))
