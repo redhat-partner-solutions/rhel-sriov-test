@@ -16,11 +16,13 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         base_mac = "0x0000000000"
 
         max_vfs_cmd = "cat " + testdata['pf_net_paths'][pf] + "/sriov_totalvfs"
+        print(max_vfs_cmd)
         code, out, err = dut.execute(max_vfs_cmd)
         assert code == 0
         max_vfs = out[0].strip()
     
         set_vfs = "echo " + max_vfs + " > " + testdata['pf_net_paths'][pf] + "/sriov_numvfs"
+        print(set_vfs)
         code, out, err = dut.execute(set_vfs)
         assert code == 0
 
@@ -34,6 +36,7 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         assert check_no_zero_macs_vf == True
 
         check_mtu = "ip -d link show " + testdata['pfs'][pf]['name']
+        print(check_mtu)
         code, out, err = dut.execute(check_mtu)
         assert code == 0
         
@@ -41,6 +44,7 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         max_mtu = split_out[split_out.index("maxmtu") + 1]
 
         set_max_mtu = "ip link set " + testdata['pfs'][pf]['name'] + " mtu " + max_mtu
+        print(set_max_mtu)
         code, out, err = dut.execute(set_max_mtu)
         assert code == 0
 
@@ -53,9 +57,11 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
                      "ip link set " + testdata['pfs'][pf]['name'] + "v" + str(i) + " mtu " + max_mtu
                     ]
             for step in steps:
+                print(step)
                 code, out, err = dut.execute(step)
                 assert code == 0, step
 
         set_mtu = "ip link set " + testdata['pfs'][pf]['name'] + " mtu 1500"
+        print(set_mtu)
         code, out, err = dut.execute(set_mtu)
         assert code == 0
