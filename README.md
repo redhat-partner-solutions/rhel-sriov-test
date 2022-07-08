@@ -72,13 +72,14 @@ Running the script from a python3 virtual enviroment is recommended. Install the
 
 ```
 python3 -m venv venv
-venv/bin/activate
+source venv/bin/activate
 pip install -r sriov/requirements.txt
 ```
 
 To run a specific test case, say SR_IOV_Permutation,
 
 ```
+cd sriov/tests/
 pytest -v SR_IOV_Permutation
 ```
 
