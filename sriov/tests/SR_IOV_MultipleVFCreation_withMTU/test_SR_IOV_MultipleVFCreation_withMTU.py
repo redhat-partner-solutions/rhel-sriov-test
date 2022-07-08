@@ -10,6 +10,7 @@ from sriov.common.utils import *
 
 LOGGER = logging.getLogger(__name__)
 
+# Adjust the execution_number parameter for desired amount of repeated tests (or to 100 for actual testing)
 @pytest.mark.parametrize('execution_number', range(1))
 def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_number):
     for pf in testdata['pfs']:
