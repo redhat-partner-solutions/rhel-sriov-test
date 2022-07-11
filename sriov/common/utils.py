@@ -190,7 +190,7 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
         if int(out[0].strip()) == int(num_vfs):
             return True
         time.sleep(1)
-    raise RuntimeError("VFs not created before timeout")
+    return False
 
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
@@ -216,7 +216,7 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
         if no_zeros:
             return True
         time.sleep(1)
-    raise RuntimeError("Zero MAC addresses present during timeout")
+    return False
 
 def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
     ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the vf reports)
@@ -244,4 +244,4 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
         if no_zeros:
             return True
         time.sleep(1)
-    raise RuntimeError("Zero MAC addresses present during timeout")
+    return False
