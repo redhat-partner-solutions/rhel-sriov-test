@@ -37,4 +37,10 @@ def test_get_intf_mac(trafficgen, settings):
     pf_name = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     assert mac == get_intf_mac(trafficgen, pf_name)
     
-        
+def test_pipefail(dut):
+    test_cmd = "false | echo test"
+    code, _, err = dut.execute(test_cmd)
+    assert code == 0
+    set_pipefail(dut)
+    code, _, err = dut.execute(test_cmd)
+    assert code != 0

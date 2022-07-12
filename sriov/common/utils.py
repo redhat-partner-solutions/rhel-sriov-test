@@ -294,3 +294,17 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
             return True
         time.sleep(1)
     return False
+
+def set_pipefail(ssh_obj):
+    """ Set the pipefail to persist errors
+
+    Args:
+        ssh_obj: ssh connection obj
+
+    Raises:
+        Exception: command failure
+    """
+    set_command = "set -o pipefail"
+    code, out, err = ssh_obj.execute(set_command)
+    if code != 0:
+        raise Exception(err)
