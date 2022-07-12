@@ -9,6 +9,14 @@ import time
 class ShellHandler:
 
     def __init__(self, host, user, psw):
+        """ Initialize the shell handler object
+
+        Args:
+            self:       self
+            host (str): the SSH IP address or hostname
+            user (str): the SSH username
+            psw (str):  the SSH password
+        """ 
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh.connect(host, username=user, password=psw, port=22)
@@ -18,6 +26,11 @@ class ShellHandler:
         self.stdout = channel.makefile('r')
 
     def __del__(self):
+        """ Delete the shell handler ssh object
+
+        Args:
+            self: self
+        """
         try:
             if self.testpmd_active():
                 self.stop_testpmd()
@@ -27,12 +40,30 @@ class ShellHandler:
 
     @staticmethod
     def timeout_handler(signum, frame):
+        """ Handle the timeout by raising an exception
+
+        Args:
+            signum: signal number
+            frame:  current stack frame
+
+        Raises:
+            Exception: timeout
+        """
         raise Exception("timeout")
         
     def start_testpmd(self, cmd):
-        """
-        :param cmd: the command to be executed on the remote computer to start the testpmd
-        :example: podman run -it --rm --privileged patrickkutch/dpdk:v21.11 dpdk-testpmd
+        """ Start the TestPMD application
+
+        Args:
+            self: self
+            cmd (str): the command to be executed on the remote computer to
+                       start the testpmd
+                       example: podman run -it --rm --privileged patrickkutch/dpdk:v21.11 dpdk-testpmd
+
+        Returns:
+            exit_status (int): the exit status (0 on success, non-zero otherwise)
+            shout (str):       list of stdout lines
+            sherr (str):       list of stderr lines
         """
         cmd = cmd.strip("\n")
         print(cmd)
@@ -64,8 +95,14 @@ class ShellHandler:
         return exit_status, shout, sherr    
              
     def testpmd_active(self):
-        """
-        check testpmd session is active by sending new line
+        """ A test of activity for the TestPMD session by sending a newline 
+            heartbeat
+
+        Args:
+            self: self
+
+        Returns:
+            active (boolean): True if TestPMD prompt exists, False otherwise 
         """
         self.stdin.write('\n')
         self.stdin.flush()
@@ -84,9 +121,13 @@ class ShellHandler:
         return active
     
     def stop_testpmd(self):
-        """stop testpmd if the ssh session has a testpmd running
-        
-        :return: 0 on success; non-zero on failure
+        """ Stop TestPMD if the SSH session has the TestPMD application running 
+
+        Args:
+            self: self
+
+        Returns:
+            exit_status (int): the exit status (0 on success, non-zero otherwise)
         """
         if not self.testpmd_active():
             return 0
@@ -109,13 +150,17 @@ class ShellHandler:
         # sleep before return
         time.sleep(1)
         return exit_status
-        
+       
     def testpmd_cmd(self, cmd):
-        """send cmd in the testpmd session
-        
-        :param cmd: the command to be executed in the testpmd session
-        
-        :return: True on success
+        """ Send a command to the TestPMD application 
+
+        Args:
+            self:      self
+            cmd (str): the command to be executed in the TestPMD session
+
+        Returns:
+            False:           TestPMD is not active
+            exit_code (int): the exit status (0 on success, non-zero otherwise)
         """
         if not self.testpmd_active():
             return False
@@ -138,9 +183,17 @@ class ShellHandler:
         return exit_code
                                   
     def execute(self, cmd, timeout=5):
-        """execute cmd in the ssh session
-        
-        :param cmd: the command to be executed on the remote computer
+        """ Execute a command in the SSH session 
+
+        Args:
+            self:          self
+            cmd (str):     the command to execute over SSH
+            timeout (int): timeout for command to run (default 5)
+
+        Returns:
+            exit_status (int): the exit status (0 on success, non-zero otherwise) 
+            shout (str):       list of stdout lines
+            sherr (str):       list of stderr lines
         """
         cmd = cmd.strip('\n')
         self.stdin.write(cmd + '\n')
