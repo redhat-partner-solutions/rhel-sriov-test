@@ -1,10 +1,17 @@
 import time 
 
 def get_pci_address(ssh_obj, iface):
-    """
-    :param ssh_obj: ssh_obj to the remote host
-    :param iface: interface name, example: "ens2f0"
-    :return: pci address, example "0000:17:00.0"
+    """ Get the PCI address of an interface
+
+    Args:
+        ssh_obj: ssh_obj to the remote host
+        iface: interface name, example: "ens2f0"
+    
+    Returns: 
+        PCI address, example "0000:17:00.0"
+    
+    Raises:
+        Exception on failed exit code from the command
     """
     cmd = "ethtool -i {}".format(iface) +" | awk '/bus-info:/{print $2;}'"
     code, out, err = ssh_obj.execute(cmd)
@@ -13,11 +20,15 @@ def get_pci_address(ssh_obj, iface):
     return out[0].strip("\n")
 
 def bind_driver(ssh_obj, pci, driver):
-    """
-    :param ssh_obj: ssh_obj to the remote host
-    :param pci: pci address, example "0000:17:00.0"
-    :param driver: driver name, example "vfio-pci"
-    :return: True on success
+    """ Bind the PCI address to the driver
+
+    Args:
+        ssh_obj: ssh_obj to the remote host
+        pci: PCI address, example "0000:17:00.0"
+        driver: driver name, example "vfio-pci"
+    
+    Returns: 
+        True on success, False on failed command
     """
     device_path = "/sys/bus/pci/devices/" + pci
     steps = ["modprobe {}".format(driver),
@@ -33,13 +44,14 @@ def bind_driver(ssh_obj, pci, driver):
     return True    
 
 def config_interface(ssh_obj, intf, vlan, ip):
-    """config an ip address on vlan interface; if vlan is 0, config ip on main interface
+    """ Config an IP address on VLAN interface; if VLAN is 0, config IP on 
+        main interface
 
     Args:
-        ssh_obj: ssh connection obj
+        ssh_obj: SSH connection obj
         intf (str): interface name
-        vlan (str): vlan id
-        ip (str): ip address
+        vlan (str): VLAN ID
+        ip (str): IP address
 
     Raises:
         Exception: stderr msg in array
@@ -58,12 +70,12 @@ def config_interface(ssh_obj, intf, vlan, ip):
             raise Exception(err)
         
 def clear_interface(ssh_obj, intf, vlan=0):
-    """clear the ip address from the vlan interface and the main interface
+    """ Clear the IP address from the VLAN interface and the main interface
 
     Args:
-        ssh_obj: ssh connection obj
+        ssh_obj: SSH connection obj
         intf (str): interface name
-        vlan (str): vlan id
+        vlan (str): VLAN ID
 
     Raises:
         Exception: stderr msg in array
@@ -83,12 +95,12 @@ def clear_interface(ssh_obj, intf, vlan=0):
             raise Exception(err)
 
 def add_arp_entry(ssh_obj, ip, mac):
-    """    add static arp entry
+    """ Add a static ARP entry
 
     Args:
-        ssh_obj: ssh connection obj
-        ip: ip address
-        mac: mac address
+        ssh_obj: SSH connection obj
+        ip: IP address
+        mac: MAC address
 
     Raises:
         Exception: stderr msg in array
@@ -100,11 +112,11 @@ def add_arp_entry(ssh_obj, ip, mac):
         raise Exception(err)
     
 def rm_arp_entry(ssh_obj, ip):
-    """remove an static arp entry
+    """ Remove a static ARP entry
 
     Args:
-        ssh_obj: ssh connection obj
-        ip: ip address
+        ssh_obj: SSH connection obj
+        ip: IP address
 
     Raises:
         Exception: stderr msg in array
@@ -115,12 +127,15 @@ def rm_arp_entry(ssh_obj, ip):
         raise Exception(err)
     
 def start_tmux(ssh_obj, name, cmd):
-    """Run cmd in a tmux session
+    """ Run cmd in a tmux session
 
     Args:
-        ssh_obj: ssh connection obj
+        ssh_obj: SSH connection obj
         name: tmux session name
         cmd (str): a single command to run
+
+    Raises:
+        Exception on command failure
     """
     
     steps = [
@@ -134,22 +149,29 @@ def start_tmux(ssh_obj, name, cmd):
             raise Exception(err)
 
 def stop_tmux(ssh_obj, name):
-    """stop tmux session
+    """ Stop tmux session
 
     Args:
-        ssh_obj: ssh connection obj
+        ssh_obj: SSH connection obj
         name (str): tmux session name
+
+    Raises:
+        Exception on command failure
     """
     code, _, err = ssh_obj.execute(f"tmux kill-session -t {name} || true")
     if code != 0:
         raise Exception(err)
 
 def get_intf_mac(ssh_obj, intf):
-    """get mac address from the interface name
+    """ Get the MAC address from the interface name
 
     Args:
-        ssh_obj (_type_): ssh connection obj
+        ssh_obj (_type_): SSH connection obj
         intf (str): interface name
+
+    Raises:
+        Exception on command failure
+        ValueError on failure of parsing
     """
     cmd = f"cat /sys/class/net/{intf}/address"
     code, out, err = ssh_obj.execute(cmd)
@@ -161,6 +183,17 @@ def get_intf_mac(ssh_obj, intf):
     raise ValueError("can't parse mac address")
 
 def get_vf_mac(ssh_obj, intf, vf_id):
+    """ Get the MAC address from the interface's VF ID
+
+    Args:
+        ssh_obj (_type_): SSH connection obj
+        intf (str): interface name
+        vf_id: virtual function ID
+
+    Raises:
+        Exception on command failure
+        ValueError on failure of parsing
+    """
     cmd = f"ip link show {intf} | awk '/vf {vf_id}/" + "{print $4;}'"
     print(cmd)
     code, out, err = ssh_obj.execute(cmd)
@@ -172,16 +205,20 @@ def get_vf_mac(ssh_obj, intf, vf_id):
     raise ValueError("can't parse mac address")
 
 def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
-    ''' Check that the num_vfs of pf_interface are created before timeout
+    """ Check that the num_vfs of pf_interface are created before timeout
     
     Args:
         ssh_obj: ssh connection obj
         pf_interface: name of the PF
         num_vfs: number of VFs to check under PF
         timout (optional): times to check for VFs (default 10)
+    
     Returns:
         True if all VFs are created, throws RuntimeError otherwise
-    '''
+
+    Raises:
+        Exception on command failure
+    """
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     for i in range(timeout):
         code, out, err = ssh_obj.execute(cmd)
@@ -193,7 +230,7 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     return False
 
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
-    ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
+    """ Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
 
     Args:
         ssh_obj: ssh connection obj
@@ -202,7 +239,10 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
 
     Returns:
         True if no interfaces have all zero MAC addresses, throws RuntimeError otherwise
-    '''
+
+    Raises: 
+        Exception on command failure
+    """
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
         code, out, err = ssh_obj.execute(check_vfs)
@@ -219,7 +259,7 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     return False
 
 def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
-    ''' Check that none of the pf_interface VFs have all zero MAC addresses (from the vf reports)
+    """ Check that none of the pf_interface VFs have all zero MAC addresses (from the vf reports)
 
     Args:
         ssh_obj: ssh connection obj
@@ -229,7 +269,10 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
 
     Returns:
         True if no interfaces have all zero MAC addresses, throws RuntimeError otherwise
-    '''
+
+    Raises:
+        Exception on command failure
+    """
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
         no_zeros = True
