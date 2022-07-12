@@ -2,6 +2,7 @@ __pycache__
 *.pyc
 *.bak
 *~
+*.swp
 tests/config.yaml
 *html
 *xml
