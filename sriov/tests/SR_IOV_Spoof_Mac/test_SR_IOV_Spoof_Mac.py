@@ -4,6 +4,8 @@ from sriov.common.utils import *
 
 @pytest.mark.parametrize('spoof', ("on", "off"))
 def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
+    set_pipefail(dut)
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
         f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",

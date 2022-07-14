@@ -2,6 +2,8 @@ import time
 from sriov.common.utils import *
 
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
+    set_pipefail(dut)
+
     dut_ip = testdata['dut_ip']
     outside_tag = 10
     inside_tag = 20

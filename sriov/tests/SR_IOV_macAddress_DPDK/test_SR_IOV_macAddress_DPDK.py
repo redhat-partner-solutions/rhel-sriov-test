@@ -5,6 +5,8 @@ from sriov.common.utils import *
 
 
 def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
+    set_pipefail(dut)
+
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_ip = testdata['trafficgen_ip']
     dut_ip = testdata['dut_ip']

@@ -2,6 +2,8 @@ import time
 from sriov.common.utils import *
 
 def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
+    set_pipefail(dut)
+
     trafficgen_ip = testdata['trafficgen_ip']
     dut_ip = testdata['dut_ip']
     vf0_mac = testdata['dut_mac']

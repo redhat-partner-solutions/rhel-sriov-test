@@ -4,6 +4,8 @@ from sriov.common.utils import *
 
 
 def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
+    set_pipefail(dut)
+
     dut_ip = testdata['dut_ip']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [

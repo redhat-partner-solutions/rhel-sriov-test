@@ -15,6 +15,8 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
     # If all these steps are put in a script and run the script over the ssh session,
     # then it is much better
     # this is only needed for DPDK case
+    set_pipefail(dut)
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     dut.execute("> steps.sh")
     steps = [
