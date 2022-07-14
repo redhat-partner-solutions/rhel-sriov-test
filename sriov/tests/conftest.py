@@ -55,6 +55,9 @@ def _cleanup(dut, testdata):
 
 def pytest_configure(config):
     dut = get_ssh_obj("dut")
+    # Need to clear the terminal before the first command, there may be some 
+    # residual text from ssh
+    code, out, err = dut.execute("clear")
     code, out, err = dut.execute("uname -r")
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
