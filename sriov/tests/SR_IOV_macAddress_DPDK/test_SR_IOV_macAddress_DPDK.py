@@ -5,6 +5,14 @@ from sriov.common.utils import *
 
 
 def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
+    """ Test and ensure that VF MAC address functions as intended when bound to DPDK driver
+
+    Args:
+        dut:         ssh connection obj
+        trafficgen:  trafficgen obj
+        settings:    settings obj
+        testdata:    testdata obj
+    """
     set_pipefail(dut)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]

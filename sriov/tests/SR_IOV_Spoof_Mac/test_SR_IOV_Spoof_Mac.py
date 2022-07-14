@@ -4,6 +4,15 @@ from sriov.common.utils import *
 
 @pytest.mark.parametrize('spoof', ("on", "off"))
 def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
+    """ Test and ensure that VF spoof check and custom mac can be set at the same time
+
+    Args:
+        dut:        ssh connection obj
+        trafficgen: trafficgen object
+        settings:   settings obj
+        testdata:   testdata obj
+        spoof:      spoof parameter
+    """
     set_pipefail(dut)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]

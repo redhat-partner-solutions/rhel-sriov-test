@@ -16,6 +16,18 @@ def stop_testpmd_in_tmux(dut, tmux_session):
 @pytest.mark.parametrize('max_tx_rate', (True, False))
 def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
                         trust, qos, vlan, max_tx_rate):
+    """ Test and ensure that VFs bound to DPDK driver can communicate with VF on the same PF
+
+    Args:
+        dut:         ssh connection obj
+        settings:    settings obj
+        testdata:    testdata obj
+        spoof:       spoof parameter
+        trust:       trust parameter
+        qos:         qos parameter
+        vlan:        vlan parameter
+        max_tx_rate: max_tx_rate parameter
+    """
     set_pipefail(dut)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]

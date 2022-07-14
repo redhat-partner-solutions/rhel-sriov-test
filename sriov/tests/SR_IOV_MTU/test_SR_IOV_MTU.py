@@ -4,6 +4,14 @@ from sriov.common.utils import *
 
 
 def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
+    """ Test and ensure that VF MTU functions as intended
+
+    Args:
+        dut:         ssh connection obj
+        trafficgen:  trafficgen obj
+        settings:    settings obj
+        testdata:    testdata obj
+    """
     set_pipefail(dut)
 
     dut_ip = testdata['dut_ip']
