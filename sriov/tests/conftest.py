@@ -79,6 +79,9 @@ def pytest_configure(config):
                 firmware = parts[1]
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
+    
+    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+    config._metadata["IAVF Driver"] = out[0]
 
 
 def pytest_html_report_title(report):
