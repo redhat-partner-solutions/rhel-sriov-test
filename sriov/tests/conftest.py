@@ -68,6 +68,7 @@ def pytest_configure(config):
     driver = "unknown"
     version = "unknown"
     firmware = "unknown"
+    iavf_driver = "unknown"
     if code == 0:
         for line in out:
             parts = line.split(" ")
@@ -81,7 +82,9 @@ def pytest_configure(config):
     config._metadata["NIC Firmware"] = firmware
     
     code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
-    config._metadata["IAVF Driver"] = out[0]
+    if code == 0:
+        iavf_driver = out[0].strip()
+    config._metadata["IAVF Driver"] = iavf_driver
 
 
 def pytest_html_report_title(report):
