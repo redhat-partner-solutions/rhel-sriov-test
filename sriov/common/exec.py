@@ -43,8 +43,8 @@ class ShellHandler:
         """ Handle the timeout by raising an exception
 
         Args:
-            signum: signal number
-            frame:  current stack frame
+            signum (signum obj): signal number
+            frame (frame obj):   current stack frame
 
         Raises:
             Exception: timeout
@@ -62,8 +62,8 @@ class ShellHandler:
 
         Returns:
             exit_status (int): the exit status (0 on success, non-zero otherwise)
-            shout (str):       list of stdout lines
-            sherr (str):       list of stderr lines
+            shout (list):      list of stdout lines
+            sherr (list):      list of stderr lines
         """
         cmd = cmd.strip("\n")
         print(cmd)
@@ -91,7 +91,6 @@ class ShellHandler:
             sherr.append(str(err))    
         finally:
             signal.alarm(0)
-                    
         return exit_status, shout, sherr    
              
     def testpmd_active(self):
@@ -159,11 +158,13 @@ class ShellHandler:
             cmd (str): the command to be executed in the TestPMD session
 
         Returns:
-            False:           TestPMD is not active
             exit_code (int): the exit status (0 on success, non-zero otherwise)
+
+        Raises:
+            Exception: TestPMD not active
         """
         if not self.testpmd_active():
-            return False
+            raise Exception('TestPMD not active')
         cmd = cmd.strip('\n')
         self.stdin.write(cmd + '\n')
         self.stdin.flush()
@@ -192,8 +193,8 @@ class ShellHandler:
 
         Returns:
             exit_status (int): the exit status (0 on success, non-zero otherwise) 
-            shout (str):       list of stdout lines
-            sherr (str):       list of stderr lines
+            shout (list):      list of stdout lines
+            sherr (list):      list of stderr lines
         """
         cmd = cmd.strip('\n')
         self.stdin.write(cmd + '\n')
