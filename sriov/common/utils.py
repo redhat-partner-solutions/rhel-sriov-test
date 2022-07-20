@@ -222,12 +222,12 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     """
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     for i in range(timeout):
+        time.sleep(1)
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
             continue
         if int(out[0].strip()) == num_vfs:
             return True
-        time.sleep(1)
     return False
 
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
@@ -244,6 +244,7 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     """
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
+        time.sleep(1)
         code, out, err = ssh_obj.execute(check_vfs)
         if code != 0:
             continue
@@ -254,7 +255,6 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
                 break
         if no_zeros:
             return True
-        time.sleep(1)
     return False
 
 def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
@@ -272,6 +272,7 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
     """
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
+        time.sleep(1)
         no_zeros = True
         for i in range(num_vfs):
             code, out, err = ssh_obj.execute(check_vfs + "v" + str(i))
@@ -283,7 +284,6 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
                     break
         if no_zeros:
             return True
-        time.sleep(1)
     return False
 
 def set_pipefail(ssh_obj):
