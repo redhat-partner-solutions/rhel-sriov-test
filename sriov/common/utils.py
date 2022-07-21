@@ -219,18 +219,16 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     Returns:
         True: all VFs are created
         False: not all VFs are created before timeout exceeded
-
-    Raises:
-        Exception on command failure
     """
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
+    print(cmd)
     for i in range(timeout):
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
-            raise Exception(err)
+            time.sleep(1)
+            continue
         if int(out[0].strip()) == num_vfs:
             return True
-        time.sleep(1)
     return False
 
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
@@ -244,15 +242,14 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     Returns:
         True: no interfaces have all zero MAC addresses
         False: an interface with zero MAC address was found or timeout exceeded
-
-    Raises: 
-        Exception: command failure
     """
     check_vfs = "ip -d link show " + pf_interface
+    print(check_vfs)
     for i in range(timeout):
         code, out, err = ssh_obj.execute(check_vfs)
         if code != 0:
-            raise Exception(err)
+            time.sleep(1)
+            continue
         no_zeros = True
         for out_slice in out:
             if "00:00:00:00:00:00" in out_slice:
@@ -260,7 +257,6 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
                 break
         if no_zeros:
             return True
-        time.sleep(1)
     return False
 
 def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
@@ -275,24 +271,21 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
     Returns:
         True: no VFs of interface have all zero MAC addresses
         False: a VF with zero MAC address was found or timeout exceeded
-
-    Raises:
-        Exception: command failure
     """
     check_vfs = "ip -d link show " + pf_interface
     for i in range(timeout):
+        time.sleep(1)
         no_zeros = True
         for i in range(num_vfs):
             code, out, err = ssh_obj.execute(check_vfs + "v" + str(i))
             if code != 0:
-                raise Exception(err)
+                break
             for out_slice in out:
                 if "00:00:00:00:00:00" in out_slice:
                     no_zeros = False
                     break
         if no_zeros:
             return True
-        time.sleep(1)
     return False
 
 def set_pipefail(ssh_obj):
