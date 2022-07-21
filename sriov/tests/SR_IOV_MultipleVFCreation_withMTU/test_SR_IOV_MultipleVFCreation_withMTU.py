@@ -4,6 +4,14 @@ from sriov.common.utils import *
 # Adjust the execution_number parameter for desired amount of repeated tests (or to 100 for actual testing)
 @pytest.mark.parametrize('execution_number', range(1))
 def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_number):
+    """ Test and ensure that VFs provision with MTU functions as intended
+
+    Args:
+        dut:              ssh connection obj
+        settings:         settings obj
+        testdata:         testdata obj
+        execution_number: execution_number parameter
+    """
     pf = list(testdata['pfs'].keys())[0] 
     base_mac = "0x0000000000"
     

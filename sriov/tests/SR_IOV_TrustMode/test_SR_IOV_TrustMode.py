@@ -2,6 +2,14 @@ import time
 from sriov.common.utils import *
 
 def test_SR_IOV_TrustMode(dut, settings):
+    """ Test and ensure that VF trust mode functions as intended
+
+    Args:
+        dut:      ssh connection obj
+        settings: settings obj
+    """
+    set_pipefail(dut)
+
     mac_1 = "aa:bb:cc:dd:ee:11"
     mac_2 = "aa:bb:cc:dd:ee:22"
     mac_3 = "aa:bb:cc:dd:ee:33"

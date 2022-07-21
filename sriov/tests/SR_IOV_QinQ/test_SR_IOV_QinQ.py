@@ -2,6 +2,16 @@ import time
 from sriov.common.utils import *
 
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
+    """ Test and ensure that QinQ on VF works with the kernel driver
+
+    Args:
+        dut:        ssh connection obj
+        trafficgen: trafficgen obj
+        settings:   settings obj
+        testdata:   testdata obj
+    """
+    set_pipefail(dut)
+
     dut_ip = testdata['dut_ip']
     outside_tag = 10
     inside_tag = 20

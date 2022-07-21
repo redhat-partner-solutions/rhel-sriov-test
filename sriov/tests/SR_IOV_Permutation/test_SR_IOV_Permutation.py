@@ -10,6 +10,21 @@ from sriov.common.utils import *
 @pytest.mark.parametrize('max_tx_rate', (True, False))
 def test_SR_IOV_Permutation(dut, trafficgen, settings, testdata, spoof, 
                                 trust, qos, vlan, max_tx_rate):
+    """ Test VFs function with various properties
+
+    Args:
+        dut:         ssh connection obj
+        trafficgen:  trafficgen obj
+        settings:    settings obj
+        testdata:    testdata obj
+        spoof:       spoof parameter
+        trust:       trust parameter
+        qos:         qos parameter
+        vlan:        vlan parameter
+        max_tx_rate: max_tx_rate parameter
+    """
+    set_pipefail(dut)
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
         f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",

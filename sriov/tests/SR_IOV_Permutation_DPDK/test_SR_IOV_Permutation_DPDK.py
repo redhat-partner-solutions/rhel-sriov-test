@@ -10,11 +10,26 @@ from sriov.common.utils import *
 @pytest.mark.parametrize('max_tx_rate', (True, False))
 def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof, 
                                 trust, qos, vlan, max_tx_rate):
+    """ Test VFs function when bound to the DPDK driver with various properties
+
+    Args:
+        dut:         ssh connection obj
+        trafficgen:  trafficgen obj
+        settings:    settings obj
+        testdata:    testdata obj
+        spoof:       spoof parameter
+        trust:       trust parameter
+        qos:         qos parameter
+        vlan:        vlan parameter
+        max_tx_rate: max_tx_rate parameter
+    """
     # For some reason, if these steps are executed line by line over ssh session
     # the mac address for the VF may not get set
     # If all these steps are put in a script and run the script over the ssh session,
     # then it is much better
     # this is only needed for DPDK case
+    set_pipefail(dut)
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     dut.execute("> steps.sh")
     steps = [

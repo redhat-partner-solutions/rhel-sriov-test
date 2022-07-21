@@ -10,6 +10,21 @@ from sriov.common.utils import *
 @pytest.mark.parametrize('max_tx_rate', (True, False))
 def test_SR_IOV_InterVF(dut, trafficgen, settings, testdata, spoof,
                         trust, qos, vlan, max_tx_rate):
+    """ Test and ensure that VFs on the same PF can communicate with each other
+
+    Args:
+        dut:         ssh connection obj
+        trafficgen:  trafficgen obj
+        settings:    settings obj
+        testdata:    testdata obj
+        spoof:       spoof parameter
+        trust:       trust parameter
+        qos:         qos parameter
+        vlan:        vlan parameter
+        max_tx_rate: max_tx_rate parameter
+    """
+    set_pipefail(dut)
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     ip_addr_prefix = "100.1.1.1"
     mac_prefix = "aa:bb:cc:dd:ee:0"
