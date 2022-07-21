@@ -55,6 +55,9 @@ def _cleanup(dut, testdata):
 
 def pytest_configure(config):
     dut = get_ssh_obj("dut")
+    # Need to clear the terminal before the first command, there may be some 
+    # residual text from ssh
+    code, out, err = dut.execute("clear")
     code, out, err = dut.execute("uname -r")
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
@@ -65,6 +68,7 @@ def pytest_configure(config):
     driver = "unknown"
     version = "unknown"
     firmware = "unknown"
+    iavf_driver = "unknown"
     if code == 0:
         for line in out:
             parts = line.split(" ")
@@ -76,6 +80,11 @@ def pytest_configure(config):
                 firmware = parts[1]
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
+    
+    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+    if code == 0:
+        iavf_driver = out[0].strip()
+    config._metadata["IAVF Driver"] = iavf_driver
 
 
 def pytest_html_report_title(report):
