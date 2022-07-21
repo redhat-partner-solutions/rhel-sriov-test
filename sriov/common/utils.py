@@ -221,10 +221,11 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
         False: not all VFs are created before timeout exceeded
     """
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
+    print(cmd)
     for i in range(timeout):
-        time.sleep(1)
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
+            time.sleep(1)
             continue
         if int(out[0].strip()) == num_vfs:
             return True
@@ -243,10 +244,11 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
         False: an interface with zero MAC address was found or timeout exceeded
     """
     check_vfs = "ip -d link show " + pf_interface
+    print(check_vfs)
     for i in range(timeout):
-        time.sleep(1)
         code, out, err = ssh_obj.execute(check_vfs)
         if code != 0:
+            time.sleep(1)
             continue
         no_zeros = True
         for out_slice in out:
@@ -277,7 +279,7 @@ def no_zero_macs_vf(ssh_obj, pf_interface, num_vfs, timeout = 10):
         for i in range(num_vfs):
             code, out, err = ssh_obj.execute(check_vfs + "v" + str(i))
             if code != 0:
-                continue
+                break
             for out_slice in out:
                 if "00:00:00:00:00:00" in out_slice:
                     no_zeros = False
