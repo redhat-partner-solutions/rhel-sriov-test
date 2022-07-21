@@ -231,6 +231,27 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
             return True
     return False
 
+def create_vfs(ssh_obj, pf_interface, num_vfs, timeout = 10):
+    """ Create the num_vfs of pf_interface
+    
+    Args:
+        ssh_obj:            ssh connection obj
+        pf_interface (str): name of the PF
+        num_vfs (int):      number of VFs to create under PF
+        timout (int):       times to check for VFs (default 10)
+    
+    Raises:
+        Exception:  failed to create VFs before timeout exceeded
+    """
+    clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
+    print(clear_vfs)
+    ssh_obj.execute(clear_vfs, 60)
+    create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
+    print(create_vfs)
+    ssh_obj.execute(create_vfs, 60)
+    if not vfs_created(ssh_obj, pf_interface, num_vfs, timeout):
+        raise Exception(f"Failed to create {num_vfs} VFs on {pf_interface}")
+
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     """ Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
 
