@@ -43,13 +43,13 @@ def test_SR_IOV_TrustMode(dut, settings):
     print(cmd)
     code, out, err = dut.execute(cmd)
     assert code == 0, err
-    time.sleep(0.1)
     
     # try to overwrite mac_2 with mac_3
     cmd = "ip link set {}".format(pf) + "v0 address {}".format(mac_3)
     print(cmd)
     code, out, err = dut.execute(cmd)
-    print(err[0].strip("\n"))
+    if code != 0:
+        print(err[0].strip("\n"))
            
     # check if vf 0 mac address is NOT equal to mac_3
     cmd = "ip link show {}".format(pf) + " | awk '/vf 0/{print $4;}'"
