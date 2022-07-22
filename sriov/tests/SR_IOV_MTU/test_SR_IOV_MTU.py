@@ -76,9 +76,11 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     add_arp_entry(trafficgen, dut_ip, vf0_mac)
     add_arp_entry(dut, trafficgen_ip, trafficgen_mac)
 
+    time.sleep(1)
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
     print(ping_cmd)
     code, out, err = dut.execute(ping_cmd)
+    print(code,out,err)
 
     # recover the system before the final assert
     rm_arp_entry(trafficgen, dut_ip)
