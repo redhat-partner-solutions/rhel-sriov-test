@@ -34,7 +34,7 @@ yum install -y nmap
 
 The test script can be run from a third server. It will set up one ssh session to the TrafficGen and one to the DUT. The script will send commands over the ssh sessions to set up configuration or to send test traffic.
 
-The script will look for `tests/config.yaml` in order to access the TrafficGen and the DUT. Other than the ssh access information, other information such as the interfaces connecting the DUT and the TrafficGen will also be provided in this file.
+The script will look for `tests/config.yaml` in order to access the TrafficGen and the DUT. Other than the ssh access information, other information such as the interfaces connecting the DUT and the TrafficGen will also be provided in this file. A template `config_template.yaml` is provided as a sample. One can build a local config.yaml from this sample file.
 
 ```
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
@@ -81,6 +81,11 @@ To run a specific test case, say SR_IOV_Permutation,
 ```
 cd sriov/tests/
 pytest -v SR_IOV_Permutation
+```
+
+Certain test cases support multiple iterations of run. The number of interations can be specified using `--iteration` option. For example, to run the test case  `SR_IOV_MultipleVFCreation_withMTU` 10 times,
+```
+pytest -v --iteration=10 SR_IOV_MultipleVFCreation_withMTU
 ```
 
 To run a specific test case and generate an HTML report file,
