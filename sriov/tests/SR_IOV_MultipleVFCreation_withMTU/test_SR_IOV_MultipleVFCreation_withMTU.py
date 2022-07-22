@@ -1,8 +1,7 @@
 import pytest
 from sriov.common.utils import *
 
-# Adjust the execution_number parameter for desired amount of repeated tests (or to 100 for actual testing)
-@pytest.mark.parametrize('execution_number', range(1))
+# Use pytest --iteration to adjust the execution_number parameter for desired amount of repeated tests
 def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_number):
     """ Test and ensure that VFs provision with MTU functions as intended
 

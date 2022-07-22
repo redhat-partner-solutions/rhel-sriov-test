@@ -154,3 +154,15 @@ def testdata(settings):
         "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "\
         "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
     return data
+
+def pytest_addoption(parser):
+    parser.addoption("--iteration", action="store", default="1",
+                     help="Iterations for robustness test cases")
+
+def pytest_generate_tests(metafunc):
+    if "execution_number" in metafunc.fixturenames:
+        if metafunc.config.getoption("iteration"):
+            end = int(metafunc.config.option.iteration)
+        else:
+            end = 1
+        metafunc.parametrize("execution_number", range(end))
