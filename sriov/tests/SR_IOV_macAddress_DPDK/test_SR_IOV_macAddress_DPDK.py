@@ -20,15 +20,14 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     dut_ip = testdata['dut_ip']
     vf0_mac = testdata['dut_mac']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
-    steps = [
-        "echo 0 > /sys/class/net/{}/device/sriov_numvfs".format(pf),
-        "echo 1 > /sys/class/net/{}/device/sriov_numvfs".format(pf),
-        "ip link set {} vf 0 mac {}".format(pf, vf0_mac),      
-        ]
-    for step in steps:
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-    
+
+    create_vfs(dut, pf, 1)
+
+    cmd = "ip link set {} vf 0 mac {}".format(pf, vf0_mac)
+    print(cmd)
+    code, out, err = dut.execute(cmd)
+    assert code == 0, err
+
     vf_pci = get_pci_address(dut, pf+"v0")
     assert bind_driver(dut, vf_pci, "vfio-pci")
     
