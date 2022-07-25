@@ -33,16 +33,9 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     mac_prefix = "aa:bb:cc:dd:ee:0"
     ip_prefix = "100.1.1.1"
-    steps = [
-        f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"echo 2 > /sys/class/net/{pf}/device/sriov_numvfs",
-    ]
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(1)
-    
+
+    create_vfs(dut, pf, 2)
+
     steps = [] 
     for i in range(2):
         steps.extend([
