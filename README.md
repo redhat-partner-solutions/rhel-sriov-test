@@ -83,7 +83,7 @@ cd sriov/tests/
 pytest -v SR_IOV_Permutation
 ```
 
-Certain test cases support multiple iterations of run. The number of interations can be specified using `--iteration` option. For example, to run the test case  `SR_IOV_MultipleVFCreation_withMTU` 10 times,
+Certain test cases support multiple iterations. The number of iterations can be specified using `--iteration` option. For example, to run the test case  `SR_IOV_MultipleVFCreation_withMTU` 10 times,
 ```
 pytest -v --iteration=10 SR_IOV_MultipleVFCreation_withMTU
 ```

@@ -163,6 +163,4 @@ def pytest_generate_tests(metafunc):
     if "execution_number" in metafunc.fixturenames:
         if metafunc.config.getoption("iteration"):
             end = int(metafunc.config.option.iteration)
-        else:
-            end = 1
         metafunc.parametrize("execution_number", range(end))
