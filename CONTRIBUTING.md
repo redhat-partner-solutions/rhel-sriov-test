@@ -16,7 +16,7 @@ if possible give an example.
 
 ### Bug Reports
 
-> ❗ _Red Hat does not provide commercial support for the content of this repo. Any assistance is purely on a best-effort basis, as resource permits._
+> ❗ _Red Hat does not provide commercial support for the content of this repo. Any assistance is purely on a best-effort basis, as resources permit._
 
 If you encounter a bug then carefully examine the output. If you choose to open an issue then please include as much
 information about the problem as possible, as this gives the best chance someone can help. We suggest:
