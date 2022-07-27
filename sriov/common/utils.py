@@ -223,7 +223,7 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     print(cmd)
     for i in range(timeout):
-        time.sleep(1)
+        time.sleep(1)     
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
             continue
@@ -267,9 +267,9 @@ def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     check_vfs = "ip -d link show " + pf_interface
     print(check_vfs)
     for i in range(timeout):
+        time.sleep(1)
         code, out, err = ssh_obj.execute(check_vfs)
         if code != 0:
-            time.sleep(1)
             continue
         no_zeros = True
         for out_slice in out:
@@ -322,3 +322,25 @@ def set_pipefail(ssh_obj):
     code, out, err = ssh_obj.execute(set_command)
     if code != 0:
         raise Exception(err)
+
+def execute_and_assert(ssh_obj, cmds, exit_code):
+    """ Execute the list of commands, assert exit code, and return stdouts and stderrs 
+
+    Args:
+        ssh_obj:         ssh connection obj
+        cmds (list):     list of str commands to run
+        exit_code (int): the code to assert
+
+    Returns:
+        outs (list): list of lists of str stdout lines
+        errs (list): list of lists of str stderr lines
+    """
+    outs = []
+    errs = []
+    for cmd in cmds:
+        print(cmd)
+        code, out, err = ssh_obj.execute(cmd)
+        outs.append(out)
+        errs.append(err)
+        assert code == exit_code
+    return outs, errs
