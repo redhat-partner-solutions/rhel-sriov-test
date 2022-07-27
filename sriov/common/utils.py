@@ -223,9 +223,9 @@ def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     print(cmd)
     for i in range(timeout):
+        time.sleep(1)
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
-            time.sleep(1)
             continue
         if int(out[0].strip()) == num_vfs:
             return True
