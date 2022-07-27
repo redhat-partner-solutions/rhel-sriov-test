@@ -28,7 +28,7 @@ information about the problem as possible, as this gives the best chance someone
 
 ## Workflow
 
-The required workflow for making a contribution is Fork-and-Pull. This is well documented elsewhere but to summarise:
+The required workflow for making a contribution is Fork-and-Pull. This is well documented elsewhere but to summarize:
 
 1. Create a fork of this repository.
 1. Make and test the change on your fork.
@@ -38,7 +38,7 @@ How to create and update a fork is outside the scope of this document but there 
 [in-depth](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
 [instructions](https://reflectoring.io/github-fork-and-pull/) explaining how to go about it.
 
-All contributions must have as much test coverage as possible and include relevent additions and changes to both
+All contributions must have as much test coverage as possible and include relevant additions and changes to both
 documentation and tooling. Once a change is implemented, tested, documented, and passing all checks then submit a Pull
 Request for it to be reviewed.
 
@@ -72,6 +72,6 @@ this document, but it's a useful skill and there are [many](https://thoughtbot.c
 
 ## Style Guidelines
 
-- Favour readability over brevity in both naming and structure
+- Favor readability over brevity in both naming and structure
 - Document the _why_ with comments, and the _what_ with clear code
 - When in doubt, follow the [PEP 8](https://peps.python.org/pep-0008/) style guide
