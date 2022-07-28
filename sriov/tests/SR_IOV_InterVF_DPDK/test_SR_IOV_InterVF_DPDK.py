@@ -51,7 +51,7 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
             steps.append(
                 f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
     
-    execute_and_assert(dut, steps, 0)
+    execute_and_assert(dut, steps, 0, 0.1)
 
     # bind VF0 to vfio-pci
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
