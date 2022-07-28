@@ -31,11 +31,12 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
     set_pipefail(dut)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
-    dut.execute("> steps.sh")
+
+    assert create_vfs(dut, pf, 1)
+    
+    assert set_vf_mac(dut, pf, 0, testdata['dut_mac'] )
+    
     steps = [
-        f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"echo 1 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"ip link set {pf} vf 0 mac {testdata['dut_mac']}",
         f"ip link set {pf} vf 0 spoof {spoof}",
         f"ip link set {pf} vf 0 trust {trust}",
         ]
@@ -47,17 +48,14 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
 
     for step in steps:
         print(step)
-        code, out, err = dut.execute(f"echo '{step}' >> steps.sh")
+        code, out, err = dut.execute(step)
         assert code == 0, err
-        #time.sleep(1)
-    code, out, err = dut.execute("sh steps.sh")
-    assert code == 0, err
-    
+        time.sleep(0.1)
+
     pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver(dut, pci, "vfio-pci")
 
-    vf0_mac = get_vf_mac(dut, pf, 0)
-    assert vf0_mac == testdata['dut_mac']
+    assert verify_vf_address(dut, pf, 0, testdata['dut_mac'])
     
     dut.start_testpmd(testdata['podman_cmd'])
     assert dut.testpmd_active()
