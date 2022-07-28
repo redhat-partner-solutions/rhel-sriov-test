@@ -34,7 +34,7 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
     mac_prefix = "aa:bb:cc:dd:ee:0"
     ip_prefix = "100.1.1.1"
 
-    create_vfs(dut, pf, 2)
+    assert create_vfs(dut, pf, 2)
 
     steps = [] 
     for i in range(2):

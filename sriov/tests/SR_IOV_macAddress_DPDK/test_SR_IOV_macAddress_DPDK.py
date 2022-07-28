@@ -21,7 +21,7 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     vf0_mac = testdata['dut_mac']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
-    create_vfs(dut, pf, 1)
+    assert create_vfs(dut, pf, 1)
 
     cmd = "ip link set {} vf 0 mac {}".format(pf, vf0_mac)
     print(cmd)

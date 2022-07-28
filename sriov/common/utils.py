@@ -191,7 +191,7 @@ def get_vf_mac(ssh_obj, intf, vf_id):
     Args:
         ssh_obj (_type_): SSH connection obj
         intf (str):       interface name
-        vf_id (str):      virtual function ID
+        vf_id (int):      virtual function ID
 
     Raises:
         Exception:  command failure
@@ -207,6 +207,61 @@ def get_vf_mac(ssh_obj, intf, vf_id):
             return line.strip("\n")
     raise ValueError("can't parse mac address")
 
+def set_vf_mac(ssh_obj, intf, vf_id, address, timeout = 10, interval = 0.1):
+    """ Set the VF mac address
+    
+    Args:
+        ssh_obj (_type_): SSH connection obj
+        intf (str):       interface name
+        vf_id (int):      virtual function ID
+        address(str):     mac address
+        timeout(int):     number of seconds to timeout
+        interval(float):  polling interval in seconds
+        
+    Returns:
+        True: mac address is set with success
+        False: mac address can't be set before timeout
+    """
+    set_mac_cmd = f"ip link set {intf} vf {vf_id} mac {address}"
+    print(set_mac_cmd)
+    code, out, err = ssh_obj.execute(set_mac_cmd)
+    if code != 0:
+        return False 
+
+    count = int(timeout/interval) + 1
+    while count > 0:
+        vf_mac = get_intf_mac(ssh_obj, f"{intf}v{vf_id}")
+        if vf_mac == address:
+            return True
+        count -= 1
+        time.sleep(interval)    
+    return False
+
+def verify_vf_address(ssh_obj, intf, vf_id, address, timeout = 10, interval = 0.1):
+    """ verify that the VF has the specified address
+    
+    Args:
+        ssh_obj (_type_): SSH connection obj
+        intf (str):       interface name
+        vf_id (int):      virtual function ID
+        address(str):     mac address
+        timeout(int):     number of seconds to timeout
+        interval(float):  polling interval in seconds
+        
+    Returns:
+        True: The VF has the specified address
+        False: The VF doesn't have the specified address before timeout
+    """
+    count = int(timeout/interval) + 1
+    while count > 0:
+        vf_mac = get_vf_mac(ssh_obj, intf, vf_id)
+        print(vf_mac)
+        if vf_mac == address:
+            return True
+        timeout -= 1
+        time.sleep(interval)
+    return False
+  
 def vfs_created(ssh_obj, pf_interface, num_vfs, timeout = 10):
     """ Check that the num_vfs of pf_interface are created before timeout
     
@@ -249,8 +304,7 @@ def create_vfs(ssh_obj, pf_interface, num_vfs, timeout = 10):
     create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
     print(create_vfs)
     ssh_obj.execute(create_vfs, 60)
-    if not vfs_created(ssh_obj, pf_interface, num_vfs, timeout):
-        raise Exception(f"Failed to create {num_vfs} VFs on {pf_interface}")
+    return vfs_created(ssh_obj, pf_interface, num_vfs, timeout)
 
 def no_zero_macs_pf(ssh_obj, pf_interface, timeout = 10):
     """ Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
