@@ -44,3 +44,13 @@ def test_set_pipefail(dut):
     set_pipefail(dut)
     code, _, err = dut.execute(test_cmd)
     assert code != 0
+
+def test_execute_and_assert(dut):
+    invalid_cmds = ["invalid_command",
+                    "also_invalid"]
+    out, err = execute_and_assert(dut, invalid_cmds, 127)
+    
+    valid_cmds = ["echo Hello",
+                  "ls"]
+    out, err = execute_and_assert(dut, valid_cmds, 0)
+    assert "Hello" in out[0][0]
