@@ -377,13 +377,14 @@ def set_pipefail(ssh_obj):
     if code != 0:
         raise Exception(err)
 
-def execute_and_assert(ssh_obj, cmds, exit_code):
+def execute_and_assert(ssh_obj, cmds, exit_code, timeout=0):
     """ Execute the list of commands, assert exit code, and return stdouts and stderrs 
 
     Args:
         ssh_obj:         ssh connection obj
         cmds (list):     list of str commands to run
         exit_code (int): the code to assert
+        timeout (int):   optional timeout between cmds (default 0)
 
     Returns:
         outs (list): list of lists of str stdout lines
@@ -397,4 +398,5 @@ def execute_and_assert(ssh_obj, cmds, exit_code):
         outs.append(out)
         errs.append(err)
         assert code == exit_code
+        time.sleep(timeout)
     return outs, errs
