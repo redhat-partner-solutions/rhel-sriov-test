@@ -216,6 +216,7 @@ def set_vf_mac(ssh_obj, intf, vf_id, address, timeout = 10, interval = 0.1):
         vf_id (int):      virtual function ID
         address(str):     mac address
         timeout(int):     number of seconds to timeout
+        interval(float):  polling interval in seconds
         
     Returns:
         True: mac address is set with success
