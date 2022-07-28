@@ -28,10 +28,8 @@ def test_SR_IOV_InterVF(dut, trafficgen, settings, testdata, spoof,
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     ip_addr_prefix = "100.1.1.1"
     mac_prefix = "aa:bb:cc:dd:ee:0"
-    steps = [
-        f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"echo 2 > /sys/class/net/{pf}/device/sriov_numvfs",
-    ]
+
+    steps = []
     for i in range(2):
         steps.extend([
             f"ip netns add ns{i}",
@@ -51,16 +49,12 @@ def test_SR_IOV_InterVF(dut, trafficgen, settings, testdata, spoof,
             f"ip netns exec ns{i} ip addr add {ip_addr_prefix}{i}/24 dev {pf}v{i}")
         steps.append(f"ip netns exec ns{i} ip link set {pf}v{i} up")
 
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
+    assert create_vfs(dut, pf, 2)
+    execute_and_assert(dut, steps, 0, 0.1)
 
-    dut.execute(f"ip netns exec ns0 arp -s {ip_addr_prefix}1 {mac_prefix}1")
-    dut.execute(f"ip netns exec ns1 arp -s {ip_addr_prefix}0 {mac_prefix}0")
-    code, out, err = dut.execute(
-        f"ip netns exec ns0 ping -W 1 -c 1 {ip_addr_prefix}1")
-    dut.execute("ip netns del ns0")
-    dut.execute("ip netns del ns1")
-    assert code == 0, err
+    steps = [f"ip netns exec ns0 arp -s {ip_addr_prefix}1 {mac_prefix}1",
+             f"ip netns exec ns1 arp -s {ip_addr_prefix}0 {mac_prefix}0",
+             f"ip netns exec ns0 ping -W 1 -c 1 {ip_addr_prefix}1",
+             "ip netns del ns0",
+             "ip netns del ns1"]
+    execute_and_assert(dut, steps, 0)
