@@ -49,7 +49,7 @@ def test_SR_IOV_InterVF(dut, trafficgen, settings, testdata, spoof,
             f"ip netns exec ns{i} ip addr add {ip_addr_prefix}{i}/24 dev {pf}v{i}")
         steps.append(f"ip netns exec ns{i} ip link set {pf}v{i} up")
 
-    create_vfs(dut, pf, 2)
+    assert create_vfs(dut, pf, 2)
     execute_and_assert(dut, steps, 0, 0.1)
 
     steps = [f"ip netns exec ns0 arp -s {ip_addr_prefix}1 {mac_prefix}1",
