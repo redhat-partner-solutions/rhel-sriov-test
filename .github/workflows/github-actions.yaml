@@ -1,0 +1,74 @@
+name: GitHub Actions test
+on: [push]
+jobs:
+  GitHub-Actions-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f sriov/requirements.txt ]; then pip install -r sriov/requirements.txt; fi
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Enable local ssh
+        run: |
+          ssh-keygen -t ed25519 -f ~/.ssh/whatever -N ''
+          cat > ~/.ssh/config <<EOF
+            Host localhost
+            User $USER
+            HostName 127.0.0.1
+            IdentityFile ~/.ssh/whatever
+          EOF
+          cat - ~/.ssh/whatever.pub > ~/.ssh/authorized_keys
+          chmod og-rw ~
+          hostname
+          ip link show
+      - name: Prepare config.yaml
+        run:  |
+          cat > sriov/tests/config.yaml <<EOF
+            dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
+            tests_name_field: "Test Case Name:"
+            tests_doc_file: "README.md"
+            github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
+            dut:
+              host: "localhost"
+              username: runner
+              password: "password"
+              pmd_cpus: "30,32,34"
+              interface:
+                pf1:
+                  name: "lo"
+                  pci: "0000:17:00.3"
+                vf1:
+                  name: "lo0v0"
+                  pci: "0000:17:19.0"
+            trafficgen:
+              # host: "192.168.49.147"
+              # username: root
+              # password: "password"
+              # interface:
+              #   pf1:
+              #     name: "ens7f0"
+              #     mac: "40:a6:b7:2a:c2:90"
+          EOF
+          ls -l sriov/tests/config.yaml
+      - name: Run pytest
+        run: |
+          pytest --version
+          # pytest -v sriov/tests/common/test_*
+      - run: echo "This job's status is ${{ job.status }}."
