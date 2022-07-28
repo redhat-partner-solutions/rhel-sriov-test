@@ -78,7 +78,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
 
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
     print(ping_cmd)
-    code, out, err = dut.execute(ping_cmd)
+    ping_result = execute_until_timeout(dut, ping_cmd)
 
     # recover the system before the final assert
     rm_arp_entry(trafficgen, dut_ip)
@@ -88,4 +88,4 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     dut.execute(f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs")
     dut.execute(f"ip link set {pf} mtu 1500")
     
-    assert code == 0, err
+    assert ping_result

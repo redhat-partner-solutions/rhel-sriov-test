@@ -258,7 +258,7 @@ def verify_vf_address(ssh_obj, intf, vf_id, address, timeout = 10, interval = 0.
         print(vf_mac)
         if vf_mac == address:
             return True
-        timeout -= 1
+        count -= 1
         time.sleep(interval)
     return False
   
@@ -400,3 +400,24 @@ def execute_and_assert(ssh_obj, cmds, exit_code, timeout=0):
         assert code == exit_code
         time.sleep(timeout)
     return outs, errs
+
+def execute_until_timeout(ssh_obj, cmd, timeout=10):
+    """ Execute cmd and check for 0 exit code until timeout
+
+    Args:
+        ssh_obj:         ssh connection obj
+        cmd (str):       a single command to run
+        timeout (int):   optional timeout between cmds (default 10)
+
+    Returns:
+        True: cmd return exit code 0 before timeout
+        False: cmd does not return exit code 0
+    """
+    count = max(1, int(timeout))
+    while count > 0:
+        code, out, err = ssh_obj.execute(cmd)
+        if code == 0:
+            return True
+        count -= 1
+        time.sleep(1)
+    return False
