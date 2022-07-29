@@ -23,10 +23,8 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
 
     assert create_vfs(dut, pf, 1)
 
-    cmd = "ip link set {} vf 0 mac {}".format(pf, vf0_mac)
-    print(cmd)
-    code, out, err = dut.execute(cmd)
-    assert code == 0, err
+    cmd = ["ip link set {} vf 0 mac {}".format(pf, vf0_mac)]
+    execute_and_assert(dut, cmd, 0)
 
     vf_pci = get_pci_address(dut, pf+"v0")
     assert bind_driver(dut, vf_pci, "vfio-pci")
@@ -53,11 +51,11 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
     config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
     add_arp_entry(trafficgen, dut_ip, vf0_mac)
-    code, out, err = trafficgen.execute("ping -W 1 -c 1 {}".format(dut_ip))
+    ping_cmd = "ping -W 1 -c 1 {}".format(dut_ip)
+    print(ping_cmd)
+    ping_result = execute_until_timeout(trafficgen, ping_cmd)
     rm_arp_entry(trafficgen, trafficgen_ip)
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
     dut.stop_testpmd()
-    assert code == 0, err
-
-
+    assert ping_cmd
         
