@@ -17,20 +17,17 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
-        f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"echo 1 > /sys/class/net/{pf}/device/sriov_numvfs",
         f"ip link set {pf}v0 down",
         f"ip link set {pf} vf 0 mac {testdata['dut_mac']}",
         f"ip link set {pf} vf 0 spoof {spoof}",
         f"ip add add {testdata['dut_ip']}/24 dev {pf}v0",
         f"ip link set {pf}v0 up"
         ]
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
-    
+
+    create_vfs(dut, pf, 1)
+
+    execute_and_assert(dut, steps, 0, 0.1)
+
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     spoof_mac = testdata['dut_spoof_mac']
