@@ -50,12 +50,8 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         if max_tx_rate:
             steps.append(
                 f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
-        
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
+    
+    execute_and_assert(dut, steps, 0, 0.1)
 
     # bind VF0 to vfio-pci
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
@@ -76,9 +72,10 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
     # make sure tmux testpmd session has started
     for i in range(15):
         time.sleep(1)
-        code, out, err = dut.execute(f"tmux capture-pane -pt {tmux_session}")
+        cmd = [f"tmux capture-pane -pt {tmux_session}"]
+        outs, errs = execute_and_assert(dut, cmd, 0)
         started = False
-        for line in out:
+        for line in outs[0]:
             if line.startswith("Press enter to exit"):
                 started = True
                 break
@@ -86,6 +83,8 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
             print("tmux: testpmd started")
             break
 
+    # The following is not run through execute_and_assert as the handling of 
+    # the non-zero return code is a special case.
     vf_1_mac = get_vf_mac(dut, pf, 0)
     steps = [
         f"ip addr add {ip_prefix}1/24 dev {pf}v1",
