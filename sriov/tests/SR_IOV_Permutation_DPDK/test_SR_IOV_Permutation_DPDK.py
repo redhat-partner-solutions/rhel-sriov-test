@@ -45,16 +45,12 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
         steps.append(f"ip link set {pf} vf 0 vlan {testdata['vlan']} {qos_str}")
     if max_tx_rate:
         steps.append(f"ip link set {pf} vf 0 max_tx_rate {testdata['max_tx_rate']}")
-
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
+    
+    execute_and_assert(dut, steps, 0, 0.1)
 
     pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver(dut, pci, "vfio-pci")
-
+    
     assert verify_vf_address(dut, pf, 0, testdata['dut_mac'])
     
     dut.start_testpmd(testdata['podman_cmd'])
@@ -73,8 +69,10 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
     config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, testdata['trafficgen_ip'])
     add_arp_entry(trafficgen, testdata['dut_ip'], testdata['dut_mac'])
-    code, out, err = trafficgen.execute("ping -W 1 -c 1 {}".format(testdata['dut_ip']))
+    ping_cmd = "ping -W 1 -c 1 {}".format(testdata['dut_ip'])
+    print(ping_cmd)
+    ping_result = execute_until_timeout(trafficgen, ping_cmd)
     rm_arp_entry(trafficgen, testdata['trafficgen_ip'])
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    assert code == 0, err
+    assert ping_result
     
