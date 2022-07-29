@@ -83,6 +83,7 @@ def clear_interface(ssh_obj, intf, vlan=0):
     Raises:
         Exception: command failure
     """
+    # The virtual interface may not exist, force true to ignore the command failure
     if vlan != 0:
         steps = [
                 f"ip addr flush dev {intf}.{vlan} || true",
@@ -124,11 +125,31 @@ def rm_arp_entry(ssh_obj, ip):
     Raises:
         Exception: command failure
     """
-    cmd = f"arp -d {ip} || true"
+    cmd = f"arp -d {ip} || true"    # not a failure if the ip entry not exist
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
+
+def prepare_ping_test(tgen, tgen_intf, tgen_vlan, tgen_ip, tgen_mac, 
+                      dut, dut_ip, dut_mac):
+    """Collection of steps to prepare for ping test
     
+    Args:
+        tgen: trafficgen ssh handler
+        tgen_intf(str): trafficgen physical interface name
+        tgen_vlan(int): vlan ID on the trafficgen physical interface
+        tgen_ip(str): trafficgen ip address
+        tgen_mac(str): trafficgen mac address
+        dut: DUT ssh handler
+        dut_ip: DUT ip address
+        dut_mac: DUT mac address
+    """
+    clear_interface(tgen, tgen_intf, tgen_vlan)
+    config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
+    add_arp_entry(tgen, dut_ip, dut_mac)
+    add_arp_entry(dut, tgen_ip, tgen_mac)
+    
+ 
 def start_tmux(ssh_obj, name, cmd):
     """ Run cmd in a tmux session
 

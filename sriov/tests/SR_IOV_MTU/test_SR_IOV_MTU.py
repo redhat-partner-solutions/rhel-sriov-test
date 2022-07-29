@@ -61,13 +61,10 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     trafficgen_ip = testdata['trafficgen_ip']
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
-    add_arp_entry(trafficgen, dut_ip, vf0_mac)
-    add_arp_entry(dut, trafficgen_ip, trafficgen_mac)
-    
-    # Special case: ARP entries may not be populated before first ping, 
-    # so we wait and execute the ping multiple times if needed
+    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
+                      trafficgen_ip, trafficgen_mac,
+                      dut, dut_ip, vf0_mac)
+
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
     print(ping_cmd)
     ping_result = execute_until_timeout(dut, ping_cmd)
