@@ -70,13 +70,11 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     ping_result = execute_until_timeout(dut, ping_cmd)
 
     # recover the system before the final assert
-    rm_arp_entry(trafficgen, dut_ip)
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    rm_arp_entry(dut, trafficgen_ip)
-    cmd = [f"ip link set {trafficgen_pf} mtu 1500"]
-    execute_and_assert(trafficgen, cmd, 0)
-    cmds = [f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-            f"ip link set {pf} mtu 1500"]
-    execute_and_assert(dut, cmds, 0)
+    cleanup_after_ping(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip,
+                       dut, dut_ip)
+
+    trafficgen.execute(f"ip link set {trafficgen_pf} mtu 1500")
+    dut.execute(f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs")
+    dut.execute(f"ip link set {pf} mtu 1500")
     
     assert ping_result

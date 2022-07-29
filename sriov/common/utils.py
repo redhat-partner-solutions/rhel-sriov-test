@@ -149,7 +149,22 @@ def prepare_ping_test(tgen, tgen_intf, tgen_vlan, tgen_ip, tgen_mac,
     add_arp_entry(tgen, dut_ip, dut_mac)
     add_arp_entry(dut, tgen_ip, tgen_mac)
     
- 
+def cleanup_after_ping(tgen, tgen_intf, tgen_vlan, tgen_ip,
+                       dut, dut_ip):
+    """Collection of steps to cleanup after ping test
+    
+    Args:
+        tgen: trafficgen ssh handler
+        tgen_intf(str): trafficgen physical interface name
+        tgen_vlan(int): vlan ID on the trafficgen physical interface
+        tgen_ip(str): trafficgen ip address
+        dut: DUT ssh handler
+        dut_ip: DUT ip address
+    """
+    rm_arp_entry(tgen, dut_ip)
+    clear_interface(tgen, tgen_intf, tgen_vlan)
+    rm_arp_entry(dut, tgen_ip)
+    
 def start_tmux(ssh_obj, name, cmd):
     """ Run cmd in a tmux session
 
