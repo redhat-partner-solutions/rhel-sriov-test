@@ -105,3 +105,11 @@ After the test is completed, report.html will be generated under the current wor
 Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
 
 In order for the html test reported generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
+
+## Common Code
+
+The common code shared by all test cases is under the `sriov/common`. 
+
+The common code has its own test cases. Majority of the common code test cases are under the `tests/common/` folder. Pytest is used to execute these test cases. Because a valid `config.yaml` file is expected by pytest to establish ssh connections and execute these test cases, they are considered as e2e test.
+
+A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover senarios that are difficult to cover via the e2e tests.
