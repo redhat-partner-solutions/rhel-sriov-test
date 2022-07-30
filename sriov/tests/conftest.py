@@ -46,9 +46,13 @@ def trafficgen():
 
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut, trafficgen, testdata):
+def _cleanup(dut, trafficgen, testdata, skipclean):
     reset_command(dut, testdata)
     yield
+    # For debug test failure purpose,
+    # use --skipclean to stop the test immediately without cleaning
+    if skipclean:
+        pytest.exit("stop the test run without cleanup")
     dut.stop_testpmd()
     cleanup_after_ping(trafficgen, dut, testdata)
     reset_mtu(trafficgen, dut, testdata)
@@ -160,9 +164,15 @@ def testdata(settings):
 def pytest_addoption(parser):
     parser.addoption("--iteration", action="store", default="1",
                      help="Iterations for robustness test cases")
+    parser.addoption("--skipclean", action="store_true", default=False,
+                     help="Do not clean up when a test case fails")
 
 def pytest_generate_tests(metafunc):
     if "execution_number" in metafunc.fixturenames:
         if metafunc.config.getoption("iteration"):
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
+
+@pytest.fixture(scope='session')        
+def skipclean(request):
+    return request.config.option.skipclean
