@@ -113,3 +113,14 @@ The common code shared by all test cases is under the `sriov/common`.
 The common code has its own test cases. Majority of the common code test cases are under the `tests/common/` folder. Pytest is used to execute these test cases. Because a valid `config.yaml` file is expected by pytest to establish ssh connections and execute these test cases, they are considered as e2e test.
 
 A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover senarios that are difficult to cover via the e2e tests.
+
+## Debug Failed Test Case
+
+When a test case is failing, one may want to immediately stop the test run and keep the failed setup for manual debug. This can not be achieved with the pytest `-x` option, as `-x` still allow the clean up to happen. In stead, this can be done by using `--skipclean` option.
+
+For example, if some permutation in `SR_IOV_Permutation_DPDK` has failed, re-run this test case like this,
+```pytest -v --skipclean SR_IOV_Permutation_DPDK```
+
+The test execution will stop immediately without clean up, one can access the DUT and the trafficgen to debug.
+
+After the debug is complete, one has to manually clean up the set up.
