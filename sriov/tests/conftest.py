@@ -117,8 +117,6 @@ def _report_extras(extra, request, settings, monkeypatch):
                 test_dir + '/' + settings.config['tests_doc_file']
             extra.append(extras.html('<p>Link to the test specification: <a href="' +
                                      link + '">' + case_name + ' Documentation</a></p>'))
-            extra.append(extras.json(
-                {"test case": case_name, "test dir": os.path.dirname(request.module.__file__)}))
     except:
         return
 
