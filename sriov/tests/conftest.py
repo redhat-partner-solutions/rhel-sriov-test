@@ -44,14 +44,22 @@ def reset_command(dut, testdata):
 def trafficgen():
     return get_ssh_obj("trafficgen")
 
+# Great idea from
+# https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)
+    return rep
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut, trafficgen, testdata, skipclean):
+def _cleanup(dut, trafficgen, testdata, skipclean, request):
     reset_command(dut, testdata)
     yield
     # For debug test failure purpose,
     # use --skipclean to stop the test immediately without cleaning
-    if skipclean:
+    if request.node.rep_call.failed and skipclean:
         pytest.exit("stop the test run without cleanup")
     dut.stop_testpmd()
     cleanup_after_ping(trafficgen, dut, testdata)
