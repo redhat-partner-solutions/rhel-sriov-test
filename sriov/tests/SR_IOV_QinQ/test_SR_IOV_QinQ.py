@@ -16,27 +16,17 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     outside_tag = 10
     inside_tag = 20
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
-    steps = [
-        f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-        f"echo 1 > /sys/class/net/{pf}/device/sriov_numvfs",
-    ]
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(1)
-        
+
+    assert create_vfs(dut, pf, 1)
+
     steps = [
         f"ip link set {pf} vf 0 vlan {outside_tag} proto 802.1ad",
         f"ip link add link {pf}v0 name {pf}v0.{inside_tag} type vlan id {inside_tag}",
         f"ip link set {pf}v0.{inside_tag} up",
         f"ip add add {dut_ip}/24 dev {pf}v0.{inside_tag}",
         ]
-    for step in steps:
-        print(step)
-        code, out, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
+    
+    execute_and_assert(dut, steps, 0, 0.1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
