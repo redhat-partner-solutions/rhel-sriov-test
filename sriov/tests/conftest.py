@@ -1,6 +1,6 @@
 import pytest
 import os
-import time
+from sriov.common.utils import cleanup_after_ping, reset_mtu
 from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 from pytest_html import extras
@@ -46,10 +46,12 @@ def trafficgen():
 
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut, testdata):
+def _cleanup(dut, trafficgen, testdata):
     reset_command(dut, testdata)
     yield
     dut.stop_testpmd()
+    cleanup_after_ping(trafficgen, dut, testdata)
+    reset_mtu(trafficgen, dut, testdata)
     reset_command(dut, testdata)
 
 
@@ -151,6 +153,8 @@ def testdata(settings):
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "\
         "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "\
         "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
+    data['ping'] = {}   # track ping test
+    data['mtu'] = {}    # track mtu change
     return data
 
 def pytest_addoption(parser):

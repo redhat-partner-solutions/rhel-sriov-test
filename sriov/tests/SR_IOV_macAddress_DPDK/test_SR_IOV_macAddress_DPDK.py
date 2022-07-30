@@ -47,15 +47,14 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
         code = dut.testpmd_cmd(step)
         assert code == 0
 
-    trafficgen_vlan = 0    
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
-    add_arp_entry(trafficgen, dut_ip, vf0_mac)
-    ping_cmd = "ping -W 1 -c 1 {}".format(dut_ip)
-    print(ping_cmd)
-    ping_result = execute_until_timeout(trafficgen, ping_cmd)
-    rm_arp_entry(trafficgen, trafficgen_ip)
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    dut.stop_testpmd()
-    assert ping_cmd
+    trafficgen_vlan = 0
+    trafficgen_mac = None   #None means no need to set arp entry on DUT
+    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
+                      trafficgen_ip, trafficgen_mac,
+                      dut, dut_ip, vf0_mac,
+                      testdata)   
+    
+    assert execute_until_timeout(trafficgen, "ping -W 1 -c 1 {}".format(dut_ip))
+
+
         
