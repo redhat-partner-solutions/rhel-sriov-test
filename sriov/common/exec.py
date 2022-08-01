@@ -4,11 +4,11 @@ import paramiko
 import re
 import signal
 import time
-
+from typing import *
 
 class ShellHandler:
 
-    def __init__(self, host, user, psw):
+    def __init__(self, host: str, user: str, psw: str) -> None:
         """ Initialize the shell handler object
 
         Args:
@@ -25,7 +25,7 @@ class ShellHandler:
         self.stdin = channel.makefile('wb')
         self.stdout = channel.makefile('r')
 
-    def __del__(self):
+    def __del__(self) -> None:
         """ Delete the shell handler ssh object
 
         Args:
@@ -39,7 +39,7 @@ class ShellHandler:
         self.ssh.close()
 
     @staticmethod
-    def timeout_handler(signum, frame):
+    def timeout_handler(signum, frame) -> None:
         """ Handle the timeout by raising an exception
 
         Args:
@@ -51,7 +51,7 @@ class ShellHandler:
         """
         raise Exception("timeout")
         
-    def start_testpmd(self, cmd):
+    def start_testpmd(self, cmd: str) -> Tuple[int, list, list]:
         """ Start the TestPMD application
 
         Args:
@@ -93,7 +93,7 @@ class ShellHandler:
             signal.alarm(0)
         return exit_status, shout, sherr    
              
-    def testpmd_active(self):
+    def testpmd_active(self) -> bool:
         """ A test of activity for the TestPMD session by sending a newline 
             heartbeat
 
@@ -119,7 +119,7 @@ class ShellHandler:
             signal.alarm(0)
         return active
     
-    def stop_testpmd(self):
+    def stop_testpmd(self) -> int:
         """ Stop TestPMD if the SSH session has the TestPMD application running 
 
         Args:
@@ -150,7 +150,7 @@ class ShellHandler:
         time.sleep(1)
         return exit_status
        
-    def testpmd_cmd(self, cmd):
+    def testpmd_cmd(self, cmd: str) -> int:
         """ Send a command to the TestPMD application 
 
         Args:
@@ -183,7 +183,7 @@ class ShellHandler:
             
         return exit_code
                                   
-    def execute(self, cmd, timeout=5):
+    def execute(self, cmd: str, timeout: int = 5) -> Tuple[int, list, list]:
         """ Execute a command in the SSH session 
 
         Args:
