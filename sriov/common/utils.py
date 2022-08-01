@@ -83,6 +83,7 @@ def clear_interface(ssh_obj, intf, vlan=0):
     Raises:
         Exception: command failure
     """
+    # The virtual interface may not exist, force true to ignore the command failure
     if vlan != 0:
         steps = [
                 f"ip addr flush dev {intf}.{vlan} || true",
@@ -124,11 +125,104 @@ def rm_arp_entry(ssh_obj, ip):
     Raises:
         Exception: command failure
     """
-    cmd = f"arp -d {ip} || true"
+    cmd = f"arp -d {ip} || true"    # not a failure if the ip entry not exist
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
+
+def prepare_ping_test(tgen, tgen_intf, tgen_vlan, tgen_ip, tgen_mac, 
+                      dut, dut_ip, dut_mac,
+                      testdata):
+    """Collection of steps to prepare for ping test
     
+    Args:
+        tgen (object): trafficgen ssh handler
+        tgen_intf (str): trafficgen physical interface name
+        tgen_vlan (int): vlan ID on the trafficgen physical interface
+        tgen_ip (str): trafficgen ip address
+        tgen_mac (str): trafficgen mac address; set to None will not add arp entry on DUT
+        dut (object): DUT ssh handler
+        dut_ip (str): DUT ip address
+        dut_mac (str): DUT mac address
+        testdata (object): testdata object
+    """
+    clear_interface(tgen, tgen_intf, tgen_vlan)
+    
+    #track if ping is executed when cleanup_after_ping is called for cleanup
+    testdata['ping']['run'] = True
+    testdata['ping']['tgen_intf'] = tgen_intf
+    testdata['ping']['tgen_vlan'] = tgen_vlan
+    testdata['ping']['tgen_ip'] = tgen_ip
+    testdata['ping']['tgen_mac'] = tgen_mac
+    testdata['ping']['dut_ip'] = dut_ip
+    testdata['ping']['dut_mac'] = dut_mac
+    
+    config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
+    add_arp_entry(tgen, dut_ip, dut_mac)
+    if tgen_mac is not None:
+        add_arp_entry(dut, tgen_ip, tgen_mac)
+    
+def cleanup_after_ping(tgen, dut, testdata):
+    """Collection of steps to cleanup after ping test
+    
+    Args:
+        tgen (object): trafficgen ssh handler
+        dut (object): DUT ssh handler
+        testdata (object): testdata object
+    """
+    run = testdata['ping'].get('run', False)
+    if run:
+        tgen_intf = testdata['ping'].get('tgen_intf')
+        tgen_vlan= testdata['ping'].get('tgen_vlan')
+        tgen_ip = testdata['ping'].get('tgen_ip')
+        dut_ip = testdata['ping'].get('dut_ip')
+        tgen_mac = testdata['ping']['tgen_mac']
+        rm_arp_entry(tgen, dut_ip)
+        clear_interface(tgen, tgen_intf, tgen_vlan)
+        if tgen_mac is not None:
+            rm_arp_entry(dut, tgen_ip)
+
+def set_mtu(tgen, tgen_pf, dut, dut_pf, dut_vf, mtu, testdata):
+    """set MTU on trafficgen and DUT
+
+    Args:
+        tgen (object): trafficgen ssh connection
+        tgen_pf (str): trafficgen PF
+        dut (object): DUT ssh connection
+        dut_pf (str): DUT PF
+        dut_vf (int): DUT VF id
+        mtu (int): MTU size in bytes
+        testdata (object): testdata object
+    """
+    testdata['mtu']['changed'] = True
+    testdata['mtu']['tgen_intf'] = tgen_pf
+    testdata['mtu']['du_intf'] = dut_pf
+    testdata['mtu']['dut_vf'] = dut_vf
+    
+    steps = [f"ip link set {tgen_pf} mtu {mtu}"]
+    execute_and_assert(tgen, steps, 0)
+    
+    steps = [
+        f"ip link set {dut_pf} mtu {mtu}",
+        f"ip link set {dut_pf}v{dut_vf} mtu {mtu}",
+    ]
+    execute_and_assert(dut, steps, 0, timeout=0.1)
+
+def reset_mtu(tgen, dut, testdata):
+    """reset MTU on trafficgen and DUT
+
+    Args:
+        tgen (object): trafficgen ssh connection
+        dut (object): DUT ssh connection
+        testdata (object): testdata object
+    """
+    changed = testdata['mtu'].get('changed', False)
+    if changed:
+        tgen_intf = testdata['mtu'].get('tgen_intf')
+        du_intf = testdata['mtu'].get('du_intf')
+        tgen.execute(f"ip link set {tgen_intf} mtu 1500")
+        dut.execute(f"ip link set {du_intf} mtu 1500")
+                 
 def start_tmux(ssh_obj, name, cmd):
     """ Run cmd in a tmux session
 

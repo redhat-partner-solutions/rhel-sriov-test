@@ -28,13 +28,16 @@ def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
     execute_and_assert(dut, steps, 0, 0.1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
-    add_arp_entry(trafficgen, dut_ip, vf0_mac)
+    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
+                      trafficgen_ip, trafficgen_mac,
+                      dut, dut_ip, vf0_mac,
+                      testdata)
+    
     ping_cmd = "ping -W 1 -c 1 {}".format(testdata['dut_ip'])
     print(ping_cmd)
-    ping_result = execute_until_timeout(trafficgen, ping_cmd)
-    rm_arp_entry(trafficgen, trafficgen_ip)
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    assert ping_result  
+    assert execute_until_timeout(trafficgen, ping_cmd)
+
+
+        

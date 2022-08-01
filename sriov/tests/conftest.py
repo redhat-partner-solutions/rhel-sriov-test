@@ -1,6 +1,6 @@
 import pytest
 import os
-import time
+from sriov.common.utils import cleanup_after_ping, reset_mtu
 from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 from pytest_html import extras
@@ -44,12 +44,26 @@ def reset_command(dut, testdata):
 def trafficgen():
     return get_ssh_obj("trafficgen")
 
+# Great idea from
+# https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)
+    return rep
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut, testdata):
+def _cleanup(dut, trafficgen, testdata, skipclean, request):
     reset_command(dut, testdata)
     yield
+    # For debug test failure purpose,
+    # use --skipclean to stop the test immediately without cleaning
+    if request.node.rep_call.failed and skipclean:
+        pytest.exit("stop the test run without cleanup")
     dut.stop_testpmd()
+    cleanup_after_ping(trafficgen, dut, testdata)
+    reset_mtu(trafficgen, dut, testdata)
     reset_command(dut, testdata)
 
 
@@ -151,14 +165,22 @@ def testdata(settings):
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "\
         "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "\
         "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
+    data['ping'] = {}   # track ping test
+    data['mtu'] = {}    # track mtu change
     return data
 
 def pytest_addoption(parser):
     parser.addoption("--iteration", action="store", default="1",
                      help="Iterations for robustness test cases")
+    parser.addoption("--skipclean", action="store_true", default=False,
+                     help="Do not clean up when a test case fails")
 
 def pytest_generate_tests(metafunc):
     if "execution_number" in metafunc.fixturenames:
         if metafunc.config.getoption("iteration"):
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
+
+@pytest.fixture(scope='session')        
+def skipclean(request):
+    return request.config.option.skipclean

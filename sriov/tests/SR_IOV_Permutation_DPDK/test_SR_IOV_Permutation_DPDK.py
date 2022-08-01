@@ -66,13 +66,13 @@ def test_SR_IOV_Permutation_DPDK(dut, trafficgen, settings, testdata, spoof,
         assert code == 0
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_vlan = testdata['vlan'] if vlan else 0
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan) 
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, testdata['trafficgen_ip'])
-    add_arp_entry(trafficgen, testdata['dut_ip'], testdata['dut_mac'])
-    ping_cmd = "ping -W 1 -c 1 {}".format(testdata['dut_ip'])
-    print(ping_cmd)
-    ping_result = execute_until_timeout(trafficgen, ping_cmd)
-    rm_arp_entry(trafficgen, testdata['trafficgen_ip'])
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    assert ping_result
-    
+    trafficgen_ip = testdata['trafficgen_ip']
+    trafficgen_mac = None   #None means no need to add arp entry on DUT
+    dut_ip = testdata['dut_ip']
+    vf0_mac = testdata['dut_mac']
+    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
+                      trafficgen_ip, trafficgen_mac,
+                      dut, dut_ip, vf0_mac,
+                      testdata)
+    assert execute_until_timeout(trafficgen, f"ping -W 1 -c 1 {dut_ip}")
+

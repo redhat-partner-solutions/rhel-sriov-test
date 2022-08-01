@@ -16,9 +16,9 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
 
     dut_ip = testdata['dut_ip']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
-    
-    assert create_vfs(dut, pf, 1)
 
+    assert create_vfs(dut, pf, 1)
+    
     # command to get the maxmtu from the DUT
     cmd = [f"ip -d link list {pf}"]
     outs, errs = execute_and_assert(dut, cmd, 0)   
@@ -45,41 +45,23 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     # use the smaller mtu between dut and trafficgen
     mtu = min(dut_mtu, trafficgen_mtu)
     
-    cmd = [f"ip link set {trafficgen_pf} mtu {mtu}"]
-    execute_and_assert(trafficgen, cmd, 0)
-    
+    set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
+
     steps = [
-        f"ip link set {pf} mtu {mtu}",
-        f"ip link set {pf}v0 mtu {mtu}",
         f"ip link set {pf}v0 up",
         f"ip add add {dut_ip}/24 dev {pf}v0"
     ]
-    
     execute_and_assert(dut, steps, 0, 0.1)
-
+    
     vf0_mac = get_vf_mac(dut, pf, 0)
     trafficgen_ip = testdata['trafficgen_ip']
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
-    add_arp_entry(trafficgen, dut_ip, vf0_mac)
-    add_arp_entry(dut, trafficgen_ip, trafficgen_mac)
-    
-    # Special case: ARP entries may not be populated before first ping, 
-    # so we wait and execute the ping multiple times if needed
+    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
+                      trafficgen_ip, trafficgen_mac,
+                      dut, dut_ip, vf0_mac,
+                      testdata)
+
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
     print(ping_cmd)
-    ping_result = execute_until_timeout(dut, ping_cmd)
-
-    # recover the system before the final assert
-    rm_arp_entry(trafficgen, dut_ip)
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    rm_arp_entry(dut, trafficgen_ip)
-    cmd = [f"ip link set {trafficgen_pf} mtu 1500"]
-    execute_and_assert(trafficgen, cmd, 0)
-    cmds = [f"echo 0 > /sys/class/net/{pf}/device/sriov_numvfs",
-            f"ip link set {pf} mtu 1500"]
-    execute_and_assert(dut, cmds, 0)
-    
-    assert ping_result
+    assert execute_until_timeout(dut, ping_cmd)
