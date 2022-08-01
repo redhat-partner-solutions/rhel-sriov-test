@@ -54,7 +54,9 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
                       dut, dut_ip, vf0_mac,
                       testdata)   
     
-    assert execute_until_timeout(trafficgen, "ping -W 1 -c 1 {}".format(dut_ip))
+    ping_cmd = "ping -W 1 -c 1 {}".format(dut_ip)
+    print(ping_cmd)
+    assert execute_until_timeout(trafficgen, ping_cmd)
 
 
         

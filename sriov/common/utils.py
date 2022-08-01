@@ -136,15 +136,15 @@ def prepare_ping_test(tgen, tgen_intf, tgen_vlan, tgen_ip, tgen_mac,
     """Collection of steps to prepare for ping test
     
     Args:
-        tgen: trafficgen ssh handler
-        tgen_intf(str): trafficgen physical interface name
-        tgen_vlan(int): vlan ID on the trafficgen physical interface
-        tgen_ip(str): trafficgen ip address
-        tgen_mac(str): trafficgen mac address; none will not add arp entry on DUT.
-        dut: DUT ssh handler
-        dut_ip: DUT ip address
-        dut_mac: DUT mac address
-        testdata: testdata object
+        tgen (object): trafficgen ssh handler
+        tgen_intf (str): trafficgen physical interface name
+        tgen_vlan (int): vlan ID on the trafficgen physical interface
+        tgen_ip (str): trafficgen ip address
+        tgen_mac (str): trafficgen mac address; set to None will not add arp entry on DUT
+        dut (object): DUT ssh handler
+        dut_ip (str): DUT ip address
+        dut_mac (str): DUT mac address
+        testdata (object): testdata object
     """
     clear_interface(tgen, tgen_intf, tgen_vlan)
     
@@ -166,9 +166,9 @@ def cleanup_after_ping(tgen, dut, testdata):
     """Collection of steps to cleanup after ping test
     
     Args:
-        tgen: trafficgen ssh handler
-        dut: DUT ssh handler
-        testdata: testdata object
+        tgen (object): trafficgen ssh handler
+        dut (object): DUT ssh handler
+        testdata (object): testdata object
     """
     run = testdata['ping'].get('run', False)
     if run:
@@ -186,13 +186,13 @@ def set_mtu(tgen, tgen_pf, dut, dut_pf, dut_vf, mtu, testdata):
     """set MTU on trafficgen and DUT
 
     Args:
-        tgen (obj): trafficgen ssh connection
+        tgen (object): trafficgen ssh connection
         tgen_pf (str): trafficgen PF
-        dut (obj): DUT ssh connection
+        dut (object): DUT ssh connection
         dut_pf (str): DUT PF
         dut_vf (int): DUT VF id
         mtu (int): MTU size in bytes
-        testdata (obj): testdata object
+        testdata (object): testdata object
     """
     testdata['mtu']['changed'] = True
     testdata['mtu']['tgen_intf'] = tgen_pf
@@ -212,9 +212,9 @@ def reset_mtu(tgen, dut, testdata):
     """reset MTU on trafficgen and DUT
 
     Args:
-        tgen (obj): trafficgen ssh connection
-        dut (obj): DUT ssh connection
-        testdata (obj): testdata object
+        tgen (object): trafficgen ssh connection
+        dut (object): DUT ssh connection
+        testdata (object): testdata object
     """
     changed = testdata['mtu'].get('changed', False)
     if changed:
