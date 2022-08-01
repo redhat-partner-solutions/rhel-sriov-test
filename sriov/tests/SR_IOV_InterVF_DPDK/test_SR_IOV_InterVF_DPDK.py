@@ -44,12 +44,12 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
             f"ip link set {pf} vf {i} trust {trust}",
         ])
         if vlan:
-            qos_str = f"qos {testdata['qos']}" if qos else ""
+            qos_str = f"qos {testdata.qos}" if qos else ""
             steps.append(
-                f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
+                f"ip link set {pf} vf {i} vlan {testdata.vlan} {qos_str}")
         if max_tx_rate:
             steps.append(
-                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
+                f"ip link set {pf} vf {i} max_tx_rate {testdata.max_tx_rate}")
     
     execute_and_assert(dut, steps, 0, 0.1)
 
@@ -66,7 +66,7 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         "-n 4 -a {} "\
         "-- --nb-cores=2 --forward=icmpecho".format(cpus,dpdk_img,cpus,vf_pci)
     print(tmux_cmd)
-    tmux_session = testdata['tmux_session_name']
+    tmux_session = testdata.tmux_session_name
     start_tmux(dut, tmux_session, tmux_cmd)
     
     # make sure tmux testpmd session has started

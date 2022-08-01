@@ -18,9 +18,9 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
         f"ip link set {pf}v0 down",
-        f"ip link set {pf} vf 0 mac {testdata['dut_mac']}",
+        f"ip link set {pf} vf 0 mac {testdata.dut_mac}",
         f"ip link set {pf} vf 0 spoof {spoof}",
-        f"ip add add {testdata['dut_ip']}/24 dev {pf}v0",
+        f"ip add add {testdata.dut_ip}/24 dev {pf}v0",
         f"ip link set {pf}v0 up"
         ]
 
@@ -30,9 +30,9 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
-    spoof_mac = testdata['dut_spoof_mac']
-    trafficgen_ip = testdata['trafficgen_ip']
-    tmux_session = testdata['tmux_session_name']
+    spoof_mac = testdata.dut_spoof_mac
+    trafficgen_ip = testdata.trafficgen_ip
+    tmux_session = testdata.tmux_session_name
     tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} --source-mac {spoof_mac} {trafficgen_ip}"
     print(tmux_cmd)
     start_tmux(dut, tmux_session, tmux_cmd)

@@ -1,3 +1,4 @@
+from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
 import time
 from typing import *
@@ -134,7 +135,7 @@ def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
 
 def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int, 
                       tgen_ip: str, tgen_mac: str, dut: ShellHandler, 
-                      dut_ip: str, dut_mac: str, testdata) -> None:
+                      dut_ip: str, dut_mac: str, testdata: ConfigTestData) -> None:
     """Collection of steps to prepare for ping test
     
     Args:
@@ -151,20 +152,20 @@ def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
     clear_interface(tgen, tgen_intf, tgen_vlan)
     
     #track if ping is executed when cleanup_after_ping is called for cleanup
-    testdata['ping']['run'] = True
-    testdata['ping']['tgen_intf'] = tgen_intf
-    testdata['ping']['tgen_vlan'] = tgen_vlan
-    testdata['ping']['tgen_ip'] = tgen_ip
-    testdata['ping']['tgen_mac'] = tgen_mac
-    testdata['ping']['dut_ip'] = dut_ip
-    testdata['ping']['dut_mac'] = dut_mac
+    testdata.ping['run'] = True
+    testdata.ping['tgen_intf'] = tgen_intf
+    testdata.ping['tgen_vlan'] = tgen_vlan
+    testdata.ping['tgen_ip'] = tgen_ip
+    testdata.ping['tgen_mac'] = tgen_mac
+    testdata.ping['dut_ip'] = dut_ip
+    testdata.ping['dut_mac'] = dut_mac
     
     config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
     add_arp_entry(tgen, dut_ip, dut_mac)
     if tgen_mac is not None:
         add_arp_entry(dut, tgen_ip, tgen_mac)
     
-def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata) -> None:
+def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
     """Collection of steps to cleanup after ping test
     
     Args:
@@ -172,20 +173,20 @@ def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata) -> None:
         dut (object): DUT ssh handler
         testdata (object): testdata object
     """
-    run = testdata['ping'].get('run', False)
+    run = testdata.ping.get('run', False)
     if run:
-        tgen_intf = testdata['ping'].get('tgen_intf')
-        tgen_vlan= testdata['ping'].get('tgen_vlan')
-        tgen_ip = testdata['ping'].get('tgen_ip')
-        dut_ip = testdata['ping'].get('dut_ip')
-        tgen_mac = testdata['ping']['tgen_mac']
+        tgen_intf = testdata.ping.get('tgen_intf')
+        tgen_vlan= testdata.ping.get('tgen_vlan')
+        tgen_ip = testdata.ping.get('tgen_ip')
+        dut_ip = testdata.ping.get('dut_ip')
+        tgen_mac = testdata.ping['tgen_mac']
         rm_arp_entry(tgen, dut_ip)
         clear_interface(tgen, tgen_intf, tgen_vlan)
         if tgen_mac is not None:
             rm_arp_entry(dut, tgen_ip)
 
 def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str, 
-            dut_vf: int, mtu: int, testdata) -> None:
+            dut_vf: int, mtu: int, testdata: ConfigTestData) -> None:
     """set MTU on trafficgen and DUT
 
     Args:
@@ -197,10 +198,10 @@ def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
         mtu (int): MTU size in bytes
         testdata (object): testdata object
     """
-    testdata['mtu']['changed'] = True
-    testdata['mtu']['tgen_intf'] = tgen_pf
-    testdata['mtu']['du_intf'] = dut_pf
-    testdata['mtu']['dut_vf'] = dut_vf
+    testdata.mtu['changed'] = True
+    testdata.mtu['tgen_intf'] = tgen_pf
+    testdata.mtu['du_intf'] = dut_pf
+    testdata.mtu['dut_vf'] = dut_vf
     
     steps = [f"ip link set {tgen_pf} mtu {mtu}"]
     execute_and_assert(tgen, steps, 0)
@@ -211,7 +212,7 @@ def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
     ]
     execute_and_assert(dut, steps, 0, timeout=0.1)
 
-def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata) -> None:
+def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
     """reset MTU on trafficgen and DUT
 
     Args:
@@ -219,10 +220,10 @@ def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata) -> None:
         dut (object): DUT ssh connection
         testdata (object): testdata object
     """
-    changed = testdata['mtu'].get('changed', False)
+    changed = testdata.mtu.get('changed', False)
     if changed:
-        tgen_intf = testdata['mtu'].get('tgen_intf')
-        du_intf = testdata['mtu'].get('du_intf')
+        tgen_intf = testdata.mtu.get('tgen_intf')
+        du_intf = testdata.mtu.get('du_intf')
         tgen.execute(f"ip link set {tgen_intf} mtu 1500")
         dut.execute(f"ip link set {du_intf} mtu 1500")
                  

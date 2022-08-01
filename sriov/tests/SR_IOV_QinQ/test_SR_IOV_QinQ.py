@@ -12,7 +12,7 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     """
     set_pipefail(dut)
 
-    dut_ip = testdata['dut_ip']
+    dut_ip = testdata.dut_ip
     outside_tag = 10
     inside_tag = 20
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
@@ -30,8 +30,8 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
-    trafficgen_ip = testdata['trafficgen_ip']
-    tmux_session = testdata['tmux_session_name']
+    trafficgen_ip = testdata.trafficgen_ip
+    tmux_session = testdata.tmux_session_name
     tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} {trafficgen_ip}"
     print(tmux_cmd)
     start_tmux(dut, tmux_session, tmux_cmd)

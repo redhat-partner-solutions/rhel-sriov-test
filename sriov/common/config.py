@@ -6,7 +6,7 @@ class Config:
         """ Init the config file object
 
         Args:
-            self:              ssh_obj to the remote host
+            self:
             config_file (str): path to the config file
         """
         with open(config_file, 'r') as file:

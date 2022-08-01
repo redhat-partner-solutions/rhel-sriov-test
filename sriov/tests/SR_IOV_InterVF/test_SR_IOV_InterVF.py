@@ -38,12 +38,12 @@ def test_SR_IOV_InterVF(dut, trafficgen, settings, testdata, spoof,
             f"ip link set {pf} vf {i} trust {trust}",
         ])
         if vlan:
-            qos_str = f"qos {testdata['qos']}" if qos else ""
+            qos_str = f"qos {testdata.qos}" if qos else ""
             steps.append(
-                f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
+                f"ip link set {pf} vf {i} vlan {testdata.vlan} {qos_str}")
         if max_tx_rate:
             steps.append(
-                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
+                f"ip link set {pf} vf {i} max_tx_rate {testdata.max_tx_rate}")
         steps.append(f"ip link set {pf}v{i} netns ns{i}")
         steps.append(
             f"ip netns exec ns{i} ip addr add {ip_addr_prefix}{i}/24 dev {pf}v{i}")

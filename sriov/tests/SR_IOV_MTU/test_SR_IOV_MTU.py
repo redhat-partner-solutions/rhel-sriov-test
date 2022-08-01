@@ -14,7 +14,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     """
     set_pipefail(dut)
 
-    dut_ip = testdata['dut_ip']
+    dut_ip = testdata.dut_ip
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     assert create_vfs(dut, pf, 1)
@@ -54,7 +54,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     execute_and_assert(dut, steps, 0, 0.1)
     
     vf0_mac = get_vf_mac(dut, pf, 0)
-    trafficgen_ip = testdata['trafficgen_ip']
+    trafficgen_ip = testdata.trafficgen_ip
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
     prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,

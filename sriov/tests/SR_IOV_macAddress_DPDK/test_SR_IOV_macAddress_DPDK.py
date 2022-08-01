@@ -16,9 +16,9 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     set_pipefail(dut)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    trafficgen_ip = testdata['trafficgen_ip']
-    dut_ip = testdata['dut_ip']
-    vf0_mac = testdata['dut_mac']
+    trafficgen_ip = testdata.trafficgen_ip
+    dut_ip = testdata.dut_ip
+    vf0_mac = testdata.dut_mac
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     assert create_vfs(dut, pf, 1)
