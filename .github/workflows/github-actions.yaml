@@ -1,6 +1,6 @@
 name: GitHub Actions mock test
 on: [push]
-jobs:
+
   GitHub-Actions-mock-test:
     runs-on: ubuntu-latest
     strategy:
