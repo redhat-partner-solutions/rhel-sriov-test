@@ -1,5 +1,3 @@
-from ast import Pass
-from logging import Logger
 import paramiko
 import re
 import signal
@@ -7,16 +5,15 @@ import time
 
 
 class ShellHandler:
-
     def __init__(self, host, user, psw):
-        """ Initialize the shell handler object
+        """Initialize the shell handler object
 
         Args:
             self:       self
             host (str): the SSH IP address or hostname
             user (str): the SSH username
             psw (str):  the SSH password
-        """ 
+        """
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh.connect(host, username=user, password=psw, port=22)
@@ -26,7 +23,7 @@ class ShellHandler:
         self.stdout = channel.makefile('r')
 
     def __del__(self):
-        """ Delete the shell handler ssh object
+        """Delete the shell handler ssh object
 
         Args:
             self: self
@@ -40,7 +37,7 @@ class ShellHandler:
 
     @staticmethod
     def timeout_handler(signum, frame):
-        """ Handle the timeout by raising an exception
+        """Handle the timeout by raising an exception
 
         Args:
             signum (signum obj): signal number
@@ -50,15 +47,16 @@ class ShellHandler:
             Exception: timeout
         """
         raise Exception("timeout")
-        
+
     def start_testpmd(self, cmd):
-        """ Start the TestPMD application
+        """Start the TestPMD application
 
         Args:
             self: self
             cmd (str): the command to be executed on the remote computer to
-                       start the testpmd
-                       example: podman run -it --rm --privileged patrickkutch/dpdk:v21.11 dpdk-testpmd
+                       start the testpmd, example:
+                       podman run -it --rm --privileged patrickkutch/dpdk:v21.11 \
+                        dpdk-testpmd
 
         Returns:
             exit_status (int): the exit status (0 on success, non-zero otherwise)
@@ -71,7 +69,7 @@ class ShellHandler:
         self.stdin.write('\n')
         finish = 'testpmd>'
         self.stdin.flush()
-        
+
         shout = []
         sherr = []
         exit_status = 0
@@ -84,24 +82,28 @@ class ShellHandler:
                 elif str(line).startswith(finish):
                     break
                 else:
-                    shout.append(re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('', line).
-                             replace('\b', '').replace('\r', ''))
+                    shout.append(
+                        re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
+                        .sub('', line)
+                        .replace('\b', '')
+                        .replace('\r', '')
+                    )
         except Exception as err:
             exit_status = -1
-            sherr.append(str(err))    
+            sherr.append(str(err))
         finally:
             signal.alarm(0)
-        return exit_status, shout, sherr    
-             
+        return exit_status, shout, sherr
+
     def testpmd_active(self):
-        """ A test of activity for the TestPMD session by sending a newline 
+        """A test of activity for the TestPMD session by sending a newline
             heartbeat
 
         Args:
             self: self
 
         Returns:
-            active (boolean): True if TestPMD prompt exists, False otherwise 
+            active (boolean): True if TestPMD prompt exists, False otherwise
         """
         self.stdin.write('\n')
         self.stdin.flush()
@@ -111,16 +113,16 @@ class ShellHandler:
         signal.alarm(1)
         try:
             for line in self.stdout:
-               if str(line).startswith(finish):
-                   break
+                if str(line).startswith(finish):
+                    break
         except Exception:
             active = False
         finally:
             signal.alarm(0)
         return active
-    
+
     def stop_testpmd(self):
-        """ Stop TestPMD if the SSH session has the TestPMD application running 
+        """Stop TestPMD if the SSH session has the TestPMD application running
 
         Args:
             self: self
@@ -133,7 +135,7 @@ class ShellHandler:
         self.stdin.write('quit\n')
         finish = 'Bye...'
         self.stdin.flush()
-        
+
         exit_status = 0
         signal.signal(signal.SIGALRM, self.timeout_handler)
         signal.alarm(10)
@@ -142,16 +144,16 @@ class ShellHandler:
                 print(line)
                 if str(line).startswith(finish):
                     break
-        except Exception as err:
+        except Exception:
             exit_status = -1
         finally:
             signal.alarm(0)
         # sleep before return
         time.sleep(1)
         return exit_status
-       
+
     def testpmd_cmd(self, cmd):
-        """ Send a command to the TestPMD application 
+        """Send a command to the TestPMD application
 
         Args:
             self:      self
@@ -174,17 +176,17 @@ class ShellHandler:
         exit_code = 0
         try:
             for line in self.stdout:
-               if str(line).startswith(finish):
-                   break
+                if str(line).startswith(finish):
+                    break
         except Exception:
             exit_code = -1
         finally:
             signal.alarm(0)
-            
+
         return exit_code
-                                  
+
     def execute(self, cmd, timeout=5):
-        """ Execute a command in the SSH session 
+        """Execute a command in the SSH session
 
         Args:
             self:          self
@@ -192,7 +194,7 @@ class ShellHandler:
             timeout (int): timeout for command to run (default 5)
 
         Returns:
-            exit_status (int): the exit status (0 on success, non-zero otherwise) 
+            exit_status (int): the exit status (0 on success, non-zero otherwise)
             shout (list):      list of stdout lines
             sherr (list):      list of stderr lines
         """
@@ -211,10 +213,10 @@ class ShellHandler:
         try:
             for line in self.stdout:
                 if str(line).startswith(cmd) or str(line).startswith(echo_cmd):
-                # up for now filled with shell junk from stdin
+                    # up for now filled with shell junk from stdin
                     shout = []
                 elif str(line).startswith(finish):
-                # our finish command ends with the exit status
+                    # our finish command ends with the exit status
                     exit_status = int(str(line).rsplit(maxsplit=1)[1])
                     if exit_status:
                         # stderr is combined with stdout.
@@ -224,11 +226,15 @@ class ShellHandler:
                     break
                 else:
                     # get rid of 'coloring and formatting' special characters
-                    shout.append(re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]').sub('', line).
-                                 replace('\b', '').replace('\r', ''))
+                    shout.append(
+                        re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
+                        .sub('', line)
+                        .replace('\b', '')
+                        .replace('\r', '')
+                    )
         except Exception as err:
             exit_status = -1
-            sherr.append(str(err))    
+            sherr.append(str(err))
         finally:
             signal.alarm(0)
 
@@ -243,4 +249,3 @@ class ShellHandler:
             sherr.pop(0)
 
         return exit_status, shout, sherr
-
