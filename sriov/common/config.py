@@ -1,8 +1,9 @@
 import yaml
 
+
 class Config:
     def __init__(self, config_file):
-        """ Init the config file object
+        """Init the config file object
 
         Args:
             self:              ssh_obj to the remote host
