@@ -16,7 +16,7 @@ def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
     Raises:
         Exception: command failure
     """
-    cmd = "ethtool -i {}".format(iface) +" | awk '/bus-info:/{print $2;}'"
+    cmd = "ethtool -i {}".format(iface) + " | awk '/bus-info:/{print $2;}'"
     code, out, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -29,25 +29,27 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
         ssh_obj:      ssh_obj to the remote host
         pci (str):    PCI address, example "0000:17:00.0"
         driver (str): driver name, example "vfio-pci"
-    
-    Returns: 
+
+    Returns:
         True: on success of binding
-    
+
     Raises:
         Exception: command failure
     """
     device_path = "/sys/bus/pci/devices/" + pci
-    steps = ["modprobe {}".format(driver),
-             "echo {} > {}/driver/unbind".format(pci, device_path),
-             "echo {} > {}/driver_override".format(driver, device_path),
-             "echo {} > /sys/bus/pci/drivers/{}/bind".format(pci, driver)
-            ]
+    steps = [
+        "modprobe {}".format(driver),
+        "echo {} > {}/driver/unbind".format(pci, device_path),
+        "echo {} > {}/driver_override".format(driver, device_path),
+        "echo {} > /sys/bus/pci/drivers/{}/bind".format(pci, driver),
+    ]
     for step in steps:
         print(step)
         code, out, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
-    return True    
+    return True
+
 
 def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> None:
     """ Config an IP address on VLAN interface; if VLAN is 0, config IP on 
@@ -63,10 +65,11 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> No
         Exception: command failure
     """
     if vlan != 0:
-        steps = [f"ip link add link {intf} name {intf}.{vlan} type vlan id {vlan}",
-                 f"ip add add {ip}/24 dev {intf}.{vlan}",
-                 f"ip link set {intf}.{vlan} up"
-                ]
+        steps = [
+            f"ip link add link {intf} name {intf}.{vlan} type vlan id {vlan}",
+            f"ip add add {ip}/24 dev {intf}.{vlan}",
+            f"ip link set {intf}.{vlan} up",
+        ]
     else:
         steps = [f"ip add add {ip}/24 dev {intf}"]
     for step in steps:
@@ -89,10 +92,10 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> None:
     # The virtual interface may not exist, force true to ignore the command failure
     if vlan != 0:
         steps = [
-                f"ip addr flush dev {intf}.{vlan} || true",
-                f"ip link del {intf}.{vlan} || true",
-                f"ip addr flush dev {intf} || true"
-                ]
+            f"ip addr flush dev {intf}.{vlan} || true",
+            f"ip link del {intf}.{vlan} || true",
+            f"ip addr flush dev {intf} || true",
+        ]
     else:
         steps = [f"ip addr flush dev {intf} || true"]
     for step in steps:
@@ -128,7 +131,7 @@ def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
     Raises:
         Exception: command failure
     """
-    cmd = f"arp -d {ip} || true"    # not a failure if the ip entry not exist
+    cmd = f"arp -d {ip} || true"  # not a failure if the ip entry not exist
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -137,13 +140,14 @@ def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
                       tgen_ip: str, tgen_mac: str, dut: ShellHandler, 
                       dut_ip: str, dut_mac: str, testdata: ConfigTestData) -> None:
     """Collection of steps to prepare for ping test
-    
+
     Args:
         tgen (object): trafficgen ssh handler
         tgen_intf (str): trafficgen physical interface name
         tgen_vlan (int): vlan ID on the trafficgen physical interface
         tgen_ip (str): trafficgen ip address
-        tgen_mac (str): trafficgen mac address; set to None will not add arp entry on DUT
+        tgen_mac (str): trafficgen mac address;
+                        set to None will not add arp entry on DUT
         dut (object): DUT ssh handler
         dut_ip (str): DUT ip address
         dut_mac (str): DUT mac address
@@ -167,7 +171,7 @@ def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
     
 def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
     """Collection of steps to cleanup after ping test
-    
+
     Args:
         tgen (object): trafficgen ssh handler
         dut (object): DUT ssh handler
@@ -205,7 +209,7 @@ def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
     
     steps = [f"ip link set {tgen_pf} mtu {mtu}"]
     execute_and_assert(tgen, steps, 0)
-    
+
     steps = [
         f"ip link set {dut_pf} mtu {mtu}",
         f"ip link set {dut_pf}v{dut_vf} mtu {mtu}",
@@ -238,12 +242,12 @@ def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> None:
     Raises:
         Exception: command failure
     """
-    
+
     steps = [
-            f"tmux kill-session -t {name} || true",
-            f"tmux new-session -s {name} -d {cmd}"
-            ]
-    
+        f"tmux kill-session -t {name} || true",
+        f"tmux new-session -s {name} -d {cmd}",
+    ]
+
     for step in steps:
         code, _, err = ssh_obj.execute(step)
         if code != 0:
@@ -322,7 +326,7 @@ def set_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int,
         address(str):     mac address
         timeout(int):     number of seconds to timeout
         interval(float):  polling interval in seconds
-        
+
     Returns:
         True: mac address is set with success
         False: mac address can't be set before timeout
@@ -331,15 +335,15 @@ def set_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int,
     print(set_mac_cmd)
     code, out, err = ssh_obj.execute(set_mac_cmd)
     if code != 0:
-        return False 
+        return False
 
-    count = int(timeout/interval) + 1
+    count = int(timeout / interval) + 1
     while count > 0:
         vf_mac = get_intf_mac(ssh_obj, f"{intf}v{vf_id}")
         if vf_mac == address:
             return True
         count -= 1
-        time.sleep(interval)    
+        time.sleep(interval)
     return False
 
 def verify_vf_address(ssh_obj: ShellHandler, intf: str, vf_id: int, 
@@ -353,12 +357,12 @@ def verify_vf_address(ssh_obj: ShellHandler, intf: str, vf_id: int,
         address(str):     mac address
         timeout(int):     number of seconds to timeout
         interval(float):  polling interval in seconds
-        
+
     Returns:
         True: The VF has the specified address
         False: The VF doesn't have the specified address before timeout
     """
-    count = int(timeout/interval) + 1
+    count = int(timeout / interval) + 1
     while count > 0:
         vf_mac = get_vf_mac(ssh_obj, intf, vf_id)
         print(vf_mac)
@@ -376,7 +380,7 @@ def vfs_created(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout:
         pf_interface (str): name of the PF
         num_vfs (int):      number of VFs to check under PF
         timout (int):       times to check for VFs (default 10)
-    
+
     Returns:
         True: all VFs are created
         False: not all VFs are created before timeout exceeded
@@ -384,7 +388,7 @@ def vfs_created(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout:
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
     print(cmd)
     for i in range(timeout):
-        time.sleep(1)     
+        time.sleep(1)
         code, out, err = ssh_obj.execute(cmd)
         if code != 0:
             continue
@@ -411,7 +415,9 @@ def create_vfs(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: 
     clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
     print(clear_vfs)
     ssh_obj.execute(clear_vfs, 60)
-    create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
+    create_vfs = (
+        f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
+    )
     print(create_vfs)
     ssh_obj.execute(create_vfs, 60)
     return vfs_created(ssh_obj, pf_interface, num_vfs, timeout)

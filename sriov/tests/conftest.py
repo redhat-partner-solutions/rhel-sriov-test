@@ -30,7 +30,9 @@ def settings() -> Config:
 
 @pytest.fixture
 def dut() -> ShellHandler:
-    return get_ssh_obj("dut")
+    dut_obj = get_ssh_obj("dut")
+    set_pipefail(dut_obj)
+    return dut_obj
 
 @pytest.fixture
 def testdata(settings: Config) -> ConfigTestData:
@@ -48,7 +50,9 @@ def reset_command(dut: ShellHandler, testdata) -> None:
 
 @pytest.fixture
 def trafficgen() -> ShellHandler:
-    return get_ssh_obj("trafficgen")
+    trafficgen_obj = get_ssh_obj("trafficgen")
+    set_pipefail(trafficgen_obj)
+    return trafficgen_obj
 
 # Great idea from
 # https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
@@ -58,6 +62,7 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
     return rep
+
 
 @pytest.fixture(autouse=True)
 def _cleanup(dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: bool, request) -> None:
@@ -75,7 +80,7 @@ def _cleanup(dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: b
 
 def pytest_configure(config: Config) -> None:
     dut = get_ssh_obj("dut")
-    # Need to clear the terminal before the first command, there may be some 
+    # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
     code, out, err = dut.execute("clear")
     code, out, err = dut.execute("uname -r")
@@ -100,8 +105,9 @@ def pytest_configure(config: Config) -> None:
                 firmware = parts[1]
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
-    
-    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+
+    code, out, err = dut.execute(
+        "cat /sys/bus/pci/drivers/iavf/module/version")
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
@@ -152,6 +158,7 @@ def pytest_generate_tests(metafunc) -> None:
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
 
-@pytest.fixture(scope='session')        
+
+@pytest.fixture(scope='session')
 def skipclean(request):
     return request.config.option.skipclean

@@ -1,6 +1,7 @@
 import typing
 import yaml
 
+
 class Config:
     def __init__(self, config_file: str) -> None:
         """ Init the config file object

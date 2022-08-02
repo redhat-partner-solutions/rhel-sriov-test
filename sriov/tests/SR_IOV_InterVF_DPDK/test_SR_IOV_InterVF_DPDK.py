@@ -28,7 +28,6 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         vlan:        vlan parameter
         max_tx_rate: max_tx_rate parameter
     """
-    set_pipefail(dut)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     mac_prefix = "aa:bb:cc:dd:ee:0"
