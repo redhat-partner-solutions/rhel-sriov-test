@@ -1,5 +1,7 @@
 import unittest
 from mock import Mock, patch
+import sys, os
+sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
 from utils import *
 
 
