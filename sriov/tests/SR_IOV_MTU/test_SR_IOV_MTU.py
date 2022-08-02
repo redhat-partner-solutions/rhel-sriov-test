@@ -12,7 +12,6 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
         settings:    settings obj
         testdata:    testdata obj
     """
-    set_pipefail(dut)
 
     dut_ip = testdata['dut_ip']
     pf = settings.config["dut"]["interface"]["pf1"]["name"]

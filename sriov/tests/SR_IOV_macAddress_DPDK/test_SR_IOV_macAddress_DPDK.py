@@ -13,7 +13,6 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
         settings:    settings obj
         testdata:    testdata obj
     """
-    set_pipefail(dut)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_ip = testdata['trafficgen_ip']

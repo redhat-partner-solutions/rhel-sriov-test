@@ -10,7 +10,6 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
         settings:   settings obj
         testdata:   testdata obj
     """
-    set_pipefail(dut)
 
     dut_ip = testdata['dut_ip']
     outside_tag = 10
