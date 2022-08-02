@@ -2,7 +2,8 @@ import paramiko
 import re
 import signal
 import time
-from typing import *
+from typing import Tuple
+
 
 class ShellHandler:
 
@@ -48,7 +49,7 @@ class ShellHandler:
             Exception: timeout
         """
         raise Exception("timeout")
-        
+
     def start_testpmd(self, cmd: str) -> Tuple[int, list, list]:
         """ Start the TestPMD application
 
@@ -94,10 +95,10 @@ class ShellHandler:
             sherr.append(str(err))
         finally:
             signal.alarm(0)
-        return exit_status, shout, sherr    
-             
+        return exit_status, shout, sherr
+
     def testpmd_active(self) -> bool:
-        """ A test of activity for the TestPMD session by sending a newline 
+        """ A test of activity for the TestPMD session by sending a newline
             heartbeat
 
         Args:
@@ -121,9 +122,9 @@ class ShellHandler:
         finally:
             signal.alarm(0)
         return active
-    
+
     def stop_testpmd(self) -> int:
-        """ Stop TestPMD if the SSH session has the TestPMD application running 
+        """ Stop TestPMD if the SSH session has the TestPMD application running
 
         Args:
             self: self
@@ -152,9 +153,9 @@ class ShellHandler:
         # sleep before return
         time.sleep(1)
         return exit_status
-       
+
     def testpmd_cmd(self, cmd: str) -> int:
-        """ Send a command to the TestPMD application 
+        """ Send a command to the TestPMD application
 
         Args:
             self:      self
@@ -185,9 +186,9 @@ class ShellHandler:
             signal.alarm(0)
 
         return exit_code
-                                  
+
     def execute(self, cmd: str, timeout: int = 5) -> Tuple[int, list, list]:
-        """ Execute a command in the SSH session 
+        """ Execute a command in the SSH session
 
         Args:
             self:          self

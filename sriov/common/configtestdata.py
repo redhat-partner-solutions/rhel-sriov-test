@@ -1,12 +1,12 @@
-import typing
 from sriov.common.config import Config
+
 
 class ConfigTestData:
     def __init__(self, settings: Config) -> None:
         """ Init the testdata object
 
         Args:
-            self:           
+            self:
             settings (Config): config object
         """
         self.vlan = 10
@@ -24,7 +24,7 @@ class ConfigTestData:
             if 'pf' in interface:
                 self.pfs[interface] = settings.config['dut']['interface'][interface]
                 self.pf_net_paths[interface] = \
-                     '/sys/class/net/' + \
+                    '/sys/class/net/' + \
                     settings.config['dut']['interface'][interface]['name'] + '/device'
             else:
                 self.vfs[interface] = settings.config['dut']['interface'][interface]

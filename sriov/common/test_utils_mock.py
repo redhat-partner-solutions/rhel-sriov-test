@@ -1,8 +1,9 @@
-import unittest
 from mock import Mock, patch
-import sys, os
+import os
+import sys
+import unittest
 sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
-from utils import *
+from utils import set_vf_mac, verify_vf_address  # noqa: E402
 
 
 class UtilsTest(unittest.TestCase):
