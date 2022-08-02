@@ -1,7 +1,8 @@
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
 import time
-from typing import *
+from typing import Tuple
+
 
 def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
     """ Get the PCI address of an interface
@@ -9,10 +10,10 @@ def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
     Args:
         ssh_obj:     ssh_obj to the remote host
         iface (str): interface name, example: "ens2f0"
-    
-    Returns: 
+
+    Returns:
         PCI address (str), example "0000:17:00.0"
-    
+
     Raises:
         Exception: command failure
     """
@@ -21,6 +22,7 @@ def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
     if code != 0:
         raise Exception(err)
     return out[0].strip("\n")
+
 
 def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
     """ Bind the PCI address to the driver
@@ -52,7 +54,7 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
 
 
 def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> None:
-    """ Config an IP address on VLAN interface; if VLAN is 0, config IP on 
+    """ Config an IP address on VLAN interface; if VLAN is 0, config IP on
         main interface
 
     Args:
@@ -77,7 +79,8 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> No
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
-        
+
+
 def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> None:
     """ Clear the IP address from the VLAN interface and the main interface
 
@@ -104,6 +107,7 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> None:
         if code != 0:
             raise Exception(err)
 
+
 def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> None:
     """ Add a static ARP entry
 
@@ -120,7 +124,8 @@ def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> None:
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
-    
+
+
 def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
     """ Remove a static ARP entry
 
@@ -136,8 +141,9 @@ def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
     if code != 0:
         raise Exception(err)
 
-def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int, 
-                      tgen_ip: str, tgen_mac: str, dut: ShellHandler, 
+
+def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
+                      tgen_ip: str, tgen_mac: str, dut: ShellHandler,
                       dut_ip: str, dut_mac: str, testdata: ConfigTestData) -> None:
     """Collection of steps to prepare for ping test
 
@@ -154,8 +160,8 @@ def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
         testdata (object): testdata object
     """
     clear_interface(tgen, tgen_intf, tgen_vlan)
-    
-    #track if ping is executed when cleanup_after_ping is called for cleanup
+
+    # Track if ping is executed when cleanup_after_ping is called for cleanup
     testdata.ping['run'] = True
     testdata.ping['tgen_intf'] = tgen_intf
     testdata.ping['tgen_vlan'] = tgen_vlan
@@ -163,13 +169,15 @@ def prepare_ping_test(tgen: ShellHandler, tgen_intf: str, tgen_vlan: int,
     testdata.ping['tgen_mac'] = tgen_mac
     testdata.ping['dut_ip'] = dut_ip
     testdata.ping['dut_mac'] = dut_mac
-    
+
     config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
     add_arp_entry(tgen, dut_ip, dut_mac)
     if tgen_mac is not None:
         add_arp_entry(dut, tgen_ip, tgen_mac)
-    
-def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
+
+
+def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler,
+                       testdata: ConfigTestData) -> None:
     """Collection of steps to cleanup after ping test
 
     Args:
@@ -180,7 +188,7 @@ def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTe
     run = testdata.ping.get('run', False)
     if run:
         tgen_intf = testdata.ping.get('tgen_intf')
-        tgen_vlan= testdata.ping.get('tgen_vlan')
+        tgen_vlan = testdata.ping.get('tgen_vlan')
         tgen_ip = testdata.ping.get('tgen_ip')
         dut_ip = testdata.ping.get('dut_ip')
         tgen_mac = testdata.ping['tgen_mac']
@@ -189,7 +197,8 @@ def cleanup_after_ping(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTe
         if tgen_mac is not None:
             rm_arp_entry(dut, tgen_ip)
 
-def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str, 
+
+def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
             dut_vf: int, mtu: int, testdata: ConfigTestData) -> None:
     """set MTU on trafficgen and DUT
 
@@ -206,7 +215,7 @@ def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
     testdata.mtu['tgen_intf'] = tgen_pf
     testdata.mtu['du_intf'] = dut_pf
     testdata.mtu['dut_vf'] = dut_vf
-    
+
     steps = [f"ip link set {tgen_pf} mtu {mtu}"]
     execute_and_assert(tgen, steps, 0)
 
@@ -215,6 +224,7 @@ def set_mtu(tgen: ShellHandler, tgen_pf: str, dut: ShellHandler, dut_pf: str,
         f"ip link set {dut_pf}v{dut_vf} mtu {mtu}",
     ]
     execute_and_assert(dut, steps, 0, timeout=0.1)
+
 
 def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
     """reset MTU on trafficgen and DUT
@@ -230,7 +240,8 @@ def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -
         du_intf = testdata.mtu.get('du_intf')
         tgen.execute(f"ip link set {tgen_intf} mtu 1500")
         dut.execute(f"ip link set {du_intf} mtu 1500")
-                 
+
+
 def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> None:
     """ Run cmd in a tmux session
 
@@ -253,6 +264,7 @@ def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> None:
         if code != 0:
             raise Exception(err)
 
+
 def stop_tmux(ssh_obj: ShellHandler, name: str) -> None:
     """ Stop tmux session
 
@@ -266,6 +278,7 @@ def stop_tmux(ssh_obj: ShellHandler, name: str) -> None:
     code, _, err = ssh_obj.execute(f"tmux kill-session -t {name} || true")
     if code != 0:
         raise Exception(err)
+
 
 def get_intf_mac(ssh_obj: ShellHandler, intf: str) -> str:
     """ Get the MAC address from the interface name
@@ -289,6 +302,7 @@ def get_intf_mac(ssh_obj: ShellHandler, intf: str) -> str:
         if len(line.split(":")) == 6:
             return line.strip("\n")
     raise ValueError("can't parse mac address")
+
 
 def get_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int) -> str:
     """ Get the MAC address from the interface's VF ID
@@ -315,10 +329,11 @@ def get_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int) -> str:
             return line.strip("\n")
     raise ValueError("can't parse mac address")
 
-def set_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int, 
+
+def set_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int,
                address: str, timeout: int = 10, interval: int = 0.1) -> bool:
     """ Set the VF mac address
-    
+
     Args:
         ssh_obj (_type_): SSH connection obj
         intf (str):       interface name
@@ -346,10 +361,11 @@ def set_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int,
         time.sleep(interval)
     return False
 
-def verify_vf_address(ssh_obj: ShellHandler, intf: str, vf_id: int, 
-        address: str, timeout: int = 10, interval: int = 0.1) -> bool:
+
+def verify_vf_address(ssh_obj: ShellHandler, intf: str, vf_id: int,
+                      address: str, timeout: int = 10, interval: int = 0.1) -> bool:
     """ verify that the VF has the specified address
-    
+
     Args:
         ssh_obj (_type_): SSH connection obj
         intf (str):       interface name
@@ -371,10 +387,12 @@ def verify_vf_address(ssh_obj: ShellHandler, intf: str, vf_id: int,
         count -= 1
         time.sleep(interval)
     return False
-  
-def vfs_created(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: int = 10) -> bool:
+
+
+def vfs_created(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int,
+                timeout: int = 10) -> bool:
     """ Check that the num_vfs of pf_interface are created before timeout
-    
+
     Args:
         ssh_obj:            ssh connection obj
         pf_interface (str): name of the PF
@@ -396,9 +414,11 @@ def vfs_created(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout:
             return True
     return False
 
-def create_vfs(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: int = 10) -> bool:
+
+def create_vfs(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int,
+               timeout: int = 10) -> bool:
     """ Create the num_vfs of pf_interface
-    
+
     Args:
         ssh_obj:            ssh connection obj
         pf_interface (str): name of the PF
@@ -408,7 +428,7 @@ def create_vfs(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: 
     Returns:
         True: all VFs are created
         False: not all VFs are created before timeout exceeded
-    
+
     Raises:
         Exception:  failed to create VFs before timeout exceeded
     """
@@ -422,8 +442,11 @@ def create_vfs(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: 
     ssh_obj.execute(create_vfs, 60)
     return vfs_created(ssh_obj, pf_interface, num_vfs, timeout)
 
-def no_zero_macs_pf(ssh_obj: ShellHandler, pf_interface: str, timeout: int = 10) -> bool:
-    """ Check that none of the pf_interface VFs have all zero MAC addresses (from the pf report)
+
+def no_zero_macs_pf(ssh_obj: ShellHandler, pf_interface: str,
+                    timeout: int = 10) -> bool:
+    """ Check that none of the pf_interface VFs have all zero MAC addresses (from
+        the pf report)
 
     Args:
         ssh_obj:            ssh connection obj
@@ -450,8 +473,11 @@ def no_zero_macs_pf(ssh_obj: ShellHandler, pf_interface: str, timeout: int = 10)
             return True
     return False
 
-def no_zero_macs_vf(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: int = 10) -> bool:
-    """ Check that none of the interfaces's VFs have zero MAC addresses (from the vf reports)
+
+def no_zero_macs_vf(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int,
+                    timeout: int = 10) -> bool:
+    """ Check that none of the interfaces's VFs have zero MAC addresses (from
+        the vf reports)
 
     Args:
         ssh_obj:            ssh connection obj
@@ -479,6 +505,7 @@ def no_zero_macs_vf(ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, time
             return True
     return False
 
+
 def set_pipefail(ssh_obj: ShellHandler) -> None:
     """ Set the pipefail to persist errors
 
@@ -493,8 +520,10 @@ def set_pipefail(ssh_obj: ShellHandler) -> None:
     if code != 0:
         raise Exception(err)
 
-def execute_and_assert(ssh_obj: ShellHandler, cmds: list, exit_code: int, timeout: int = 0) -> Tuple[list, list]:
-    """ Execute the list of commands, assert exit code, and return stdouts and stderrs 
+
+def execute_and_assert(ssh_obj: ShellHandler, cmds: list, exit_code: int,
+                       timeout: int = 0) -> Tuple[list, list]:
+    """ Execute the list of commands, assert exit code, and return stdouts and stderrs
 
     Args:
         ssh_obj:         ssh connection obj
@@ -516,6 +545,7 @@ def execute_and_assert(ssh_obj: ShellHandler, cmds: list, exit_code: int, timeou
         assert code == exit_code
         time.sleep(timeout)
     return outs, errs
+
 
 def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) -> bool:
     """ Execute cmd and check for 0 exit code until timeout
