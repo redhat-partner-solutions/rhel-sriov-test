@@ -21,4 +21,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        flake8 $(git ls-files 'sriov/common/*.py') --count --select=B,C,E,F,W,T4,B9 --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 $(git ls-files 'sriov/common/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
