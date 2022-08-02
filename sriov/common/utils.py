@@ -477,7 +477,7 @@ def no_zero_macs_pf(
     ssh_obj: ShellHandler, pf_interface: str, timeout: int = 10
 ) -> bool:
     """Check that none of the pf_interface VFs have all zero MAC addresses (from
-        the pf report)
+       the pf report)
 
     Args:
         ssh_obj:            ssh connection obj
@@ -509,7 +509,7 @@ def no_zero_macs_vf(
     ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: int = 10
 ) -> bool:
     """Check that none of the interfaces's VFs have zero MAC addresses (from
-        the vf reports)
+       the vf reports)
 
     Args:
         ssh_obj:            ssh connection obj
