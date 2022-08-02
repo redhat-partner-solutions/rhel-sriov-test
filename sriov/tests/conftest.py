@@ -4,7 +4,7 @@ from pytest_html import extras
 from sriov.common.config import Config
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
-from sriov.common.utils import cleanup_after_ping, reset_mtu
+from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
 from typing import *
 
 def get_settings_obj() -> Config:
