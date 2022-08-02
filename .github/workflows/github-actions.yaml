@@ -28,7 +28,6 @@ jobs:
           ls ${{ github.workspace }}
       - name: Run unittest
         run: |
-          cd sriov/common
           pwd
-          python -m unittest test_utils_mock.py
+          python -m unittest sriov/common/test_utils_mock.py
       - run: echo "This job's status is ${{ job.status }}."
