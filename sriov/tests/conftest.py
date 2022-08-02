@@ -30,7 +30,9 @@ def settings() -> Config:
 
 @pytest.fixture
 def dut() -> ShellHandler:
-    return get_ssh_obj("dut")
+    dut_obj = get_ssh_obj("dut")
+    set_pipefail(dut_obj)
+    return dut_obj
 
 @pytest.fixture
 def testdata(settings: Config) -> ConfigTestData:
@@ -48,7 +50,9 @@ def reset_command(dut: ShellHandler, testdata) -> None:
 
 @pytest.fixture
 def trafficgen() -> ShellHandler:
-    return get_ssh_obj("trafficgen")
+    trafficgen_obj = get_ssh_obj("trafficgen")
+    set_pipefail(trafficgen_obj)
+    return trafficgen_obj
 
 # Great idea from
 # https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
