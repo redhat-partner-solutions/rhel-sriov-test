@@ -11,7 +11,7 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
         testdata:         testdata obj
         execution_number: execution_number parameter
     """
-    pf = list(testdata['pfs'].keys())[0] 
+    pf = list(testdata.pfs.keys())[0] 
     base_mac = "0x0000000000"
     
     set_pipefail(dut)

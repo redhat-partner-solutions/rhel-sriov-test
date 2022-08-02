@@ -28,7 +28,7 @@ def test_SR_IOV_Permutation(dut, trafficgen, settings, testdata, spoof,
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
         f"ip link set {pf}v0 down",
-        f"ip link set {pf} vf 0 mac {testdata['dut_mac']}",
+        f"ip link set {pf} vf 0 mac {testdata.dut_mac}",
         f"ip link set {pf} vf 0 spoof {spoof}",
         f"ip link set {pf} vf 0 trust {trust}",
         ]
