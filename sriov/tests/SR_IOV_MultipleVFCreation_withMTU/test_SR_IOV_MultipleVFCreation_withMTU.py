@@ -14,8 +14,6 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
     pf = list(testdata['pfs'].keys())[0] 
     base_mac = "0x0000000000"
     
-    set_pipefail(dut)
-
     max_vfs_cmd = ["cat " + testdata['pf_net_paths'][pf] + "/sriov_totalvfs"]
     outs, errs = execute_and_assert(dut, max_vfs_cmd, 0)
     max_vfs = outs[0][0].strip()

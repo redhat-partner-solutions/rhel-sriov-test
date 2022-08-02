@@ -1,6 +1,6 @@
 import pytest
 import os
-from sriov.common.utils import cleanup_after_ping, reset_mtu
+from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
 from sriov.common.exec import ShellHandler
 from sriov.common.config import Config
 from pytest_html import extras
@@ -27,13 +27,15 @@ def settings():
 
 @pytest.fixture
 def dut():
-    return get_ssh_obj("dut")
+    dut_obj = get_ssh_obj("dut")
+    set_pipefail(dut_obj)
+    return dut_obj
 
 
 def reset_command(dut, testdata):
     dut.execute("ip netns del ns0 2>/dev/null || true")
     dut.execute("ip netns del ns1 2>/dev/null || true")
-    
+
     for pf in testdata['pf_net_paths']:
         clear_vfs = "echo 0 > " + \
             testdata['pf_net_paths'][pf] + "/sriov_numvfs"
@@ -42,7 +44,9 @@ def reset_command(dut, testdata):
 
 @pytest.fixture
 def trafficgen():
-    return get_ssh_obj("trafficgen")
+    trafficgen_obj = get_ssh_obj("trafficgen")
+    set_pipefail(trafficgen_obj)
+    return trafficgen_obj
 
 # Great idea from
 # https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
@@ -52,6 +56,7 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
     return rep
+
 
 @pytest.fixture(autouse=True)
 def _cleanup(dut, trafficgen, testdata, skipclean, request):
@@ -69,7 +74,7 @@ def _cleanup(dut, trafficgen, testdata, skipclean, request):
 
 def pytest_configure(config):
     dut = get_ssh_obj("dut")
-    # Need to clear the terminal before the first command, there may be some 
+    # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
     code, out, err = dut.execute("clear")
     code, out, err = dut.execute("uname -r")
@@ -94,8 +99,9 @@ def pytest_configure(config):
                 firmware = parts[1]
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
-    
-    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+
+    code, out, err = dut.execute(
+        "cat /sys/bus/pci/drivers/iavf/module/version")
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
@@ -169,11 +175,13 @@ def testdata(settings):
     data['mtu'] = {}    # track mtu change
     return data
 
+
 def pytest_addoption(parser):
     parser.addoption("--iteration", action="store", default="1",
                      help="Iterations for robustness test cases")
     parser.addoption("--skipclean", action="store_true", default=False,
                      help="Do not clean up when a test case fails")
+
 
 def pytest_generate_tests(metafunc):
     if "execution_number" in metafunc.fixturenames:
@@ -181,6 +189,7 @@ def pytest_generate_tests(metafunc):
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
 
-@pytest.fixture(scope='session')        
+
+@pytest.fixture(scope='session')
 def skipclean(request):
     return request.config.option.skipclean

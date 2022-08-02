@@ -8,7 +8,6 @@ def test_SR_IOV_TrustMode(dut, settings):
         dut:      ssh connection obj
         settings: settings obj
     """
-    set_pipefail(dut)
 
     mac_1 = "aa:bb:cc:dd:ee:11"
     mac_2 = "aa:bb:cc:dd:ee:22"
