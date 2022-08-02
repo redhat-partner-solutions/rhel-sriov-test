@@ -13,7 +13,6 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
         testdata:   testdata obj
         spoof:      spoof parameter
     """
-    set_pipefail(dut)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     steps = [
