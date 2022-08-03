@@ -22,3 +22,7 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 $(git ls-files 'sriov/common/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 $(git ls-files 'sriov/tests/SR_IOV_macAddress_DPDK/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 $(git ls-files 'sriov/tests/SR_IOV_macAddress/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 $(git ls-files 'sriov/tests/SR_IOV_InterVF_DPDK/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 $(git ls-files 'sriov/tests/SR_IOV_InterVF/*.py') --count --ignore=E203 --max-complexity=15 --max-line-length=88 --show-source --statistics

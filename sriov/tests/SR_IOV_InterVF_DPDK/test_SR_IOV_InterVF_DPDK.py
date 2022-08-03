@@ -1,6 +1,13 @@
 import pytest
 import time
-from sriov.common.utils import *
+from sriov.common.utils import (
+    start_tmux,
+    stop_tmux,
+    create_vfs,
+    execute_and_assert,
+    bind_driver,
+    get_vf_mac,
+)
 
 
 def stop_testpmd_in_tmux(dut, tmux_session):
@@ -14,9 +21,10 @@ def stop_testpmd_in_tmux(dut, tmux_session):
 @pytest.mark.parametrize('qos', (True, False))
 @pytest.mark.parametrize('vlan', (True, False))
 @pytest.mark.parametrize('max_tx_rate', (True, False))
-def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
-                        trust, qos, vlan, max_tx_rate):
-    """ Test and ensure that VFs bound to DPDK driver can communicate with VF on the same PF
+def test_SR_IOV_InterVF_DPDK(
+    dut, settings, testdata, spoof, trust, qos, vlan, max_tx_rate
+):
+    """Test and ensure that VFs bound to DPDK driver can communicate with VF on the same PF
 
     Args:
         dut:         ssh connection obj
@@ -35,21 +43,23 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
 
     assert create_vfs(dut, pf, 2)
 
-    steps = [] 
+    steps = []
     for i in range(2):
-        steps.extend([
-            f"ip link set {pf} vf {i} mac {mac_prefix}{i}",
-            f"ip link set {pf} vf {i} spoof {spoof}",
-            f"ip link set {pf} vf {i} trust {trust}",
-        ])
+        steps.extend(
+            [
+                f"ip link set {pf} vf {i} mac {mac_prefix}{i}",
+                f"ip link set {pf} vf {i} spoof {spoof}",
+                f"ip link set {pf} vf {i} trust {trust}",
+            ]
+        )
         if vlan:
             qos_str = f"qos {testdata['qos']}" if qos else ""
-            steps.append(
-                f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
+            steps.append(f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
         if max_tx_rate:
             steps.append(
-                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}")
-    
+                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}"
+            )
+
     execute_and_assert(dut, steps, 0, 0.1)
 
     # bind VF0 to vfio-pci
@@ -59,15 +69,17 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
     # start first instance testpmd in echo mode
     dpdk_img = settings.config["dpdk_img"]
     cpus = settings.config["dut"]["pmd_cpus"]
-    tmux_cmd = "podman run -it --rm --privileged "\
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "\
-        "--cpuset-cpus {} {} dpdk-testpmd -l {} "\
-        "-n 4 -a {} "\
-        "-- --nb-cores=2 --forward=icmpecho".format(cpus,dpdk_img,cpus,vf_pci)
+    tmux_cmd = (
+        "podman run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        "--cpuset-cpus {} {} dpdk-testpmd -l {} "
+        "-n 4 -a {} "
+        "-- --nb-cores=2 --forward=icmpecho".format(cpus, dpdk_img, cpus, vf_pci)
+    )
     print(tmux_cmd)
     tmux_session = testdata['tmux_session_name']
     start_tmux(dut, tmux_session, tmux_cmd)
-    
+
     # make sure tmux testpmd session has started
     for i in range(15):
         time.sleep(1)
@@ -82,7 +94,7 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
             print("tmux: testpmd started")
             break
 
-    # The following is not run through execute_and_assert as the handling of 
+    # The following is not run through execute_and_assert as the handling of
     # the non-zero return code is a special case.
     vf_1_mac = get_vf_mac(dut, pf, 0)
     steps = [
@@ -91,7 +103,7 @@ def test_SR_IOV_InterVF_DPDK(dut, settings, testdata, spoof,
         f"arp -s {ip_prefix}0 {vf_1_mac}",
         f"ping -W 1 -c 1 {ip_prefix}0",
         f"arp -d {ip_prefix}0",
-        f"ip addr del {ip_prefix}1/24 dev {pf}v1"
+        f"ip addr del {ip_prefix}1/24 dev {pf}v1",
     ]
     for step in steps:
         print(step)
