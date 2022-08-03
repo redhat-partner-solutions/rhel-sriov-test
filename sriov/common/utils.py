@@ -465,9 +465,7 @@ def create_vfs(
     clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
     print(clear_vfs)
     ssh_obj.execute(clear_vfs, 60)
-    create_vfs = (
-        f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
-    )
+    create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
     print(create_vfs)
     ssh_obj.execute(create_vfs, 60)
     return vfs_created(ssh_obj, pf_interface, num_vfs, timeout)
