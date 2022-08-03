@@ -24,7 +24,8 @@ def stop_testpmd_in_tmux(dut, tmux_session):
 def test_SR_IOV_InterVF_DPDK(
     dut, settings, testdata, spoof, trust, qos, vlan, max_tx_rate
 ):
-    """Test and ensure that VFs bound to DPDK driver can communicate with VF on the same PF
+    """Test and ensure that VFs bound to DPDK driver can communicate with VF
+       on the same PF
 
     Args:
         dut:         ssh connection obj
