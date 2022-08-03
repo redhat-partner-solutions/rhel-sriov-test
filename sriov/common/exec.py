@@ -6,7 +6,6 @@ from typing import Tuple
 
 
 class ShellHandler:
-
     def __init__(self, host: str, user: str, psw: str) -> None:
         """Initialize the shell handler object
 
