@@ -216,7 +216,7 @@ def set_mtu(
     mtu: int,
     testdata: ConfigTestData,
 ) -> None:
-    """set MTU on trafficgen and DUT
+    """Set MTU on trafficgen and DUT
 
     Args:
         tgen (object): trafficgen ssh connection
@@ -243,7 +243,7 @@ def set_mtu(
 
 
 def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
-    """reset MTU on trafficgen and DUT
+    """Reset MTU on trafficgen and DUT
 
     Args:
         tgen (object): trafficgen ssh connection
@@ -392,7 +392,7 @@ def verify_vf_address(
     timeout: int = 10,
     interval: int = 0.1,
 ) -> bool:
-    """verify that the VF has the specified address
+    """Verify that the VF has the specified address
 
     Args:
         ssh_obj (_type_): SSH connection obj
