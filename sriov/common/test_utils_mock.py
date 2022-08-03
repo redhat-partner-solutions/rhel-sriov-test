@@ -2,6 +2,7 @@ from mock import Mock, patch
 import os
 import sys
 import unittest
+
 sys.path.insert(1, os.path.dirname(os.path.abspath(__file__)))
 from utils import set_vf_mac, verify_vf_address  # noqa: E402
 
@@ -13,9 +14,7 @@ class UtilsTest(unittest.TestCase):
         ssh_obj.execute.return_value = 0, "", ""
         mock_get_intf_mac.return_value = "aa:bb:cc:dd:ee:00"
         assert set_vf_mac(ssh_obj, "eth0", 0, "aa:bb:cc:dd:ee:00")
-        assert not set_vf_mac(
-            ssh_obj, "eth0", 0, "aa:bb:cc:dd:ee:11", timeout=1
-        )
+        assert not set_vf_mac(ssh_obj, "eth0", 0, "aa:bb:cc:dd:ee:11", timeout=1)
 
     @patch("utils.get_vf_mac")
     def test_verify_vf_address(self, mock_get_vf_mac):
@@ -27,5 +26,5 @@ class UtilsTest(unittest.TestCase):
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
