@@ -37,8 +37,7 @@ def reset_command(dut, testdata):
     dut.execute("ip netns del ns1 2>/dev/null || true")
 
     for pf in testdata['pf_net_paths']:
-        clear_vfs = "echo 0 > " + \
-            testdata['pf_net_paths'][pf] + "/sriov_numvfs"
+        clear_vfs = "echo 0 > " + testdata['pf_net_paths'][pf] + "/sriov_numvfs"
         dut.execute(clear_vfs, 60)
 
 
@@ -47,6 +46,7 @@ def trafficgen():
     trafficgen_obj = get_ssh_obj("trafficgen")
     set_pipefail(trafficgen_obj)
     return trafficgen_obj
+
 
 # Great idea from
 # https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
@@ -100,15 +100,14 @@ def pytest_configure(config):
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
 
-    code, out, err = dut.execute(
-        "cat /sys/bus/pci/drivers/iavf/module/version")
+    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
 
 
 def pytest_html_report_title(report):
-    ''' modifying the title  of html report'''
+    '''modifying the title  of html report'''
     report.title = "SR-IOV Test Report"
 
 
@@ -118,7 +117,7 @@ def _report_extras(extra, request, settings, monkeypatch):
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
-        # This is assuming the current working directory contains the test specification.
+        # This is assuming the current working directory contains the test specification
         with open(settings.config['tests_doc_file']) as f:
             lines = f.readlines()
 
@@ -127,17 +126,29 @@ def _report_extras(extra, request, settings, monkeypatch):
             case_index = line.find(settings.config['tests_name_field'])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config['tests_name_field']):]).strip()
+                    line[case_index + len(settings.config['tests_name_field']) :]
+                ).strip()
                 break
 
         if case_name != '':
-            test_dir = os.path.dirname(
-                request.module.__file__).split(os.sep)[-1]
-            link = settings.config['github_tests_path'] + '/' + \
-                test_dir + '/' + settings.config['tests_doc_file']
-            extra.append(extras.html('<p>Link to the test specification: <a href="' +
-                                     link + '">' + case_name + ' Documentation</a></p>'))
-    except:
+            test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
+            link = (
+                settings.config['github_tests_path']
+                + '/'
+                + test_dir
+                + '/'
+                + settings.config['tests_doc_file']
+            )
+            extra.append(
+                extras.html(
+                    '<p>Link to the test specification: <a href="'
+                    + link
+                    + '">'
+                    + case_name
+                    + ' Documentation</a></p>'
+                )
+            )
+    except Exception:
         return
 
 
@@ -158,29 +169,41 @@ def testdata(settings):
     for interface in settings.config['dut']['interface']:
         if 'pf' in interface:
             data['pfs'][interface] = settings.config['dut']['interface'][interface]
-            data['pf_net_paths'][interface] = \
-                '/sys/class/net/' + \
-                settings.config['dut']['interface'][interface]['name'] + '/device'
+            data['pf_net_paths'][interface] = (
+                '/sys/class/net/'
+                + settings.config['dut']['interface'][interface]['name']
+                + '/device'
+            )
         else:
             data['vfs'][interface] = settings.config['dut']['interface'][interface]
     data["tmux_session_name"] = "sriov_job"
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     dpdk_img = settings.config["dpdk_img"]
     cpus = settings.config["dut"]["pmd_cpus"]
-    data['podman_cmd'] = "podman run -it --rm --privileged "\
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "\
-        "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "\
+    data['podman_cmd'] = (
+        "podman run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "
         "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
-    data['ping'] = {}   # track ping test
-    data['mtu'] = {}    # track mtu change
+    )
+    data['ping'] = {}  # track ping test
+    data['mtu'] = {}  # track mtu change
     return data
 
 
 def pytest_addoption(parser):
-    parser.addoption("--iteration", action="store", default="1",
-                     help="Iterations for robustness test cases")
-    parser.addoption("--skipclean", action="store_true", default=False,
-                     help="Do not clean up when a test case fails")
+    parser.addoption(
+        "--iteration",
+        action="store",
+        default="1",
+        help="Iterations for robustness test cases",
+    )
+    parser.addoption(
+        "--skipclean",
+        action="store_true",
+        default=False,
+        help="Do not clean up when a test case fails",
+    )
 
 
 def pytest_generate_tests(metafunc):

@@ -21,12 +21,5 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        flake8 $(git ls-files 'sriov/common/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_macAddress_DPDK/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_macAddress/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_InterVF_DPDK/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_InterVF/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_MTU/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_MultipleVFCreation_withMTU/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_Permutation/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
-        flake8 $(git ls-files 'sriov/tests/SR_IOV_Permutation_DPDK/*.py') --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        flake8 . --count --ignore=E203,W503 --max-complexity=15 --max-line-length=88 --show-source --statistics
+        
