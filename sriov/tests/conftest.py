@@ -5,7 +5,6 @@ from sriov.common.config import Config
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
 from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
-from typing import *
 
 
 def get_settings_obj() -> Config:
@@ -139,7 +138,7 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
             case_index = line.find(settings.config["tests_name_field"])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]) :]
+                    line[case_index + len(settings.config["tests_name_field"]):]
                 ).strip()
                 break
 
@@ -161,7 +160,7 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
                     + " Documentation</a></p>"
                 )
             )
-    except:
+    except Exception:
         return
 
 

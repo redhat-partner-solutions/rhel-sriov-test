@@ -3,6 +3,7 @@ from sriov.common.utils import (
     create_vfs,
     no_zero_macs_pf,
     no_zero_macs_vf,
+    set_pipefail
 )
 
 
@@ -29,10 +30,10 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
     assert create_vfs(dut, testdata.pfs[pf]["name"], int(max_vfs))
 
     check_no_zero_macs_pf = no_zero_macs_pf(dut, testdata.pfs[pf]["name"])
-    assert check_no_zero_macs_pf == True
+    assert check_no_zero_macs_pf is True
 
     check_no_zero_macs_vf = no_zero_macs_vf(dut, testdata.pfs[pf]["name"], int(max_vfs))
-    assert check_no_zero_macs_vf == True
+    assert check_no_zero_macs_vf is True
 
     check_mtu = ["ip -d link show " + testdata.pfs[pf]["name"]]
     outs, errs = execute_and_assert(dut, check_mtu, 0)

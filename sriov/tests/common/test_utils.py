@@ -9,7 +9,6 @@ from sriov.common.utils import (
 )
 
 
-
 def create_vf(dut, pf_name):
     steps = [
         f"echo 0 > /sys/class/net/{pf_name}/device/sriov_numvfs",

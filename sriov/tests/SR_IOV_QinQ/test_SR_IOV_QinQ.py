@@ -1,7 +1,6 @@
 from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
 
 
-
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     """Test and ensure that QinQ on VF works with the kernel driver
 

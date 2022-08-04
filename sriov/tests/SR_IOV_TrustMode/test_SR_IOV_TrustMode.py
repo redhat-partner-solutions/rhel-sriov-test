@@ -1,7 +1,6 @@
 from sriov.common.utils import create_vfs, execute_and_assert
 
 
-
 def test_SR_IOV_TrustMode(dut, settings):
     """Test and ensure that VF trust mode functions as intended
 

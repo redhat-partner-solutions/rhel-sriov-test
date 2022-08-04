@@ -2,7 +2,6 @@ import pytest
 from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
 
 
-
 @pytest.mark.parametrize("spoof", ("on", "off"))
 def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
     """Test and ensure that VF spoof check and custom mac can be set at the same time
