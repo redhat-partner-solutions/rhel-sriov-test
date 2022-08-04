@@ -1,8 +1,8 @@
-import time
-from sriov.common.utils import *
+from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
+
 
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
-    """ Test and ensure that QinQ on VF works with the kernel driver
+    """Test and ensure that QinQ on VF works with the kernel driver
 
     Args:
         dut:        ssh connection obj
@@ -23,8 +23,8 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
         f"ip link add link {pf}v0 name {pf}v0.{inside_tag} type vlan id {inside_tag}",
         f"ip link set {pf}v0.{inside_tag} up",
         f"ip add add {dut_ip}/24 dev {pf}v0.{inside_tag}",
-        ]
-    
+    ]
+
     execute_and_assert(dut, steps, 0, 0.1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
@@ -34,7 +34,8 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} {trafficgen_ip}"
     print(tmux_cmd)
     start_tmux(dut, tmux_session, tmux_cmd)
-    tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 vlan {outside_tag} and vlan {inside_tag}"
+    tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 \
+        vlan {outside_tag} and vlan {inside_tag}"
     print(tgen_cmd)
     code, out, err = trafficgen.execute(tgen_cmd)
     stop_tmux(dut, tmux_session)
