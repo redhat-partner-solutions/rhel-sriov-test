@@ -2,7 +2,6 @@ import pytest
 from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
 
 
-
 @pytest.mark.parametrize("spoof", ("on", "off"))
 def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
     """Test and ensure that VF spoof check and custom mac can be set at the same time
@@ -33,7 +32,8 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
     spoof_mac = testdata.dut_spoof_mac
     trafficgen_ip = testdata.trafficgen_ip
     tmux_session = testdata.tmux_session_name
-    tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} --source-mac {spoof_mac} {trafficgen_ip}"
+    tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} --source-mac " + \
+                "{spoof_mac} {trafficgen_ip}"
     print(tmux_cmd)
     start_tmux(dut, tmux_session, tmux_cmd)
     tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 ether host {spoof_mac}"
