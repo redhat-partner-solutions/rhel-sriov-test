@@ -129,7 +129,7 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
-        # This is assuming the current working directory contains the test 
+        # This is assuming the current working directory contains the test
         # specification.
         with open(settings.config["tests_doc_file"]) as f:
             lines = f.readlines()

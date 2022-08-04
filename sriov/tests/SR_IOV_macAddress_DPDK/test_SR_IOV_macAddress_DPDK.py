@@ -9,7 +9,7 @@ from sriov.common.utils import (
 
 
 def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
-    """Test and ensure that VF MAC address functions as intended when bound 
+    """Test and ensure that VF MAC address functions as intended when bound
        to the DPDK driver
 
     Args:
