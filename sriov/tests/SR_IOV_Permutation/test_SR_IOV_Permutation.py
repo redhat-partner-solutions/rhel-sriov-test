@@ -1,6 +1,10 @@
 import pytest
-import time
-from sriov.common.utils import *
+from sriov.common.utils import (
+    create_vfs,
+    execute_and_assert,
+    prepare_ping_test,
+    execute_until_timeout,
+)
 
 
 @pytest.mark.parametrize("spoof", ("on", "off"))

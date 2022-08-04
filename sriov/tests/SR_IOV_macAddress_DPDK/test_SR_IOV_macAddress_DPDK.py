@@ -1,7 +1,11 @@
-import pytest
-import logging
-from sriov.common.exec import ShellHandler
-from sriov.common.utils import *
+from sriov.common.utils import (
+    create_vfs,
+    get_pci_address,
+    execute_and_assert,
+    bind_driver,
+    prepare_ping_test,
+    execute_until_timeout,
+)
 
 
 def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):

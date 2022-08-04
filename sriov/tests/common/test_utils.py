@@ -1,5 +1,13 @@
 import time
-from sriov.common.utils import *
+from sriov.common.utils import (
+    bind_driver,
+    start_tmux,
+    stop_tmux,
+    execute_and_assert,
+    get_intf_mac,
+    get_pci_address,
+)
+
 
 
 def create_vf(dut, pf_name):
@@ -45,9 +53,6 @@ def test_get_intf_mac(trafficgen, settings):
 
 def test_set_pipefail(dut):
     test_cmd = "false | echo test"
-    code, _, err = dut.execute(test_cmd)
-    assert code == 0
-    set_pipefail(dut)
     code, _, err = dut.execute(test_cmd)
     assert code != 0
 

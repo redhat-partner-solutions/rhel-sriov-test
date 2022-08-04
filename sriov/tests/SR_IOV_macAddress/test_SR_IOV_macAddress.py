@@ -1,5 +1,10 @@
-import time
-from sriov.common.utils import *
+from sriov.common.utils import (
+    create_vfs,
+    execute_and_assert,
+    prepare_ping_test,
+    execute_until_timeout,
+)
+
 
 
 def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):

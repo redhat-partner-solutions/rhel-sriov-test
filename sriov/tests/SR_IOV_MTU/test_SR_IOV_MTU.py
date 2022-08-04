@@ -1,6 +1,12 @@
-import time
 import re
-from sriov.common.utils import *
+from sriov.common.utils import (
+    create_vfs,
+    execute_and_assert,
+    set_mtu,
+    prepare_ping_test,
+    execute_until_timeout,
+    get_vf_mac,
+)
 
 
 def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):

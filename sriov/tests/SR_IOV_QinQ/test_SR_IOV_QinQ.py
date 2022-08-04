@@ -1,5 +1,5 @@
-import time
-from sriov.common.utils import *
+from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
+
 
 
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
@@ -35,7 +35,8 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     tmux_cmd = f"timeout 3 nping --dest-mac {trafficgen_mac} {trafficgen_ip}"
     print(tmux_cmd)
     start_tmux(dut, tmux_session, tmux_cmd)
-    tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 vlan {outside_tag} and vlan {inside_tag}"
+    tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 \
+        vlan {outside_tag} and vlan {inside_tag}"
     print(tgen_cmd)
     code, out, err = trafficgen.execute(tgen_cmd)
     stop_tmux(dut, tmux_session)

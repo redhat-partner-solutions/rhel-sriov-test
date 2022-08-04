@@ -1,6 +1,6 @@
-import time
 import pytest
-from sriov.common.utils import *
+from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
+
 
 
 @pytest.mark.parametrize("spoof", ("on", "off"))

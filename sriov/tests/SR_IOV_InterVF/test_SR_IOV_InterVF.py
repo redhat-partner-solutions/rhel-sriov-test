@@ -1,6 +1,5 @@
 import pytest
-import time
-from sriov.common.utils import *
+from sriov.common.utils import create_vfs, execute_and_assert
 
 
 @pytest.mark.parametrize("spoof", ("on", "off"))

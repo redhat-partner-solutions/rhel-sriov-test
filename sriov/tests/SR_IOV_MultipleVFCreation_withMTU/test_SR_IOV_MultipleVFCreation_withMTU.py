@@ -1,7 +1,13 @@
-import pytest
-from sriov.common.utils import *
+from sriov.common.utils import (
+    execute_and_assert,
+    create_vfs,
+    no_zero_macs_pf,
+    no_zero_macs_vf,
+)
 
-# Use pytest --iteration to adjust the execution_number parameter for desired amount of repeated tests
+
+# Use pytest --iteration to adjust the execution_number parameter for desired amount
+# of repeated tests
 def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_number):
     """Test and ensure that VFs provision with MTU functions as intended
 

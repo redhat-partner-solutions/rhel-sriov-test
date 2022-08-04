@@ -1,9 +1,4 @@
-from docutils import SettingsSpec
-import pytest
-import os
 import logging
-from sriov.common.exec import ShellHandler
-from sriov.common.config import Config
 
 
 LOGGER = logging.getLogger(__name__)
@@ -24,6 +19,7 @@ def test_execute_cmd_fail(dut):
 def test_execute_cmd_timeout(dut):
     code, out, err = dut.execute("sleep 10s")
     assert code != 0 and "timeout" in err[0]
+
 
 
 def test_execute_cmd_with_delay(dut):
