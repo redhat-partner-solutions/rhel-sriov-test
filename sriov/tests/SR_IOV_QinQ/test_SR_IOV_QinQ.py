@@ -1,8 +1,9 @@
 import time
 from sriov.common.utils import *
 
+
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
-    """ Test and ensure that QinQ on VF works with the kernel driver
+    """Test and ensure that QinQ on VF works with the kernel driver
 
     Args:
         dut:        ssh connection obj
@@ -23,8 +24,8 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
         f"ip link add link {pf}v0 name {pf}v0.{inside_tag} type vlan id {inside_tag}",
         f"ip link set {pf}v0.{inside_tag} up",
         f"ip add add {dut_ip}/24 dev {pf}v0.{inside_tag}",
-        ]
-    
+    ]
+
     execute_and_assert(dut, steps, 0, 0.1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]

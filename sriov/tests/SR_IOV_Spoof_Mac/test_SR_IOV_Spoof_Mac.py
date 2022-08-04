@@ -2,9 +2,10 @@ import time
 import pytest
 from sriov.common.utils import *
 
-@pytest.mark.parametrize('spoof', ("on", "off"))
+
+@pytest.mark.parametrize("spoof", ("on", "off"))
 def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
-    """ Test and ensure that VF spoof check and custom mac can be set at the same time
+    """Test and ensure that VF spoof check and custom mac can be set at the same time
 
     Args:
         dut:        ssh connection obj
@@ -20,8 +21,8 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
         f"ip link set {pf} vf 0 mac {testdata.dut_mac}",
         f"ip link set {pf} vf 0 spoof {spoof}",
         f"ip add add {testdata.dut_ip}/24 dev {pf}v0",
-        f"ip link set {pf}v0 up"
-        ]
+        f"ip link set {pf}v0 up",
+    ]
 
     create_vfs(dut, pf, 1)
 
@@ -43,4 +44,3 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
         assert code == 0, err
     else:
         assert code != 0, err
-    

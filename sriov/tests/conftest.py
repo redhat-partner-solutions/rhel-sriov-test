@@ -7,6 +7,7 @@ from sriov.common.exec import ShellHandler
 from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
 from typing import *
 
+
 def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     config_file = script_dir + "/config.yaml"
@@ -20,8 +21,10 @@ def get_ssh_obj(name: str) -> ShellHandler:
     password = settings.config[name]["password"]
     return ShellHandler(host, user, password)
 
+
 def get_testdata_obj(settings: Config) -> ConfigTestData:
     return ConfigTestData(settings)
+
 
 @pytest.fixture
 def settings() -> Config:
@@ -34,17 +37,18 @@ def dut() -> ShellHandler:
     set_pipefail(dut_obj)
     return dut_obj
 
+
 @pytest.fixture
 def testdata(settings: Config) -> ConfigTestData:
     return get_testdata_obj(settings)
 
+
 def reset_command(dut: ShellHandler, testdata) -> None:
     dut.execute("ip netns del ns0 2>/dev/null || true")
     dut.execute("ip netns del ns1 2>/dev/null || true")
-    
+
     for pf in testdata.pf_net_paths:
-        clear_vfs = "echo 0 > " + \
-            testdata.pf_net_paths[pf] + "/sriov_numvfs"
+        clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
         dut.execute(clear_vfs, 60)
 
 
@@ -53,6 +57,7 @@ def trafficgen() -> ShellHandler:
     trafficgen_obj = get_ssh_obj("trafficgen")
     set_pipefail(trafficgen_obj)
     return trafficgen_obj
+
 
 # Great idea from
 # https://stackoverflow.com/questions/3806695/how-to-stop-all-tests-from-inside-a-test-or-setup-using-unittest
@@ -65,7 +70,9 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: bool, request) -> None:
+def _cleanup(
+    dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: bool, request
+) -> None:
     reset_command(dut, testdata)
     yield
     # For debug test failure purpose,
@@ -106,15 +113,14 @@ def pytest_configure(config: Config) -> None:
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
 
-    code, out, err = dut.execute(
-        "cat /sys/bus/pci/drivers/iavf/module/version")
+    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
 
 
 def pytest_html_report_title(report) -> None:
-    ''' modifying the title  of html report'''
+    """modifying the title  of html report"""
     report.title = "SR-IOV Test Report"
 
 
@@ -125,32 +131,54 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
 
     try:
         # This is assuming the current working directory contains the test specification.
-        with open(settings.config['tests_doc_file']) as f:
+        with open(settings.config["tests_doc_file"]) as f:
             lines = f.readlines()
 
-        case_name = ''
+        case_name = ""
         for line in lines:
-            case_index = line.find(settings.config['tests_name_field'])
+            case_index = line.find(settings.config["tests_name_field"])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config['tests_name_field']):]).strip()
+                    line[case_index + len(settings.config["tests_name_field"]) :]
+                ).strip()
                 break
 
-        if case_name != '':
-            test_dir = os.path.dirname(
-                request.module.__file__).split(os.sep)[-1]
-            link = settings.config['github_tests_path'] + '/' + \
-                test_dir + '/' + settings.config['tests_doc_file']
-            extra.append(extras.html('<p>Link to the test specification: <a href="' +
-                                     link + '">' + case_name + ' Documentation</a></p>'))
+        if case_name != "":
+            test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
+            link = (
+                settings.config["github_tests_path"]
+                + "/"
+                + test_dir
+                + "/"
+                + settings.config["tests_doc_file"]
+            )
+            extra.append(
+                extras.html(
+                    '<p>Link to the test specification: <a href="'
+                    + link
+                    + '">'
+                    + case_name
+                    + " Documentation</a></p>"
+                )
+            )
     except:
         return
 
+
 def pytest_addoption(parser) -> None:
-    parser.addoption("--iteration", action="store", default="1",
-                     help="Iterations for robustness test cases")
-    parser.addoption("--skipclean", action="store_true", default=False,
-                     help="Do not clean up when a test case fails")
+    parser.addoption(
+        "--iteration",
+        action="store",
+        default="1",
+        help="Iterations for robustness test cases",
+    )
+    parser.addoption(
+        "--skipclean",
+        action="store_true",
+        default=False,
+        help="Do not clean up when a test case fails",
+    )
+
 
 def pytest_generate_tests(metafunc) -> None:
     if "execution_number" in metafunc.fixturenames:
@@ -159,6 +187,6 @@ def pytest_generate_tests(metafunc) -> None:
         metafunc.parametrize("execution_number", range(end))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def skipclean(request):
     return request.config.option.skipclean

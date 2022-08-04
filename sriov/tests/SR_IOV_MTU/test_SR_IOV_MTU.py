@@ -4,7 +4,7 @@ from sriov.common.utils import *
 
 
 def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
-    """ Test and ensure that VF MTU functions as intended
+    """Test and ensure that VF MTU functions as intended
 
     Args:
         dut:         ssh connection obj
@@ -17,49 +17,53 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     assert create_vfs(dut, pf, 1)
-    
+
     # command to get the maxmtu from the DUT
     cmd = [f"ip -d link list {pf}"]
-    outs, errs = execute_and_assert(dut, cmd, 0)   
+    outs, errs = execute_and_assert(dut, cmd, 0)
     dut_mtu = 0
     for line in outs[0]:
-        match = re.search(r'maxmtu (\d+)', line)
+        match = re.search(r"maxmtu (\d+)", line)
         if match is not None:
             dut_mtu = int(match.group(1))
             break
     assert dut_mtu != 0
-    
+
     # get trafficgen maxmtu
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mtu = 0
     cmd = [f"ip -d link list {trafficgen_pf}"]
     outs, errs = execute_and_assert(trafficgen, cmd, 0)
     for line in outs[0]:
-        match = re.search(r'maxmtu (\d+)', line)
+        match = re.search(r"maxmtu (\d+)", line)
         if match is not None:
             trafficgen_mtu = int(match.group(1))
             break
     assert trafficgen_mtu != 0
-    
+
     # use the smaller mtu between dut and trafficgen
     mtu = min(dut_mtu, trafficgen_mtu)
-    
+
     set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
 
-    steps = [
-        f"ip link set {pf}v0 up",
-        f"ip add add {dut_ip}/24 dev {pf}v0"
-    ]
+    steps = [f"ip link set {pf}v0 up", f"ip add add {dut_ip}/24 dev {pf}v0"]
     execute_and_assert(dut, steps, 0, 0.1)
-    
+
     vf0_mac = get_vf_mac(dut, pf, 0)
     trafficgen_ip = testdata.trafficgen_ip
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    prepare_ping_test(trafficgen, trafficgen_pf, trafficgen_vlan,
-                      trafficgen_ip, trafficgen_mac,
-                      dut, dut_ip, vf0_mac,
-                      testdata)
+    prepare_ping_test(
+        trafficgen,
+        trafficgen_pf,
+        trafficgen_vlan,
+        trafficgen_ip,
+        trafficgen_mac,
+        dut,
+        dut_ip,
+        vf0_mac,
+        testdata,
+    )
 
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
     print(ping_cmd)
