@@ -1,7 +1,5 @@
 from mock import Mock, patch
-import os
 from sriov.common.utils import set_vf_mac, verify_vf_address  # noqa: E402
-import sys
 import unittest
 
 
