@@ -68,7 +68,7 @@ trafficgen:
 
 One may also choose to run the test script from the TrafficGen. In that case, the host will be `127.0.0.1`
 
-Running the script from a python3 virtual enviroment is recommended. Install the required python modules,
+Running the script from a python3 virtual environment is recommended. Install the required python modules,
 
 ```
 python3 -m venv venv
@@ -83,7 +83,7 @@ cd sriov/tests/
 pytest -v SR_IOV_Permutation
 ```
 
-Certain test cases support multiple iterations. The number of iterations can be specified using `--iteration` option. For example, to run the test case  `SR_IOV_MultipleVFCreation_withMTU` 10 times,
+Certain test cases support multiple iterations. The number of iterations can be specified using the `--iteration` option. For example, to run the test case  `SR_IOV_MultipleVFCreation_withMTU` 10 times,
 ```
 pytest -v --iteration=10 SR_IOV_MultipleVFCreation_withMTU
 ```
@@ -104,23 +104,23 @@ After the test is completed, report.html will be generated under the current wor
 
 Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
 
-In order for the html test reported generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
+In order for the html test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
 
 ## Common Code
 
 The common code shared by all test cases is under the `sriov/common`. 
 
-The common code has its own test cases. Majority of the common code test cases are under the `tests/common/` folder. Pytest is used to execute these test cases. Because a valid `config.yaml` file is expected by pytest to establish ssh connections and execute these test cases, they are considered as e2e test.
+The common code has its own test cases. The majority of the common code test cases are under the `tests/common/` folder. Pytest is used to execute these test cases. Because a valid `config.yaml` file is expected by pytest to establish ssh connections and execute these test cases, they are considered an e2e test.
 
-A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover senarios that are difficult to cover via the e2e tests. These tests must be run from the root of the repo.
+A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover scenarios that are difficult to cover via the e2e tests. These tests must be run from the root of the repo, unless one sets the `PYTHONPATH` environment variable to include the root, in which case the mock tests may be run from another directory.
 
 ## Debug Failed Test Case
 
-When a test case is failing, one may want to immediately stop the test run and keep the failed setup for manual debug. This can not be achieved with the pytest `-x` option, as `-x` still allow the clean up to happen. In stead, this can be done by using `--skipclean` option.
+When a test case is failing, one may want to immediately stop the test run and keep the failed setup for manual debugging. This can not be achieved with the pytest `-x` option, as `-x` still allow the cleanup to happen. Instead, this can be done by using the `--skipclean` option.
 
 For example, if some permutation in `SR_IOV_Permutation_DPDK` has failed, re-run this test case like this,
 ```pytest -v --skipclean SR_IOV_Permutation_DPDK```
 
-The test execution will stop immediately without clean up, one can access the DUT and the trafficgen to debug.
+The test execution will stop immediately without cleaning up, and one may access the DUT and the trafficgen to debug.
 
-After the debug is complete, one has to manually clean up the set up.
+After the debug is complete, one has to manually clean up the setup.
