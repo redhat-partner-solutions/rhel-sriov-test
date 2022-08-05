@@ -2,10 +2,11 @@ import paramiko
 import re
 import signal
 import time
+from typing import Tuple
 
 
 class ShellHandler:
-    def __init__(self, host, user, psw):
+    def __init__(self, host: str, user: str, psw: str) -> None:
         """Initialize the shell handler object
 
         Args:
@@ -19,10 +20,10 @@ class ShellHandler:
         self.ssh.connect(host, username=user, password=psw, port=22)
 
         channel = self.ssh.invoke_shell()
-        self.stdin = channel.makefile('wb')
-        self.stdout = channel.makefile('r')
+        self.stdin = channel.makefile("wb")
+        self.stdout = channel.makefile("r")
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Delete the shell handler ssh object
 
         Args:
@@ -36,7 +37,7 @@ class ShellHandler:
         self.ssh.close()
 
     @staticmethod
-    def timeout_handler(signum, frame):
+    def timeout_handler(signum, frame) -> None:
         """Handle the timeout by raising an exception
 
         Args:
@@ -48,8 +49,8 @@ class ShellHandler:
         """
         raise Exception("timeout")
 
-    def start_testpmd(self, cmd):
-        """Start the TestPMD application
+    def start_testpmd(self, cmd: str) -> Tuple[int, list, list]:
+        """ Start the TestPMD application
 
         Args:
             self: self
@@ -65,9 +66,9 @@ class ShellHandler:
         """
         cmd = cmd.strip("\n")
         print(cmd)
-        self.stdin.write(cmd + '\n')
-        self.stdin.write('\n')
-        finish = 'testpmd>'
+        self.stdin.write(cmd + "\n")
+        self.stdin.write("\n")
+        finish = "testpmd>"
         self.stdin.flush()
 
         shout = []
@@ -83,10 +84,10 @@ class ShellHandler:
                     break
                 else:
                     shout.append(
-                        re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
-                        .sub('', line)
-                        .replace('\b', '')
-                        .replace('\r', '')
+                        re.compile(r"(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]")
+                        .sub("", line)
+                        .replace("\b", "")
+                        .replace("\r", "")
                     )
         except Exception as err:
             exit_status = -1
@@ -95,7 +96,7 @@ class ShellHandler:
             signal.alarm(0)
         return exit_status, shout, sherr
 
-    def testpmd_active(self):
+    def testpmd_active(self) -> bool:
         """A test of activity for the TestPMD session by sending a newline
             heartbeat
 
@@ -105,9 +106,9 @@ class ShellHandler:
         Returns:
             active (boolean): True if TestPMD prompt exists, False otherwise
         """
-        self.stdin.write('\n')
+        self.stdin.write("\n")
         self.stdin.flush()
-        finish = 'testpmd>'
+        finish = "testpmd>"
         active = True
         signal.signal(signal.SIGALRM, self.timeout_handler)
         signal.alarm(1)
@@ -121,7 +122,7 @@ class ShellHandler:
             signal.alarm(0)
         return active
 
-    def stop_testpmd(self):
+    def stop_testpmd(self) -> int:
         """Stop TestPMD if the SSH session has the TestPMD application running
 
         Args:
@@ -132,8 +133,8 @@ class ShellHandler:
         """
         if not self.testpmd_active():
             return 0
-        self.stdin.write('quit\n')
-        finish = 'Bye...'
+        self.stdin.write("quit\n")
+        finish = "Bye..."
         self.stdin.flush()
 
         exit_status = 0
@@ -152,7 +153,7 @@ class ShellHandler:
         time.sleep(1)
         return exit_status
 
-    def testpmd_cmd(self, cmd):
+    def testpmd_cmd(self, cmd: str) -> int:
         """Send a command to the TestPMD application
 
         Args:
@@ -166,11 +167,11 @@ class ShellHandler:
             Exception: TestPMD not active
         """
         if not self.testpmd_active():
-            raise Exception('TestPMD not active')
-        cmd = cmd.strip('\n')
-        self.stdin.write(cmd + '\n')
+            raise Exception("TestPMD not active")
+        cmd = cmd.strip("\n")
+        self.stdin.write(cmd + "\n")
         self.stdin.flush()
-        finish = 'testpmd>'
+        finish = "testpmd>"
         signal.signal(signal.SIGALRM, self.timeout_handler)
         signal.alarm(1)
         exit_code = 0
@@ -185,7 +186,7 @@ class ShellHandler:
 
         return exit_code
 
-    def execute(self, cmd, timeout=5):
+    def execute(self, cmd: str, timeout: int = 5) -> Tuple[int, list, list]:
         """Execute a command in the SSH session
 
         Args:
@@ -198,11 +199,11 @@ class ShellHandler:
             shout (list):      list of stdout lines
             sherr (list):      list of stderr lines
         """
-        cmd = cmd.strip('\n')
-        self.stdin.write(cmd + '\n')
-        finish = 'end of stdOUT buffer. finished with exit status'
-        echo_cmd = 'echo {} $?'.format(finish)
-        self.stdin.write(echo_cmd + '\n')
+        cmd = cmd.strip("\n")
+        self.stdin.write(cmd + "\n")
+        finish = "end of stdOUT buffer. finished with exit status"
+        echo_cmd = "echo {} $?".format(finish)
+        self.stdin.write(echo_cmd + "\n")
         self.stdin.flush()
 
         shout = []
@@ -227,10 +228,10 @@ class ShellHandler:
                 else:
                     # get rid of 'coloring and formatting' special characters
                     shout.append(
-                        re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
-                        .sub('', line)
-                        .replace('\b', '')
-                        .replace('\r', '')
+                        re.compile(r"(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]")
+                        .sub("", line)
+                        .replace("\b", "")
+                        .replace("\r", "")
                     )
         except Exception as err:
             exit_status = -1

@@ -10,11 +10,11 @@ from sriov.common.utils import (
 )
 
 
-@pytest.mark.parametrize('spoof', ("on", "off"))
-@pytest.mark.parametrize('trust', ("on", "off"))
-@pytest.mark.parametrize('qos', (True, False))
-@pytest.mark.parametrize('vlan', (True, False))
-@pytest.mark.parametrize('max_tx_rate', (True, False))
+@pytest.mark.parametrize("spoof", ("on", "off"))
+@pytest.mark.parametrize("trust", ("on", "off"))
+@pytest.mark.parametrize("qos", (True, False))
+@pytest.mark.parametrize("vlan", (True, False))
+@pytest.mark.parametrize("max_tx_rate", (True, False))
 def test_SR_IOV_Permutation_DPDK(
     dut, trafficgen, settings, testdata, spoof, trust, qos, vlan, max_tx_rate
 ):
@@ -41,26 +41,26 @@ def test_SR_IOV_Permutation_DPDK(
 
     assert create_vfs(dut, pf, 1)
 
-    assert set_vf_mac(dut, pf, 0, testdata['dut_mac'])
+    assert set_vf_mac(dut, pf, 0, testdata.dut_mac)
 
     steps = [
         f"ip link set {pf} vf 0 spoof {spoof}",
         f"ip link set {pf} vf 0 trust {trust}",
     ]
     if vlan:
-        qos_str = f"qos {testdata['qos']}" if qos else ""
-        steps.append(f"ip link set {pf} vf 0 vlan {testdata['vlan']} {qos_str}")
+        qos_str = f"qos {testdata.qos}" if qos else ""
+        steps.append(f"ip link set {pf} vf 0 vlan {testdata.vlan} {qos_str}")
     if max_tx_rate:
-        steps.append(f"ip link set {pf} vf 0 max_tx_rate {testdata['max_tx_rate']}")
+        steps.append(f"ip link set {pf} vf 0 max_tx_rate {testdata.max_tx_rate}")
 
     execute_and_assert(dut, steps, 0, 0.1)
 
     pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver(dut, pci, "vfio-pci")
 
-    assert verify_vf_address(dut, pf, 0, testdata['dut_mac'])
+    assert verify_vf_address(dut, pf, 0, testdata.dut_mac)
 
-    dut.start_testpmd(testdata['podman_cmd'])
+    dut.start_testpmd(testdata.podman_cmd)
     assert dut.testpmd_active()
 
     steps = ["set fwd icmpecho", "start"]
@@ -69,11 +69,11 @@ def test_SR_IOV_Permutation_DPDK(
         code = dut.testpmd_cmd(step)
         assert code == 0
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    trafficgen_vlan = testdata['vlan'] if vlan else 0
-    trafficgen_ip = testdata['trafficgen_ip']
+    trafficgen_vlan = testdata.vlan if vlan else 0
+    trafficgen_ip = testdata.trafficgen_ip
     trafficgen_mac = None  # None means no need to add arp entry on DUT
-    dut_ip = testdata['dut_ip']
-    vf0_mac = testdata['dut_mac']
+    dut_ip = testdata.dut_ip
+    vf0_mac = testdata.dut_mac
     prepare_ping_test(
         trafficgen,
         trafficgen_pf,

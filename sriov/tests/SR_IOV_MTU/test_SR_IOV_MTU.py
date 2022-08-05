@@ -19,7 +19,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
         testdata:    testdata obj
     """
 
-    dut_ip = testdata['dut_ip']
+    dut_ip = testdata.dut_ip
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     assert create_vfs(dut, pf, 1)
@@ -29,7 +29,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     outs, errs = execute_and_assert(dut, cmd, 0)
     dut_mtu = 0
     for line in outs[0]:
-        match = re.search(r'maxmtu (\d+)', line)
+        match = re.search(r"maxmtu (\d+)", line)
         if match is not None:
             dut_mtu = int(match.group(1))
             break
@@ -41,7 +41,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     cmd = [f"ip -d link list {trafficgen_pf}"]
     outs, errs = execute_and_assert(trafficgen, cmd, 0)
     for line in outs[0]:
-        match = re.search(r'maxmtu (\d+)', line)
+        match = re.search(r"maxmtu (\d+)", line)
         if match is not None:
             trafficgen_mtu = int(match.group(1))
             break
@@ -56,7 +56,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     execute_and_assert(dut, steps, 0, 0.1)
 
     vf0_mac = get_vf_mac(dut, pf, 0)
-    trafficgen_ip = testdata['trafficgen_ip']
+    trafficgen_ip = testdata.trafficgen_ip
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
     prepare_ping_test(

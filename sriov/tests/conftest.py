@@ -1,18 +1,19 @@
-import pytest
 import os
-from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
-from sriov.common.exec import ShellHandler
-from sriov.common.config import Config
+import pytest
 from pytest_html import extras
+from sriov.common.config import Config
+from sriov.common.configtestdata import ConfigTestData
+from sriov.common.exec import ShellHandler
+from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
 
 
-def get_settings_obj():
+def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     config_file = script_dir + "/config.yaml"
     return Config(config_file)
 
 
-def get_ssh_obj(name):
+def get_ssh_obj(name: str) -> ShellHandler:
     settings = get_settings_obj()
     host = settings.config[name]["host"]
     user = settings.config[name]["username"]
@@ -20,29 +21,38 @@ def get_ssh_obj(name):
     return ShellHandler(host, user, password)
 
 
+def get_testdata_obj(settings: Config) -> ConfigTestData:
+    return ConfigTestData(settings)
+
+
 @pytest.fixture
-def settings():
+def settings() -> Config:
     return get_settings_obj()
 
 
 @pytest.fixture
-def dut():
+def dut() -> ShellHandler:
     dut_obj = get_ssh_obj("dut")
     set_pipefail(dut_obj)
     return dut_obj
 
 
-def reset_command(dut, testdata):
+@pytest.fixture
+def testdata(settings: Config) -> ConfigTestData:
+    return get_testdata_obj(settings)
+
+
+def reset_command(dut: ShellHandler, testdata) -> None:
     dut.execute("ip netns del ns0 2>/dev/null || true")
     dut.execute("ip netns del ns1 2>/dev/null || true")
 
-    for pf in testdata['pf_net_paths']:
-        clear_vfs = "echo 0 > " + testdata['pf_net_paths'][pf] + "/sriov_numvfs"
+    for pf in testdata.pf_net_paths:
+        clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
         dut.execute(clear_vfs, 60)
 
 
 @pytest.fixture
-def trafficgen():
+def trafficgen() -> ShellHandler:
     trafficgen_obj = get_ssh_obj("trafficgen")
     set_pipefail(trafficgen_obj)
     return trafficgen_obj
@@ -59,7 +69,9 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture(autouse=True)
-def _cleanup(dut, trafficgen, testdata, skipclean, request):
+def _cleanup(
+    dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: bool, request
+) -> None:
     reset_command(dut, testdata)
     yield
     # For debug test failure purpose,
@@ -72,7 +84,7 @@ def _cleanup(dut, trafficgen, testdata, skipclean, request):
     reset_command(dut, testdata)
 
 
-def pytest_configure(config):
+def pytest_configure(config: Config) -> None:
     dut = get_ssh_obj("dut")
     # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
@@ -106,38 +118,39 @@ def pytest_configure(config):
     config._metadata["IAVF Driver"] = iavf_driver
 
 
-def pytest_html_report_title(report):
-    '''modifying the title  of html report'''
+def pytest_html_report_title(report) -> None:
+    """modifying the title  of html report"""
     report.title = "SR-IOV Test Report"
 
 
 @pytest.fixture(autouse=True)
-def _report_extras(extra, request, settings, monkeypatch):
+def _report_extras(extra, request, settings, monkeypatch) -> None:
     lines = []
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
-        # This is assuming the current working directory contains the test specification
-        with open(settings.config['tests_doc_file']) as f:
+        # This is assuming the current working directory contains the test
+        # specification.
+        with open(settings.config["tests_doc_file"]) as f:
             lines = f.readlines()
 
-        case_name = ''
+        case_name = ""
         for line in lines:
-            case_index = line.find(settings.config['tests_name_field'])
+            case_index = line.find(settings.config["tests_name_field"])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config['tests_name_field']) :]
+                    line[case_index + len(settings.config["tests_name_field"]):]
                 ).strip()
                 break
 
-        if case_name != '':
+        if case_name != "":
             test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
             link = (
-                settings.config['github_tests_path']
-                + '/'
+                settings.config["github_tests_path"]
+                + "/"
                 + test_dir
-                + '/'
-                + settings.config['tests_doc_file']
+                + "/"
+                + settings.config["tests_doc_file"]
             )
             extra.append(
                 extras.html(
@@ -145,53 +158,14 @@ def _report_extras(extra, request, settings, monkeypatch):
                     + link
                     + '">'
                     + case_name
-                    + ' Documentation</a></p>'
+                    + " Documentation</a></p>"
                 )
             )
     except Exception:
         return
 
 
-@pytest.fixture
-def testdata(settings):
-    data = dict()
-    data['vlan'] = 10
-    data['dut_ip'] = "101.1.1.2"
-    data['dut_mac'] = "aa:bb:cc:dd:ee:00"
-    data['dut_spoof_mac'] = "aa:bb:cc:dd:ee:ff"
-    data['trafficgen_ip'] = "101.1.1.1"
-    data['qos'] = 5
-    data['max_tx_rate'] = 10
-    data['pfs'] = {}
-    data['vfs'] = {}
-    data['pf_net_paths'] = {}
-    # NOTE: These should be done in a loop going forward
-    for interface in settings.config['dut']['interface']:
-        if 'pf' in interface:
-            data['pfs'][interface] = settings.config['dut']['interface'][interface]
-            data['pf_net_paths'][interface] = (
-                '/sys/class/net/'
-                + settings.config['dut']['interface'][interface]['name']
-                + '/device'
-            )
-        else:
-            data['vfs'][interface] = settings.config['dut']['interface'][interface]
-    data["tmux_session_name"] = "sriov_job"
-    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
-    dpdk_img = settings.config["dpdk_img"]
-    cpus = settings.config["dut"]["pmd_cpus"]
-    data['podman_cmd'] = (
-        "podman run -it --rm --privileged "
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-        "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "
-        "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
-    )
-    data['ping'] = {}  # track ping test
-    data['mtu'] = {}  # track mtu change
-    return data
-
-
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     parser.addoption(
         "--iteration",
         action="store",
@@ -206,13 +180,13 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_generate_tests(metafunc):
+def pytest_generate_tests(metafunc) -> None:
     if "execution_number" in metafunc.fixturenames:
         if metafunc.config.getoption("iteration"):
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def skipclean(request):
     return request.config.option.skipclean

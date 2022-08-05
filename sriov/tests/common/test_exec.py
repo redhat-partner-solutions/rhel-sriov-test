@@ -18,7 +18,7 @@ def test_execute_cmd_fail(dut):
 
 def test_execute_cmd_timeout(dut):
     code, out, err = dut.execute("sleep 10s")
-    assert code != 0 and 'timeout' in err[0]
+    assert code != 0 and "timeout" in err[0]
 
 
 def test_execute_cmd_with_delay(dut):

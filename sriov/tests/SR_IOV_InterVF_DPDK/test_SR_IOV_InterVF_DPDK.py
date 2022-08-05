@@ -16,16 +16,16 @@ def stop_testpmd_in_tmux(dut, tmux_session):
     stop_tmux(dut, tmux_session)
 
 
-@pytest.mark.parametrize('spoof', ("on", "off"))
-@pytest.mark.parametrize('trust', ("on", "off"))
-@pytest.mark.parametrize('qos', (True, False))
-@pytest.mark.parametrize('vlan', (True, False))
-@pytest.mark.parametrize('max_tx_rate', (True, False))
+@pytest.mark.parametrize("spoof", ("on", "off"))
+@pytest.mark.parametrize("trust", ("on", "off"))
+@pytest.mark.parametrize("qos", (True, False))
+@pytest.mark.parametrize("vlan", (True, False))
+@pytest.mark.parametrize("max_tx_rate", (True, False))
 def test_SR_IOV_InterVF_DPDK(
     dut, settings, testdata, spoof, trust, qos, vlan, max_tx_rate
 ):
-    """Test and ensure that VFs bound to DPDK driver can communicate with VF
-       on the same PF
+    """Test and ensure that VFs bound to DPDK driver can communicate with VF on
+       the same PF
 
     Args:
         dut:         ssh connection obj
@@ -54,12 +54,10 @@ def test_SR_IOV_InterVF_DPDK(
             ]
         )
         if vlan:
-            qos_str = f"qos {testdata['qos']}" if qos else ""
-            steps.append(f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
+            qos_str = f"qos {testdata.qos}" if qos else ""
+            steps.append(f"ip link set {pf} vf {i} vlan {testdata.vlan} {qos_str}")
         if max_tx_rate:
-            steps.append(
-                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}"
-            )
+            steps.append(f"ip link set {pf} vf {i} max_tx_rate {testdata.max_tx_rate}")
 
     execute_and_assert(dut, steps, 0, 0.1)
 
@@ -78,7 +76,7 @@ def test_SR_IOV_InterVF_DPDK(
         "-- --nb-cores=2 --forward=icmpecho".format(cpus, dpdk_img, cpus, vf_pci)
     )
     print(tmux_cmd)
-    tmux_session = testdata['tmux_session_name']
+    tmux_session = testdata.tmux_session_name
     start_tmux(dut, tmux_session, tmux_cmd)
 
     # make sure tmux testpmd session has started

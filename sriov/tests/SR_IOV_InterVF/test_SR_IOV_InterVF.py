@@ -2,11 +2,11 @@ import pytest
 from sriov.common.utils import create_vfs, execute_and_assert
 
 
-@pytest.mark.parametrize('spoof', ("on", "off"))
-@pytest.mark.parametrize('trust', ("on", "off"))
-@pytest.mark.parametrize('qos', (True, False))
-@pytest.mark.parametrize('vlan', (True, False))
-@pytest.mark.parametrize('max_tx_rate', (True, False))
+@pytest.mark.parametrize("spoof", ("on", "off"))
+@pytest.mark.parametrize("trust", ("on", "off"))
+@pytest.mark.parametrize("qos", (True, False))
+@pytest.mark.parametrize("vlan", (True, False))
+@pytest.mark.parametrize("max_tx_rate", (True, False))
 def test_SR_IOV_InterVF(
     dut, trafficgen, settings, testdata, spoof, trust, qos, vlan, max_tx_rate
 ):
@@ -39,12 +39,10 @@ def test_SR_IOV_InterVF(
             ]
         )
         if vlan:
-            qos_str = f"qos {testdata['qos']}" if qos else ""
-            steps.append(f"ip link set {pf} vf {i} vlan {testdata['vlan']} {qos_str}")
+            qos_str = f"qos {testdata.qos}" if qos else ""
+            steps.append(f"ip link set {pf} vf {i} vlan {testdata.vlan} {qos_str}")
         if max_tx_rate:
-            steps.append(
-                f"ip link set {pf} vf {i} max_tx_rate {testdata['max_tx_rate']}"
-            )
+            steps.append(f"ip link set {pf} vf {i} max_tx_rate {testdata.max_tx_rate}")
         steps.append(f"ip link set {pf}v{i} netns ns{i}")
         steps.append(
             f"ip netns exec ns{i} ip addr add {ip_addr_prefix}{i}/24 dev {pf}v{i}"
