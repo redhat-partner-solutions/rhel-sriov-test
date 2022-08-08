@@ -1,4 +1,3 @@
-import time
 from sriov.common.utils import (
     bind_driver,
     start_tmux,
