@@ -15,4 +15,4 @@ class Config:
         with open(testbed_file, "r") as file:
             testbed = yaml.safe_load(file)
             for k, v in testbed.items():
-                self.config[k] = v       
+                self.config[k] = v
