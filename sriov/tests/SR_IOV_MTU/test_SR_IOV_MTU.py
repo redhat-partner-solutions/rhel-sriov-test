@@ -72,5 +72,4 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     )
 
     ping_cmd = f"ping -W 1 -c 1 -s {mtu-28} -M do {trafficgen_ip}"
-    print(ping_cmd)
     assert execute_until_timeout(dut, ping_cmd)
