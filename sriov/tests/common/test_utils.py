@@ -45,7 +45,7 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
     config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
 
     step = [f"ip addr show {trafficgen_pf}"]
-    outs, errs = dut.execute_and_assert(dut, step, 0)
+    outs, errs = execute_and_assert(dut, step, 0)
 
     ip_addr_found = False
     for out in outs:
@@ -56,6 +56,8 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
     assert ip_addr_found is True
 
     clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+
+    outs, errs = execute_and_assert(dut, step, 0)
 
     ip_addr_found = False
     for out in outs:
@@ -78,6 +80,58 @@ def test_config_and_clear_interface_fail(dut, trafficgen, settings, testdata):
 
     try:
         clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+        assert False  # Should always short circuit this
+    except Exception as e:
+        assert True
+
+
+def test_add_and_rm_arp_entry(dut, trafficgen, settings, testdata):
+    trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    trafficgen_vlan = 0
+    trafficgen_ip = testdata.trafficgen_ip
+    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+
+    dut_ip = testdata.dut_ip
+    vf0_mac = get_vf_mac(dut, pf, 0)
+    add_arp_entry(trafficgen, dut_ip, vf0_mac)
+
+    step = [f"arp -a"]
+    outs, errs = execute_and_assert(trafficgen, step, 0)
+    
+    ip_arp_found = False
+    mac_arp_found = False
+    for out in outs:
+        if dut_ip in out:
+            ip_arp_found = True
+        if vf0_mac in out:
+            mac_arp_found = True
+
+    assert (ip_arp_found is True) and (mac_arp_found is True)
+
+    rm_arp_entry(trafficgen, dut_ip)
+
+    outs, errs = execute_and_assert(trafficgen, step, 0)
+
+    ip_arp_found = False
+    mac_arp_found = False
+    for out in outs:
+        if dut_ip in out:
+            ip_arp_found = True
+        if vf0_mac in out:
+            mac_arp_found = True
+
+    assert (ip_arp_found is False) and (mac_arp_found is False)
+
+
+def test_add_and_rm_arp_entry_fail(dut, trafficgen):
+    try:
+        add_arp_entry(trafficgen, "1.2.3.4", "test")
+        assert False  # Should always short circuit this
+    except Exception as e:
+        assert True
+
+    try:
+        rm_arp_entry(trafficgen, "1.2.3.4")
         assert False  # Should always short circuit this
     except Exception as e:
         assert True
