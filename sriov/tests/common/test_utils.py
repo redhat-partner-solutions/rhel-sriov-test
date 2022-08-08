@@ -38,6 +38,51 @@ def test_bind_driver(dut, settings):
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
 
+def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
+    trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    trafficgen_vlan = 0
+    trafficgen_ip = testdata.trafficgen_ip
+    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+
+    step = [f"ip addr show {trafficgen_pf}"]
+    outs, errs = dut.execute_and_assert(dut, step, 0)
+
+    ip_addr_found = False
+    for out in outs:
+        if trafficgen_ip in out:
+            ip_addr_found = True
+            break
+
+    assert ip_addr_found is True
+
+    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+
+    ip_addr_found = False
+    for out in outs:
+        if trafficgen_ip in out:
+            ip_addr_found = True
+            break
+
+    assert ip_addr_found is False
+
+
+def test_config_and_clear_interface_fail(dut, trafficgen, settings, testdata):
+    trafficgen_pf = "test"
+    trafficgen_vlan = 0
+    trafficgen_ip = testdata.trafficgen_ip
+    try:
+        config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+        assert False  # Should always short circuit this
+    except Exception as e:
+        assert True
+
+    try:
+        clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+        assert False  # Should always short circuit this
+    except Exception as e:
+        assert True
+
+
 def test_tmux(dut, testdata):
     name = testdata["tmux_session_name"]
     start_tmux(dut, name, "sleep 8")

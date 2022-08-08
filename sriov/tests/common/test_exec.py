@@ -4,6 +4,15 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
+def test_timoeut_handler(dut):
+    try:
+        dut.timeout_handler(0,0)
+        assert False  # This should always be short circuited
+    except Exception as e:
+        assert True
+        assert "timeout" in e
+
+
 def test_execute_cmd_success(dut):
     code, out, err = dut.execute("cat /proc/1/status")
     assert code == 0
