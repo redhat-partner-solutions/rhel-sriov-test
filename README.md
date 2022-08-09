@@ -34,16 +34,9 @@ yum install -y nmap
 
 The test script can be run from a third server. It will set up one ssh session to the TrafficGen and one to the DUT. The script will send commands over the ssh sessions to set up configuration or to send test traffic.
 
-The script will look for `tests/config.yaml` in order to access the TrafficGen and the DUT. Other than the ssh access information, other information such as the interfaces connecting the DUT and the TrafficGen will also be provided in this file. A template `config_template.yaml` is provided as a sample. One can build a local config.yaml from this sample file.
+The script will look for `tests/testbed.yaml` in order to access the TrafficGen and the DUT. Other than the ssh access information, other information such as the interfaces connecting the DUT and the TrafficGen will also be provided in this file. A template `testbed_template.yaml` is provided as a sample. One can build a local testbed.yaml from this sample file. The content of this file is explained below,
 
 ```
-dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
-github_tests_path:          # URL to the test directory
-                            # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
-tests_doc_file: 	          # test specification name under the test case directory
-                            # example: "README.md"
-tests_name_field: 	        # name field in the test specification
-                            # example: "Test Case Name:"
 dut:
   host:                     # DUT ip address
   username: root            # need root access
@@ -66,7 +59,19 @@ trafficgen:
       mac: "xx:xx:xx..."    # first PF mac address
 ```
 
-One may also choose to run the test script from the TrafficGen. In that case, the host will be `127.0.0.1`
+If one chooses to run the test script from the TrafficGen, the trafficgen host will be `127.0.0.1`
+
+Besides `tests/testbed.yaml`, the script will also look for `tests/config.yaml`. A template `config_template.yaml` is provided as a sample. In most situations, users can simply copy from this sample file into a local config.yaml. The content of this file is explained below,
+
+```
+dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"  # DPDK build container image
+github_tests_path:          # URL to the test directory
+                            # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
+tests_doc_file: 	          # test specification name under the test case directory
+                            # example: "README.md"
+tests_name_field: 	        # name field in the test specification
+                            # example: "Test Case Name:"
+```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,
 
