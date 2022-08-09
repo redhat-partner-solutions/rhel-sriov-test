@@ -1,4 +1,3 @@
-import time
 from sriov.common.utils import (
     bind_driver,
     start_tmux,
@@ -26,23 +25,12 @@ from sriov.common.utils import (
 )
 
 
-def create_vf(dut, pf_name):
-    steps = [
-        f"echo 0 > /sys/class/net/{pf_name}/device/sriov_numvfs",
-        f"echo 1 > /sys/class/net/{pf_name}/device/sriov_numvfs",
-    ]
-    for step in steps:
-        code, _, err = dut.execute(step)
-        assert code == 0, err
-        time.sleep(0.1)
-
-
 def test_get_pci_address(dut, settings):
     pf_pci = settings.config["dut"]["interface"]["pf1"]["pci"]
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
     assert pf_pci == get_pci_address(dut, pf_name)
 
-    create_vf(dut, pf_name)
+    assert create_vfs(dut, pf_name, 1)
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     vf_name = settings.config["dut"]["interface"]["vf1"]["name"]
     assert vf_pci == get_pci_address(dut, vf_name)
@@ -50,7 +38,7 @@ def test_get_pci_address(dut, settings):
 
 def test_bind_driver(dut, settings):
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
-    create_vf(dut, pf_name)
+    assert create_vfs(dut, pf_name, 1)
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver(dut, vf_pci, "vfio-pci")
 

@@ -10,7 +10,8 @@ from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
 def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     config_file = script_dir + "/config.yaml"
-    return Config(config_file)
+    testbed_file = script_dir + "/testbed.yaml"
+    return Config(config_file, testbed_file)
 
 
 def get_ssh_obj(name: str) -> ShellHandler:
