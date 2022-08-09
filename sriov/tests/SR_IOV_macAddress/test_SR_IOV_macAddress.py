@@ -47,5 +47,4 @@ def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
     )
 
     ping_cmd = "ping -W 1 -c 1 {}".format(testdata.dut_ip)
-    print(ping_cmd)
     assert execute_until_timeout(trafficgen, ping_cmd)

@@ -590,6 +590,7 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
         True: cmd return exit code 0 before timeout
         False: cmd does not return exit code 0
     """
+    print(cmd)
     count = max(1, int(timeout))
     while count > 0:
         code, out, err = ssh_obj.execute(cmd)
