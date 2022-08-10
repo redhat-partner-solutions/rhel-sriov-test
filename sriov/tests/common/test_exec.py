@@ -1,4 +1,5 @@
 import logging
+import time
 
 
 LOGGER = logging.getLogger(__name__)
@@ -63,6 +64,7 @@ def test_start_and_stop_testpmd(dut, settings):
     assert dut.testpmd_active()
     assert dut.stop_testpmd() == 0
     # test after quit from testpmd session, ssh session is ready for shell cmd
+    time.sleep(1)
     code, out, err = dut.execute("echo ALIVE")
     assert code == 0, err
     print(out)
