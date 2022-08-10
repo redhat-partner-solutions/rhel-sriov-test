@@ -34,7 +34,7 @@ def settings() -> Config:
 @pytest.fixture
 def dut() -> ShellHandler:
     dut_obj = get_ssh_obj("dut")
-    set_pipefail(dut_obj)
+    assert set_pipefail(dut_obj)
     return dut_obj
 
 
@@ -55,7 +55,7 @@ def reset_command(dut: ShellHandler, testdata) -> None:
 @pytest.fixture
 def trafficgen() -> ShellHandler:
     trafficgen_obj = get_ssh_obj("trafficgen")
-    set_pipefail(trafficgen_obj)
+    assert set_pipefail(trafficgen_obj)
     return trafficgen_obj
 
 
@@ -80,8 +80,8 @@ def _cleanup(
     if request.node.rep_call.failed and skipclean:
         pytest.exit("stop the test run without cleanup")
     dut.stop_testpmd()
-    cleanup_after_ping(trafficgen, dut, testdata)
-    reset_mtu(trafficgen, dut, testdata)
+    assert cleanup_after_ping(trafficgen, dut, testdata)
+    assert reset_mtu(trafficgen, dut, testdata)
     reset_command(dut, testdata)
 
 

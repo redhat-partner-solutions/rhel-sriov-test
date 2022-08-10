@@ -54,7 +54,7 @@ def test_SR_IOV_Permutation(
     trafficgen_mac = None  # None means no need to add arp entry on DUT
     dut_ip = testdata.dut_ip
     vf0_mac = testdata.dut_mac
-    prepare_ping_test(
+    assert prepare_ping_test(
         trafficgen,
         trafficgen_pf,
         trafficgen_vlan,

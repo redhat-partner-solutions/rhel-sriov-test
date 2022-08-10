@@ -52,7 +52,7 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
 
     trafficgen_vlan = 0
     trafficgen_mac = None  # None means no need to set arp entry on DUT
-    prepare_ping_test(
+    assert prepare_ping_test(
         trafficgen,
         trafficgen_pf,
         trafficgen_vlan,

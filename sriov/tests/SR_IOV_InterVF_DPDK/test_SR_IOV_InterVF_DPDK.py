@@ -13,7 +13,7 @@ from sriov.common.utils import (
 def stop_testpmd_in_tmux(dut, tmux_session):
     dut.execute(f"tmux send-keys -t {tmux_session} 'quit' ENTER")
     time.sleep(1)
-    stop_tmux(dut, tmux_session)
+    assert stop_tmux(dut, tmux_session)
 
 
 @pytest.mark.parametrize("spoof", ("on", "off"))
@@ -77,7 +77,7 @@ def test_SR_IOV_InterVF_DPDK(
     )
     print(tmux_cmd)
     tmux_session = testdata.tmux_session_name
-    start_tmux(dut, tmux_session, tmux_cmd)
+    assert start_tmux(dut, tmux_session, tmux_cmd)
 
     # make sure tmux testpmd session has started
     for i in range(15):

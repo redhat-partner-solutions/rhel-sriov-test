@@ -3,7 +3,7 @@ from sriov.common.utils import (
     create_vfs,
     no_zero_macs_pf,
     no_zero_macs_vf,
-    set_pipefail
+    set_pipefail,
 )
 
 
@@ -21,7 +21,7 @@ def test_SRIOVMultipleVFCreationwithMTU(dut, settings, testdata, execution_numbe
     pf = list(testdata.pfs.keys())[0]
     base_mac = "0x0000000000"
 
-    set_pipefail(dut)
+    assert set_pipefail(dut)
 
     max_vfs_cmd = ["cat " + testdata.pf_net_paths[pf] + "/sriov_totalvfs"]
     outs, errs = execute_and_assert(dut, max_vfs_cmd, 0)
