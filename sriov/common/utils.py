@@ -53,7 +53,7 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
     return True
 
 
-def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> None:
+def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> bool:
     """Config an IP address on VLAN interface; if VLAN is 0, config IP on
         main interface
 
@@ -62,6 +62,9 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> No
         intf (str): interface name
         vlan (str): VLAN ID
         ip (str):   IP address
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -79,15 +82,19 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> No
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
+    return True
 
 
-def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> None:
+def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> bool:
     """Clear the IP address from the VLAN interface and the main interface
 
     Args:
         ssh_obj:    SSH connection obj
         intf (str): interface name
         vlan (int): VLAN ID
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -106,15 +113,19 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> None:
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
+    return True
 
 
-def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> None:
+def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> bool:
     """Add a static ARP entry
 
     Args:
         ssh_obj:   SSH connection obj
         ip (str):  IP address
         mac (str): MAC address
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -124,9 +135,10 @@ def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> None:
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
+    return True
 
 
-def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
+def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> bool:
     """Remove a static ARP entry
 
     Args:
@@ -140,6 +152,7 @@ def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> None:
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
+    return True
 
 
 def prepare_ping_test(
@@ -152,7 +165,7 @@ def prepare_ping_test(
     dut_ip: str,
     dut_mac: str,
     testdata: ConfigTestData,
-) -> None:
+) -> bool:
     """Collection of steps to prepare for ping test
 
     Args:
@@ -166,8 +179,11 @@ def prepare_ping_test(
         dut_ip (str): DUT ip address
         dut_mac (str): DUT mac address
         testdata (object): testdata object
+
+    Returns:
+        True: on success
     """
-    clear_interface(tgen, tgen_intf, tgen_vlan)
+    assert clear_interface(tgen, tgen_intf, tgen_vlan)
 
     # Track if ping is executed when cleanup_after_ping is called for cleanup
     testdata.ping["run"] = True
@@ -178,21 +194,25 @@ def prepare_ping_test(
     testdata.ping["dut_ip"] = dut_ip
     testdata.ping["dut_mac"] = dut_mac
 
-    config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
-    add_arp_entry(tgen, dut_ip, dut_mac)
+    assert config_interface(tgen, tgen_intf, tgen_vlan, tgen_ip)
+    assert add_arp_entry(tgen, dut_ip, dut_mac)
     if tgen_mac is not None:
-        add_arp_entry(dut, tgen_ip, tgen_mac)
+        assert add_arp_entry(dut, tgen_ip, tgen_mac)
+    return True
 
 
 def cleanup_after_ping(
     tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData
-) -> None:
+) -> bool:
     """Collection of steps to cleanup after ping test
 
     Args:
         tgen (object): trafficgen ssh handler
         dut (object): DUT ssh handler
         testdata (object): testdata object
+
+    Returns:
+        True: on success
     """
     run = testdata.ping.get("run", False)
     if run:
@@ -201,10 +221,11 @@ def cleanup_after_ping(
         tgen_ip = testdata.ping.get("tgen_ip")
         dut_ip = testdata.ping.get("dut_ip")
         tgen_mac = testdata.ping["tgen_mac"]
-        rm_arp_entry(tgen, dut_ip)
-        clear_interface(tgen, tgen_intf, tgen_vlan)
+        assert rm_arp_entry(tgen, dut_ip)
+        assert clear_interface(tgen, tgen_intf, tgen_vlan)
         if tgen_mac is not None:
-            rm_arp_entry(dut, tgen_ip)
+            assert rm_arp_entry(dut, tgen_ip)
+    return True
 
 
 def set_mtu(
@@ -215,7 +236,7 @@ def set_mtu(
     dut_vf: int,
     mtu: int,
     testdata: ConfigTestData,
-) -> None:
+) -> bool:
     """Set MTU on trafficgen and DUT
 
     Args:
@@ -226,6 +247,9 @@ def set_mtu(
         dut_vf (int): DUT VF id
         mtu (int): MTU size in bytes
         testdata (object): testdata object
+
+    Returns:
+        True: on success
     """
     testdata.mtu["changed"] = True
     testdata.mtu["tgen_intf"] = tgen_pf
@@ -240,15 +264,19 @@ def set_mtu(
         f"ip link set {dut_pf}v{dut_vf} mtu {mtu}",
     ]
     execute_and_assert(dut, steps, 0, timeout=0.1)
+    return True
 
 
-def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> None:
+def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -> bool:
     """Reset MTU on trafficgen and DUT
 
     Args:
         tgen (object): trafficgen ssh connection
         dut (object): DUT ssh connection
         testdata (object): testdata object
+
+    Returns:
+        True: on success
     """
     changed = testdata.mtu.get("changed", False)
     if changed:
@@ -256,15 +284,19 @@ def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -
         du_intf = testdata.mtu.get("du_intf")
         tgen.execute(f"ip link set {tgen_intf} mtu 1500")
         dut.execute(f"ip link set {du_intf} mtu 1500")
+    return True
 
 
-def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> None:
+def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> bool:
     """Run cmd in a tmux session
 
     Args:
         ssh_obj:    SSH connection obj
         name (str): tmux session name
         cmd (str):  a single command to run
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -279,14 +311,18 @@ def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> None:
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
+    return True
 
 
-def stop_tmux(ssh_obj: ShellHandler, name: str) -> None:
+def stop_tmux(ssh_obj: ShellHandler, name: str) -> bool:
     """Stop tmux session
 
     Args:
         ssh_obj:    SSH connection obj
         name (str): tmux session name
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -294,6 +330,7 @@ def stop_tmux(ssh_obj: ShellHandler, name: str) -> None:
     code, _, err = ssh_obj.execute(f"tmux kill-session -t {name} || true")
     if code != 0:
         raise Exception(err)
+    return True
 
 
 def get_intf_mac(ssh_obj: ShellHandler, intf: str) -> str:
@@ -536,11 +573,14 @@ def no_zero_macs_vf(
     return False
 
 
-def set_pipefail(ssh_obj: ShellHandler) -> None:
+def set_pipefail(ssh_obj: ShellHandler) -> bool:
     """Set the pipefail to persist errors
 
     Args:
         ssh_obj: ssh connection obj
+
+    Returns:
+        True: on success
 
     Raises:
         Exception: command failure
@@ -549,6 +589,7 @@ def set_pipefail(ssh_obj: ShellHandler) -> None:
     code, out, err = ssh_obj.execute(set_command)
     if code != 0:
         raise Exception(err)
+    return True
 
 
 def execute_and_assert(

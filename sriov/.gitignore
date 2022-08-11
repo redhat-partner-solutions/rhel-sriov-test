@@ -4,6 +4,7 @@ __pycache__
 *~
 *.swp
 tests/config.yaml
+tests/testbed.yaml
 *html
 *xml
 venv/

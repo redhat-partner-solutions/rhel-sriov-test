@@ -34,7 +34,7 @@ def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    prepare_ping_test(
+    assert prepare_ping_test(
         trafficgen,
         trafficgen_pf,
         trafficgen_vlan,

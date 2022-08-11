@@ -47,8 +47,8 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_vlan = 0
     trafficgen_ip = "1.2.3.4"
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+    assert config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
 
     step = [f"ip addr show {trafficgen_pf}"]
     outs, errs = execute_and_assert(trafficgen, step, 0)
@@ -61,7 +61,7 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
 
     assert ip_addr_found is True
 
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
 
     outs, errs = execute_and_assert(trafficgen, step, 0)
 
@@ -85,7 +85,7 @@ def test_config_and_clear_interface_fail(dut, trafficgen, settings, testdata):
         assert True
 
     try:
-        clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+        assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
         assert False  # Should always short circuit this
     except Exception:
         assert True
@@ -95,14 +95,14 @@ def test_add_and_rm_arp_entry(dut, trafficgen, settings, testdata):
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_vlan = 0
     trafficgen_ip = testdata.trafficgen_ip
-    clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
-    config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
+    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+    assert config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
 
     dut_ip = testdata.dut_ip
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     create_vfs(dut, pf, 1)
     vf0_mac = get_vf_mac(dut, pf, 0)
-    add_arp_entry(trafficgen, dut_ip, vf0_mac)
+    assert add_arp_entry(trafficgen, dut_ip, vf0_mac)
 
     step = ["arp -a"]
     outs, errs = execute_and_assert(trafficgen, step, 0)
@@ -117,7 +117,7 @@ def test_add_and_rm_arp_entry(dut, trafficgen, settings, testdata):
 
     assert (ip_arp_found is True) and (mac_arp_found is True)
 
-    rm_arp_entry(trafficgen, dut_ip)
+    assert rm_arp_entry(trafficgen, dut_ip)
 
     outs, errs = execute_and_assert(trafficgen, step, 0)
 
@@ -148,8 +148,8 @@ def test_add_and_rm_arp_entry_fail(dut, trafficgen):
 
 def test_tmux(dut, testdata):
     name = testdata.tmux_session_name
-    start_tmux(dut, name, "sleep 8")
-    stop_tmux(dut, name)
+    assert start_tmux(dut, name, "sleep 8")
+    assert stop_tmux(dut, name)
 
 
 def test_prepare_and_cleanup_ping_test(dut, trafficgen, testdata, settings):
@@ -175,7 +175,7 @@ def test_prepare_and_cleanup_ping_test(dut, trafficgen, testdata, settings):
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
 
-    prepare_ping_test(
+    assert prepare_ping_test(
         trafficgen,
         trafficgen_pf,
         trafficgen_vlan,
@@ -189,11 +189,11 @@ def test_prepare_and_cleanup_ping_test(dut, trafficgen, testdata, settings):
 
     assert execute_until_timeout(dut, ping_cmd) is True
 
-    cleanup_after_ping(trafficgen, dut, testdata)
+    assert cleanup_after_ping(trafficgen, dut, testdata)
 
 
 def test_set_and_reset_mtu(dut, trafficgen, testdata, settings):
-    set_pipefail(dut)
+    assert set_pipefail(dut)
     default_mtu = 1500
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
     default_cmd = [f'ip link show {pf_name} | grep "mtu {default_mtu}"']
@@ -202,11 +202,11 @@ def test_set_and_reset_mtu(dut, trafficgen, testdata, settings):
     assert create_vfs(dut, pf_name, 1)
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     mtu = 1501
-    set_mtu(trafficgen, trafficgen_pf, dut, pf_name, 0, mtu, testdata)
+    assert set_mtu(trafficgen, trafficgen_pf, dut, pf_name, 0, mtu, testdata)
     cmd = [f'ip link show {pf_name} | grep "mtu {mtu}"']
     execute_and_assert(dut, cmd, 0)
 
-    reset_mtu(trafficgen, dut, testdata)
+    assert reset_mtu(trafficgen, dut, testdata)
     execute_and_assert(dut, default_cmd, 0)
 
 

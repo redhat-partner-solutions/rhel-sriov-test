@@ -50,7 +50,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     # use the smaller mtu between dut and trafficgen
     mtu = min(dut_mtu, trafficgen_mtu)
 
-    set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
+    assert set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
 
     steps = [f"ip link set {pf}v0 up", f"ip add add {dut_ip}/24 dev {pf}v0"]
     execute_and_assert(dut, steps, 0, 0.1)
@@ -59,7 +59,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     trafficgen_ip = testdata.trafficgen_ip
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     trafficgen_vlan = 0
-    prepare_ping_test(
+    assert prepare_ping_test(
         trafficgen,
         trafficgen_pf,
         trafficgen_vlan,
