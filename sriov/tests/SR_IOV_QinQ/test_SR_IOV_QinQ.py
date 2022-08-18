@@ -36,7 +36,7 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     assert start_tmux(dut, tmux_session, tmux_cmd)
     tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 \
         vlan {outside_tag} and vlan {inside_tag}"
-    print(tgen_cmd)
+    print(trafficgen.name + ": " + tgen_cmd)
     code, out, err = trafficgen.execute(tgen_cmd)
     assert stop_tmux(dut, tmux_session)
     assert code == 0, err

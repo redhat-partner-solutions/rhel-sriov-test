@@ -30,6 +30,7 @@ import unittest
 class UtilsTest(unittest.TestCase):
     def create_mock_ssh_obj(self, code=0, out="", err=""):
         ssh_obj = Mock()
+        ssh_obj.name = "mock"
         ssh_obj.execute.return_value = code, out, err
         return ssh_obj
 

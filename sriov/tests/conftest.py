@@ -19,7 +19,7 @@ def get_ssh_obj(name: str) -> ShellHandler:
     host = settings.config[name]["host"]
     user = settings.config[name]["username"]
     password = settings.config[name]["password"]
-    return ShellHandler(host, user, password)
+    return ShellHandler(host, user, password, name)
 
 
 def get_testdata_obj(settings: Config) -> ConfigTestData:
@@ -46,14 +46,14 @@ def testdata(settings: Config) -> ConfigTestData:
 def reset_command(dut: ShellHandler, testdata) -> None:
     cmd_ns0 = "ip netns del ns0 2>/dev/null || true"
     cmd_ns1 = "ip netns del ns1 2>/dev/null || true"
-    print(cmd_ns0)
+    print(dut.name + ": " + cmd_ns0)
     dut.execute(cmd_ns0)
-    print(cmd_ns1)
+    print(dut.name + ": " + cmd_ns1)
     dut.execute(cmd_ns1)
 
     for pf in testdata.pf_net_paths:
         clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
-        print(clear_vfs)
+        print(dut.name + ": " + clear_vfs)
         dut.execute(clear_vfs, 60)
 
 
@@ -96,9 +96,9 @@ def pytest_configure(config: Config) -> None:
     # residual text from ssh
     cmd_clear = "clear"
     cmd_uname = "uname -r"
-    print(cmd_clear)
+    print(dut.name + ": " + cmd_clear)
     code, out, err = dut.execute(cmd_clear)
-    print(cmd_uname)
+    print(dut.name + ": " + cmd_uname)
     code, out, err = dut.execute(cmd_uname)
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
@@ -106,7 +106,7 @@ def pytest_configure(config: Config) -> None:
     settings = get_settings_obj()
     dut_pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
     cmd_ethtool = f"ethtool -i {dut_pf1_name}"
-    print(cmd_ethtool)
+    print(dut.name + ": " + cmd_ethtool)
     code, out, err = dut.execute(cmd_ethtool)
     driver = "unknown"
     version = "unknown"
@@ -125,7 +125,7 @@ def pytest_configure(config: Config) -> None:
     config._metadata["NIC Firmware"] = firmware
 
     cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
-    print(cmd)
+    print(dut.name + ": " + cmd)
     code, out, err = dut.execute(cmd)
     if code == 0:
         iavf_driver = out[0].strip()
