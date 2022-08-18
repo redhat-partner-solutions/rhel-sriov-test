@@ -43,9 +43,9 @@ def test_SR_IOV_Permutation_DPDK(
     assert create_vfs(dut, pf, 1)
 
     # Another timing issue: 1 sec sleep after vf creation and mac assignment
-    # is required for some reason for successful VF mac address setting with 
+    # is required for some reason for successful VF mac address setting with
     # in-tree drivers and trust mode on
-     
+
     if trust == "on":
         sleep(1)
 
