@@ -44,11 +44,16 @@ def testdata(settings: Config) -> ConfigTestData:
 
 
 def reset_command(dut: ShellHandler, testdata) -> None:
-    dut.execute("ip netns del ns0 2>/dev/null || true")
-    dut.execute("ip netns del ns1 2>/dev/null || true")
+    cmd_ns0 = "ip netns del ns0 2>/dev/null || true"
+    cmd_ns1 = "ip netns del ns1 2>/dev/null || true"
+    print(cmd_ns0)
+    dut.execute(cmd_ns0)
+    print(cmd_ns1)
+    dut.execute(cmd_ns1)
 
     for pf in testdata.pf_net_paths:
         clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
+        print(clear_vfs)
         dut.execute(clear_vfs, 60)
 
 
@@ -89,14 +94,20 @@ def pytest_configure(config: Config) -> None:
     dut = get_ssh_obj("dut")
     # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
-    code, out, err = dut.execute("clear")
-    code, out, err = dut.execute("uname -r")
+    cmd_clear = "clear"
+    cmd_uname = "uname -r"
+    print(cmd_clear)
+    code, out, err = dut.execute(cmd_clear)
+    print(cmd_uname)
+    code, out, err = dut.execute(cmd_uname)
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
 
     settings = get_settings_obj()
     dut_pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
-    code, out, err = dut.execute(f"ethtool -i {dut_pf1_name}")
+    cmd_ethtool = f"ethtool -i {dut_pf1_name}"
+    print(cmd_ethtool)
+    code, out, err = dut.execute(cmd_ethtool)
     driver = "unknown"
     version = "unknown"
     firmware = "unknown"
@@ -113,7 +124,9 @@ def pytest_configure(config: Config) -> None:
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
 
-    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+    cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
+    print(cmd)
+    code, out, err = dut.execute(cmd)
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
@@ -140,7 +153,7 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
             case_index = line.find(settings.config["tests_name_field"])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]):]
+                    line[case_index + len(settings.config["tests_name_field"]) :]
                 ).strip()
                 break
 

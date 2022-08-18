@@ -11,7 +11,9 @@ from sriov.common.utils import (
 
 
 def stop_testpmd_in_tmux(dut, tmux_session):
-    dut.execute(f"tmux send-keys -t {tmux_session} 'quit' ENTER")
+    cmd = f"tmux send-keys -t {tmux_session} 'quit' ENTER"
+    print(cmd)
+    dut.execute(cmd)
     time.sleep(1)
     assert stop_tmux(dut, tmux_session)
 
