@@ -243,6 +243,7 @@ def test_vf_functions(dut, settings, testdata):
 
 def test_set_pipefail(dut):
     test_cmd = "false | echo test"
+    dut.log_str(test_cmd)
     code, _, err = dut.execute(test_cmd)
     assert code != 0
 

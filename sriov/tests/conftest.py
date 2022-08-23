@@ -46,14 +46,14 @@ def testdata(settings: Config) -> ConfigTestData:
 def reset_command(dut: ShellHandler, testdata) -> None:
     cmd_ns0 = "ip netns del ns0 2>/dev/null || true"
     cmd_ns1 = "ip netns del ns1 2>/dev/null || true"
-    print(dut.name + ": " + cmd_ns0)
+    dut.log_str(cmd_ns0)
     dut.execute(cmd_ns0)
-    print(dut.name + ": " + cmd_ns1)
+    dut.log_str(cmd_ns1)
     dut.execute(cmd_ns1)
 
     for pf in testdata.pf_net_paths:
         clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
-        print(dut.name + ": " + clear_vfs)
+        dut.log_str(clear_vfs)
         dut.execute(clear_vfs, 60)
 
 
@@ -96,9 +96,9 @@ def pytest_configure(config: Config) -> None:
     # residual text from ssh
     cmd_clear = "clear"
     cmd_uname = "uname -r"
-    print(dut.name + ": " + cmd_clear)
+    dut.log_str(cmd_clear)
     code, out, err = dut.execute(cmd_clear)
-    print(dut.name + ": " + cmd_uname)
+    dut.log_str(cmd_uname)
     code, out, err = dut.execute(cmd_uname)
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
@@ -106,7 +106,7 @@ def pytest_configure(config: Config) -> None:
     settings = get_settings_obj()
     dut_pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
     cmd_ethtool = f"ethtool -i {dut_pf1_name}"
-    print(dut.name + ": " + cmd_ethtool)
+    dut.log_str(cmd_ethtool)
     code, out, err = dut.execute(cmd_ethtool)
     driver = "unknown"
     version = "unknown"
@@ -125,7 +125,7 @@ def pytest_configure(config: Config) -> None:
     config._metadata["NIC Firmware"] = firmware
 
     cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     if code == 0:
         iavf_driver = out[0].strip()
@@ -153,7 +153,7 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
             case_index = line.find(settings.config["tests_name_field"])
             if case_index != -1:
                 case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]) :]
+                    line[case_index + len(settings.config["tests_name_field"]):]
                 ).strip()
                 break
 

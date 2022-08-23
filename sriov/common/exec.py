@@ -252,3 +252,16 @@ class ShellHandler:
             sherr.pop(0)
 
         return exit_status, shout, sherr
+
+    def log_str(self, string: str) -> None:
+        """Print out the input string.
+
+        Args:
+            self: self
+            string (str): the string to print
+        """
+        print_out = ""
+        if self.name != "dut":
+            print_out += self.name + ": "
+        print_out += string
+        print(print_out)

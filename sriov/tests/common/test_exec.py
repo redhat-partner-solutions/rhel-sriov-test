@@ -16,7 +16,7 @@ def test_timeout_handler(dut):
 
 def test_execute_cmd_success(dut):
     cmd = "cat /proc/1/status"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     assert code == 0
     assert "systemd" in out[0]
@@ -24,7 +24,7 @@ def test_execute_cmd_success(dut):
 
 def test_execute_cmd_fail(dut):
     cmd = "cat /proc/-1/status"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     assert code != 0
     assert "No such file or directory" in err[0]
@@ -32,14 +32,14 @@ def test_execute_cmd_fail(dut):
 
 def test_execute_cmd_timeout(dut):
     cmd = "sleep 10s"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     assert code != 0 and "timeout" in err[0]
 
 
 def test_execute_cmd_with_delay(dut):
     cmd = "sleep 1s"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     assert code == 0
 
@@ -59,7 +59,7 @@ def test_start_and_stop_testpmd(dut, settings):
         "echo " + vf_pci + " > " + "/sys/bus/pci/drivers/vfio-pci/bind",
     ]
     for step in steps:
-        print(dut.name + ": " + step)
+        dut.log_str(step)
         code, out, err = dut.execute(step)
         assert code == 0, step
     testpmd_podman_cmd = (
@@ -75,7 +75,7 @@ def test_start_and_stop_testpmd(dut, settings):
     # test after quit from testpmd session, ssh session is ready for shell cmd
     time.sleep(1)
     cmd = "echo ALIVE"
-    print(dut.name + ": " + cmd)
+    dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     assert code == 0, err
     print(out)
