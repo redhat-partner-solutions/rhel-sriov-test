@@ -212,6 +212,7 @@ class ShellHandler:
         sherr = []
         exit_status = 0
         signal.signal(signal.SIGALRM, self.timeout_handler)
+        signal.alarm(timeout)
         try:
             for line in self.stdout:
                 if str(line).startswith(cmd) or str(line).startswith(echo_cmd):
@@ -247,7 +248,7 @@ class ShellHandler:
             shout.pop(0)
         if sherr and echo_cmd in sherr[-1]:
             sherr.pop()
-        if sherr and len(sherr) > 1 and cmd in sherr[0]:
+        if sherr and cmd in sherr[0]:#sherr and len(sherr) > 1 and cmd in sherr[0]:
             sherr.pop(0)
 
         return exit_status, shout, sherr
