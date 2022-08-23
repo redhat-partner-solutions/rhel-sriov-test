@@ -19,7 +19,7 @@ def get_ssh_obj(name: str) -> ShellHandler:
     host = settings.config[name]["host"]
     user = settings.config[name]["username"]
     password = settings.config[name]["password"]
-    return ShellHandler(host, user, password)
+    return ShellHandler(host, user, password, name)
 
 
 def get_testdata_obj(settings: Config) -> ConfigTestData:
@@ -44,11 +44,16 @@ def testdata(settings: Config) -> ConfigTestData:
 
 
 def reset_command(dut: ShellHandler, testdata) -> None:
-    dut.execute("ip netns del ns0 2>/dev/null || true")
-    dut.execute("ip netns del ns1 2>/dev/null || true")
+    cmd_ns0 = "ip netns del ns0 2>/dev/null || true"
+    cmd_ns1 = "ip netns del ns1 2>/dev/null || true"
+    dut.log_str(cmd_ns0)
+    dut.execute(cmd_ns0)
+    dut.log_str(cmd_ns1)
+    dut.execute(cmd_ns1)
 
     for pf in testdata.pf_net_paths:
         clear_vfs = "echo 0 > " + testdata.pf_net_paths[pf] + "/sriov_numvfs"
+        dut.log_str(clear_vfs)
         dut.execute(clear_vfs, 60)
 
 
@@ -89,14 +94,20 @@ def pytest_configure(config: Config) -> None:
     dut = get_ssh_obj("dut")
     # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
-    code, out, err = dut.execute("clear")
-    code, out, err = dut.execute("uname -r")
+    cmd_clear = "clear"
+    cmd_uname = "uname -r"
+    dut.log_str(cmd_clear)
+    code, out, err = dut.execute(cmd_clear)
+    dut.log_str(cmd_uname)
+    code, out, err = dut.execute(cmd_uname)
     dut_kernel_version = out[0].strip("\n") if code == 0 else "unknown"
     config._metadata["DUT Kernel"] = dut_kernel_version
 
     settings = get_settings_obj()
     dut_pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
-    code, out, err = dut.execute(f"ethtool -i {dut_pf1_name}")
+    cmd_ethtool = f"ethtool -i {dut_pf1_name}"
+    dut.log_str(cmd_ethtool)
+    code, out, err = dut.execute(cmd_ethtool)
     driver = "unknown"
     version = "unknown"
     firmware = "unknown"
@@ -113,7 +124,9 @@ def pytest_configure(config: Config) -> None:
     config._metadata["NIC Driver"] = f"{driver} {version}"
     config._metadata["NIC Firmware"] = firmware
 
-    code, out, err = dut.execute("cat /sys/bus/pci/drivers/iavf/module/version")
+    cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
+    dut.log_str(cmd)
+    code, out, err = dut.execute(cmd)
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver

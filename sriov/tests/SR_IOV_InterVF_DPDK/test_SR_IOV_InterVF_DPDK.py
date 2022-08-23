@@ -11,7 +11,9 @@ from sriov.common.utils import (
 
 
 def stop_testpmd_in_tmux(dut, tmux_session):
-    dut.execute(f"tmux send-keys -t {tmux_session} 'quit' ENTER")
+    cmd = f"tmux send-keys -t {tmux_session} 'quit' ENTER"
+    dut.log_str(cmd)
+    dut.execute(cmd)
     time.sleep(1)
     assert stop_tmux(dut, tmux_session)
 
@@ -105,7 +107,7 @@ def test_SR_IOV_InterVF_DPDK(
         f"ip addr del {ip_prefix}1/24 dev {pf}v1",
     ]
     for step in steps:
-        print(step)
+        dut.log_str(step)
         code, out, err = dut.execute(step)
         if code != 0:
             stop_testpmd_in_tmux(dut, tmux_session)

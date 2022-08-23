@@ -37,7 +37,7 @@ def test_SR_IOV_Spoof_Mac(dut, trafficgen, settings, testdata, spoof):
     print(tmux_cmd)
     assert start_tmux(dut, tmux_session, tmux_cmd)
     tgen_cmd = f"timeout 3 tcpdump -i {trafficgen_pf} -c 1 ether host {spoof_mac}"
-    print(tgen_cmd)
+    trafficgen.log_str(tgen_cmd)
     code, out, err = trafficgen.execute(tgen_cmd)
     assert stop_tmux(dut, tmux_session)
     if spoof == "off":

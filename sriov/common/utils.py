@@ -18,6 +18,7 @@ def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
         Exception: command failure
     """
     cmd = "ethtool -i {}".format(iface) + " | awk '/bus-info:/{print $2;}'"
+    ssh_obj.log_str(cmd)
     code, out, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -46,7 +47,7 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
         "echo {} > /sys/bus/pci/drivers/{}/bind".format(pci, driver),
     ]
     for step in steps:
-        print(step)
+        ssh_obj.log_str(step)
         code, out, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
@@ -78,7 +79,7 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> bo
     else:
         steps = [f"ip add add {ip}/24 dev {intf}"]
     for step in steps:
-        print(step)
+        ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
@@ -109,7 +110,7 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> bool:
     else:
         steps = [f"ip addr flush dev {intf} || true"]
     for step in steps:
-        print(step)
+        ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
@@ -131,7 +132,7 @@ def add_arp_entry(ssh_obj: ShellHandler, ip: str, mac: str) -> bool:
         Exception: command failure
     """
     cmd = f"arp -s {ip} {mac}"
-    print(cmd)
+    ssh_obj.log_str(cmd)
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -149,6 +150,7 @@ def rm_arp_entry(ssh_obj: ShellHandler, ip: str) -> bool:
         Exception: command failure
     """
     cmd = f"arp -d {ip} || true"  # not a failure if the ip entry not exist
+    ssh_obj.log_str(cmd)
     code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -282,8 +284,12 @@ def reset_mtu(tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData) -
     if changed:
         tgen_intf = testdata.mtu.get("tgen_intf")
         du_intf = testdata.mtu.get("du_intf")
-        tgen.execute(f"ip link set {tgen_intf} mtu 1500")
-        dut.execute(f"ip link set {du_intf} mtu 1500")
+        tgen_cmd = f"ip link set {tgen_intf} mtu 1500"
+        tgen.log_str(tgen_cmd)
+        tgen.execute(tgen_cmd)
+        dut_cmd = f"ip link set {du_intf} mtu 1500"
+        dut.log_str(dut_cmd)
+        dut.execute(dut_cmd)
     return True
 
 
@@ -308,6 +314,7 @@ def start_tmux(ssh_obj: ShellHandler, name: str, cmd: str) -> bool:
     ]
 
     for step in steps:
+        ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
         if code != 0:
             raise Exception(err)
@@ -327,7 +334,9 @@ def stop_tmux(ssh_obj: ShellHandler, name: str) -> bool:
     Raises:
         Exception: command failure
     """
-    code, _, err = ssh_obj.execute(f"tmux kill-session -t {name} || true")
+    cmd = f"tmux kill-session -t {name} || true"
+    ssh_obj.log_str(cmd)
+    code, _, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
     return True
@@ -348,6 +357,7 @@ def get_intf_mac(ssh_obj: ShellHandler, intf: str) -> str:
         ValueError: failure in parsing
     """
     cmd = f"cat /sys/class/net/{intf}/address"
+    ssh_obj.log_str(cmd)
     code, out, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -373,7 +383,7 @@ def get_vf_mac(ssh_obj: ShellHandler, intf: str, vf_id: int) -> str:
         ValueError: failure in parsing
     """
     cmd = f"ip link show {intf} | awk '/vf {vf_id}/" + "{print $4;}'"
-    print(cmd)
+    ssh_obj.log_str(cmd)
     code, out, err = ssh_obj.execute(cmd)
     if code != 0:
         raise Exception(err)
@@ -406,7 +416,7 @@ def set_vf_mac(
         False: mac address can't be set before timeout
     """
     set_mac_cmd = f"ip link set {intf} vf {vf_id} mac {address}"
-    print(set_mac_cmd)
+    ssh_obj.log_str(set_mac_cmd)
     code, out, err = ssh_obj.execute(set_mac_cmd)
     if code != 0:
         return False
@@ -470,7 +480,7 @@ def vfs_created(
         False: not all VFs are created before timeout exceeded
     """
     cmd = "ls -d /sys/class/net/" + pf_interface + "v* | wc -w"
-    print(cmd)
+    ssh_obj.log_str(cmd)
     for i in range(timeout):
         time.sleep(1)
         code, out, err = ssh_obj.execute(cmd)
@@ -500,10 +510,10 @@ def create_vfs(
         Exception:  failed to create VFs before timeout exceeded
     """
     clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
-    print(clear_vfs)
+    ssh_obj.log_str(clear_vfs)
     ssh_obj.execute(clear_vfs, 60)
     create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
-    print(create_vfs)
+    ssh_obj.log_str(create_vfs)
     ssh_obj.execute(create_vfs, 60)
     return vfs_created(ssh_obj, pf_interface, num_vfs, timeout)
 
@@ -524,7 +534,7 @@ def no_zero_macs_pf(
         False: an interface with zero MAC address was found or timeout exceeded
     """
     check_vfs = "ip -d link show " + pf_interface
-    print(check_vfs)
+    ssh_obj.log_str(check_vfs)
     for i in range(timeout):
         time.sleep(1)
         code, out, err = ssh_obj.execute(check_vfs)
@@ -557,6 +567,7 @@ def no_zero_macs_vf(
         False: a VF with zero MAC address was found or timeout exceeded
     """
     check_vfs = "ip -d link show " + pf_interface
+    ssh_obj.log_str(check_vfs)
     for i in range(timeout):
         time.sleep(1)
         no_zeros = True
@@ -586,6 +597,7 @@ def set_pipefail(ssh_obj: ShellHandler) -> bool:
         Exception: command failure
     """
     set_command = "set -o pipefail"
+    ssh_obj.log_str(set_command)
     code, out, err = ssh_obj.execute(set_command)
     if code != 0:
         raise Exception(err)
@@ -610,7 +622,7 @@ def execute_and_assert(
     outs = []
     errs = []
     for cmd in cmds:
-        print(cmd)
+        ssh_obj.log_str(cmd)
         code, out, err = ssh_obj.execute(cmd)
         outs.append(out)
         errs.append(err)
@@ -631,7 +643,7 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
         True: cmd return exit code 0 before timeout
         False: cmd does not return exit code 0
     """
-    print(cmd)
+    ssh_obj.log_str(cmd)
     count = max(1, int(timeout))
     while count > 0:
         code, out, err = ssh_obj.execute(cmd)

@@ -6,7 +6,7 @@ from typing import Tuple
 
 
 class ShellHandler:
-    def __init__(self, host: str, user: str, psw: str) -> None:
+    def __init__(self, host: str, user: str, psw: str, name: str) -> None:
         """Initialize the shell handler object
 
         Args:
@@ -14,7 +14,9 @@ class ShellHandler:
             host (str): the SSH IP address or hostname
             user (str): the SSH username
             psw (str):  the SSH password
+            name (str): the name of the ShellHandler object
         """
+        self.name = name
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh.connect(host, username=user, password=psw, port=22)
@@ -250,3 +252,16 @@ class ShellHandler:
             sherr.pop(0)
 
         return exit_status, shout, sherr
+
+    def log_str(self, string: str) -> None:
+        """Print out the input string.
+
+        Args:
+            self: self
+            string (str): the string to print
+        """
+        print_out = ""
+        if self.name != "dut":
+            print_out += self.name + ": "
+        print_out += string
+        print(print_out)
