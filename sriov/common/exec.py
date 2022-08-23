@@ -214,25 +214,19 @@ class ShellHandler:
         signal.signal(signal.SIGALRM, self.timeout_handler)
         try:
             for line in self.stdout:
-                print(line)
-                print("shout: " + str(shout))
                 if str(line).startswith(cmd) or str(line).startswith(echo_cmd):
-                    print("if line")
                     # up for now filled with shell junk from stdin
                     shout = []
                 elif str(line).startswith(finish):
-                    print("elif line")
                     # our finish command ends with the exit status
                     exit_status = int(str(line).rsplit(maxsplit=1)[1])
                     if exit_status:
-                        print("if exit_status")
                         # stderr is combined with stdout.
                         # thus, swap sherr with shout in a case of failure.
                         sherr = shout
                         shout = []
                     break
                 else:
-                    print("else line")
                     # get rid of 'coloring and formatting' special characters
                     shout.append(
                         re.compile(r"(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]")
@@ -241,7 +235,6 @@ class ShellHandler:
                         .replace("\r", "")
                     )
         except Exception as err:
-            print("exception condition")
             exit_status = -1
             sherr.append(str(err))
         finally:
