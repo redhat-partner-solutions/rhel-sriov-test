@@ -626,7 +626,7 @@ def execute_and_assert(
         code, out, err = ssh_obj.execute(cmd)
         outs.append(out)
         errs.append(err)
-        assert code == exit_code
+        assert code == exit_code, ("\nstdout:" + str(outs) + "\nstderr:" + str(errs))
         time.sleep(timeout)
     return outs, errs
 
@@ -651,4 +651,5 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
             return True
         count -= 1
         time.sleep(1)
+    print("\nstdout:" + str(out) + "\nstderr:" + str(err))
     return False

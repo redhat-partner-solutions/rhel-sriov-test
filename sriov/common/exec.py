@@ -215,9 +215,11 @@ class ShellHandler:
         signal.alarm(timeout)
         try:
             for line in self.stdout:
-                if str(line).startswith(cmd) or str(line).startswith(echo_cmd):
+                if str(line).startswith(cmd):
                     # up for now filled with shell junk from stdin
                     shout = []
+                elif str(line).startswith(echo_cmd):
+                    continue
                 elif str(line).startswith(finish):
                     # our finish command ends with the exit status
                     exit_status = int(str(line).rsplit(maxsplit=1)[1])
@@ -244,11 +246,11 @@ class ShellHandler:
         # first and last lines of shout/sherr contain a prompt
         if shout and echo_cmd in shout[-1]:
             shout.pop()
-        if shout and cmd in shout[0]:
+        if shout and shout[0].endswith(cmd + "\n"):
             shout.pop(0)
         if sherr and echo_cmd in sherr[-1]:
             sherr.pop()
-        if sherr and cmd in sherr[0]:
+        if sherr and len(sherr) > 1 and sherr[0].endswith(cmd + "\n"):
             sherr.pop(0)
 
         return exit_status, shout, sherr
