@@ -146,5 +146,3 @@ def test_SR_IOV_BondVF_DPDK(
         code, out, err = trafficgen.execute(tcpdump_cmd)
         assert code == 0
 
-
-    
