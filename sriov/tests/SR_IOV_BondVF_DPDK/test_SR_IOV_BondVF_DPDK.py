@@ -13,9 +13,11 @@ from sriov.common.utils import (
     stop_testpmd_in_tmux,
 )
 
+
 class Bond:
     def __init__(self, mode):
         self.bond_mode = mode
+
 
 @pytest.fixture
 def dut_setup(dut, settings, testdata, request) -> Bond:
@@ -46,11 +48,11 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
 
     execute_and_assert(dut, steps, 0, 0.1)
 
-    pci_pf1_vf0 = get_pci_address(dut, pf1+"v0")
+    pci_pf1_vf0 = get_pci_address(dut, pf1 + "v0")
     assert bind_driver(dut, pci_pf1_vf0, "vfio-pci")
-    pci_pf1_vf1 = get_pci_address(dut, pf1+"v1")
+    pci_pf1_vf1 = get_pci_address(dut, pf1 + "v1")
     assert bind_driver(dut, pci_pf1_vf1, "vfio-pci")
-    pci_pf2_vf0 = get_pci_address(dut, pf2+"v0")
+    pci_pf2_vf0 = get_pci_address(dut, pf2 + "v0")
     assert bind_driver(dut, pci_pf2_vf0, "vfio-pci")
     rx_port_num = 1 if pci_pf1_vf1 < pci_pf2_vf0 else 2
     fwd_mac = testdata.trafficgen_spoof_mac
@@ -70,7 +72,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     assert wait_tmux_testpmd_ready(dut, testpmd_tmux_session, 10)
     yield Bond(mode)
     stop_testpmd_in_tmux(dut, testpmd_tmux_session)
-        
+
 
 @pytest.fixture
 def trafficgen_setup(dut, trafficgen, settings, testdata):
@@ -104,6 +106,7 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
     yield
     stop_tmux(trafficgen, ping_tmux_session)
 
+
 @pytest.mark.parametrize('dut_setup', (1, 0), indirect=True)
 def test_SR_IOV_BondVF_DPDK(
     dut, trafficgen, settings, testdata, dut_setup, trafficgen_setup
@@ -120,7 +123,7 @@ def test_SR_IOV_BondVF_DPDK(
     """
     bond_mode = dut_setup.bond_mode
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
-    trafficgen_pf1 =  settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    trafficgen_pf1 = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_pf2 = settings.config["trafficgen"]["interface"]["pf2"]["name"]
     fwd_mac = testdata.trafficgen_spoof_mac
     tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf1} -c 1 ether dst {fwd_mac}"
@@ -145,4 +148,3 @@ def test_SR_IOV_BondVF_DPDK(
         trafficgen.log_str(tcpdump_cmd)
         code, out, err = trafficgen.execute(tcpdump_cmd)
         assert code == 0
-

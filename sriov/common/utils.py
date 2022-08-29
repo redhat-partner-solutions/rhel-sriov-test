@@ -626,8 +626,7 @@ def execute_and_assert(
         code, out, err = ssh_obj.execute(cmd)
         outs.append(out)
         errs.append(err)
-        assert code == exit_code, ("\nstdout:" +
-                                   str(outs) + "\nstderr:" + str(errs))
+        assert code == exit_code, ("\nstdout:" + str(outs) + "\nstderr:" + str(errs))
         time.sleep(timeout)
     return outs, errs
 

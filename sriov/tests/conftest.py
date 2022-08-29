@@ -85,7 +85,7 @@ def _cleanup(
     try:
         if request.node.rep_call.failed and skipclean:
             pytest.exit("stop the test run without cleanup")
-    except:
+    except (AttributeError, NameError):
         # most likely request.node.rep_call not exist, continue normal cleanup
         pass
     dut.stop_testpmd()
