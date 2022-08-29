@@ -13,8 +13,22 @@ from sriov.common.utils import (
     stop_testpmd_in_tmux,
 )
 
+class Bond:
+    def __init__(self, mode):
+        self.bond_mode = mode
+
 @pytest.fixture
-def dut_setup(dut, settings, testdata):
+def dut_setup(dut, settings, testdata, request) -> Bond:
+    """dut setup and teardown fixture
+
+    Args:
+        dut: dut ssh connection obj
+        trafficgen: trafficgen ssh connection obj
+        settings: setting obj
+        testdata: testdata obj
+        request: request fixture 
+    """
+    mode = request.param
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
     assert create_vfs(dut, pf1, 2)
     pf2 = settings.config["dut"]["interface"]["pf2"]["name"]
@@ -47,19 +61,27 @@ def dut_setup(dut, settings, testdata):
         --cpuset-cpus {cpus} {dpdk_img} \
         dpdk-testpmd -l {cpus} -n 4 \
         -a {pci_pf1_vf0} -a {pci_pf1_vf1} -a {pci_pf2_vf0} \
-        --vdev net_bonding_bond_test,mode=1,slave={pci_pf1_vf0},slave={pci_pf2_vf0},primary={pci_pf1_vf0} \
+        --vdev net_bonding_bond_test,mode={mode},slave={pci_pf1_vf0},slave={pci_pf2_vf0},primary={pci_pf1_vf0} \
         -- --forward-mode=mac --portlist {rx_port_num},3 \
         --eth-peer 3,{fwd_mac}"""
     dut.log_str(podman_cmd)
     testpmd_tmux_session = testdata.tmux_session_name
     assert start_tmux(dut, testpmd_tmux_session, podman_cmd)
     assert wait_tmux_testpmd_ready(dut, testpmd_tmux_session, 10)
-    yield
+    yield Bond(mode)
     stop_testpmd_in_tmux(dut, testpmd_tmux_session)
         
 
 @pytest.fixture
 def trafficgen_setup(dut, trafficgen, settings, testdata):
+    """trafficgen setup and teardown fixture
+
+    Args:
+        dut: dut ssh connection obj
+        trafficgen: trafficgen ssh connection obj
+        settings: setting obj
+        testdata: testdata obj
+    """
     trafficgen_pf1 = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_ip = testdata.trafficgen_ip
     dut_ip = testdata.dut_ip
@@ -81,28 +103,48 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
     assert start_tmux(trafficgen, ping_tmux_session, ping_cmd)
     yield
     stop_tmux(trafficgen, ping_tmux_session)
-    
+
+@pytest.mark.parametrize('dut_setup', (1, 0), indirect=True)
 def test_SR_IOV_BondVF_DPDK(
     dut, trafficgen, settings, testdata, dut_setup, trafficgen_setup
 ):
+    """Test and ensure that DPDK VF bonding (mode 0, 1) functions as intended
+
+    Args:
+        dut: ssh connection obj
+        trafficgen: trafficgen obj
+        settings: settings obj
+        testdata: testdata obj
+        dut_setup: dut setup and teardown fixture
+        trafficgen_setup: trafficgen setup and teardown fixture
+    """
+    bond_mode = dut_setup.bond_mode
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
     trafficgen_pf1 =  settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_pf2 = settings.config["trafficgen"]["interface"]["pf2"]["name"]
     fwd_mac = testdata.trafficgen_spoof_mac
-    tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf1} -c 1 ether host {fwd_mac}"
-    code_primary_link, out, err = trafficgen.execute(tcpdump_cmd)
-    assert code_primary_link == 0
+    tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf1} -c 1 ether dst {fwd_mac}"
+    trafficgen.log_str(tcpdump_cmd)
+    code, out, err = trafficgen.execute(tcpdump_cmd)
+    assert code == 0, err
 
-    link_down_cmd = f"ip link set {pf1} vf 0 state disable"
-    execute_and_assert(dut, [link_down_cmd], 0)
-    tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf2} -c 1 ether host {fwd_mac}"
-    code_backup_link, out, err = trafficgen.execute(tcpdump_cmd)
-    assert code_backup_link == 0
+    if bond_mode == 1:
+        link_down_cmd = f"ip link set {pf1} vf 0 state disable"
+        execute_and_assert(dut, [link_down_cmd], 0)
+        sleep(3)
+    tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf2} -c 1 ether dst {fwd_mac}"
+    trafficgen.log_str(tcpdump_cmd)
+    code, out, err = trafficgen.execute(tcpdump_cmd)
+    assert code == 0, err
     
-    link_down_cmd = f"ip link set {pf1} vf 0 state enable"
-    execute_and_assert(dut, [link_down_cmd], 0)
-    code_primary_link, out, err = trafficgen.execute(tcpdump_cmd)
-    assert code_primary_link == 0
+    if bond_mode == 1:
+        link_up_cmd = f"ip link set {pf1} vf 0 state enable"
+        execute_and_assert(dut, [link_up_cmd], 0)
+        sleep(3)
+        tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf1} -c 1 ether dst {fwd_mac}"
+        trafficgen.log_str(tcpdump_cmd)
+        code, out, err = trafficgen.execute(tcpdump_cmd)
+        assert code == 0
 
 
     
