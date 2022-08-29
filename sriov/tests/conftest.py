@@ -82,8 +82,12 @@ def _cleanup(
     yield
     # For debug test failure purpose,
     # use --skipclean to stop the test immediately without cleaning
-    if request.node.rep_call.failed and skipclean:
-        pytest.exit("stop the test run without cleanup")
+    try:
+        if request.node.rep_call.failed and skipclean:
+            pytest.exit("stop the test run without cleanup")
+    except:
+        # most likely request.node.rep_call not exist, continue normal cleanup
+        pass
     dut.stop_testpmd()
     assert cleanup_after_ping(trafficgen, dut, testdata)
     assert reset_mtu(trafficgen, dut, testdata)

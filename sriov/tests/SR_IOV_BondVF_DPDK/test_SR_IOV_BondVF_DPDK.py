@@ -13,24 +13,8 @@ from sriov.common.utils import (
     stop_testpmd_in_tmux,
 )
 
-
-@pytest.mark.parametrize("mode", (0, 1))
-def test_SR_IOV_Permutation_DPDK(
-    dut, trafficgen, settings, testdata, mode
-):
-    """Test VFs function when bound to the DPDK driver with various properties
-
-    Args:
-        dut:         ssh connection obj
-        trafficgen:  trafficgen obj
-        settings:    settings obj
-        testdata:    testdata obj
-        spoof:       spoof parameter
-        trust:       trust parameter
-        qos:         qos parameter
-        vlan:        vlan parameter
-        max_tx_rate: max_tx_rate parameter
-    """
+@pytest.fixture
+def dut_setup(dut, settings, testdata):
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
     assert create_vfs(dut, pf1, 2)
     pf2 = settings.config["dut"]["interface"]["pf2"]["name"]
@@ -55,7 +39,7 @@ def test_SR_IOV_Permutation_DPDK(
     pci_pf2_vf0 = get_pci_address(dut, pf2+"v0")
     assert bind_driver(dut, pci_pf2_vf0, "vfio-pci") 
     rx_port_num = 1 if pci_pf1_vf1 < pci_pf2_vf0 else 2
-    fwd_mac = "dd:cc:bb:aa:33:00"
+    fwd_mac = testdata.trafficgen_spoof_mac
     dpdk_img = settings.config["dpdk_img"]
     cpus = settings.config["dut"]["pmd_cpus"]
     podman_cmd = f"""podman run -it --rm --privileged \
@@ -70,9 +54,13 @@ def test_SR_IOV_Permutation_DPDK(
     testpmd_tmux_session = testdata.tmux_session_name
     assert start_tmux(dut, testpmd_tmux_session, podman_cmd)
     assert wait_tmux_testpmd_ready(dut, testpmd_tmux_session, 10)
+    yield
+    stop_testpmd_in_tmux(dut, testpmd_tmux_session)
+        
 
+@pytest.fixture
+def trafficgen_setup(dut, trafficgen, settings, testdata):
     trafficgen_pf1 = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    trafficgen_pf2 = settings.config["trafficgen"]["interface"]["pf2"]["name"]
     trafficgen_ip = testdata.trafficgen_ip
     dut_ip = testdata.dut_ip
     assert prepare_ping_test(
@@ -91,20 +79,30 @@ def test_SR_IOV_Permutation_DPDK(
     trafficgen.log_str(ping_cmd)
     ping_tmux_session = "dpdk_bonding_ping"
     assert start_tmux(trafficgen, ping_tmux_session, ping_cmd)
+    yield
+    stop_tmux(trafficgen, ping_tmux_session)
     
+def test_SR_IOV_BondVF_DPDK(
+    dut, trafficgen, settings, testdata, dut_setup, trafficgen_setup
+):
+    pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
+    trafficgen_pf1 =  settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    trafficgen_pf2 = settings.config["trafficgen"]["interface"]["pf2"]["name"]
+    fwd_mac = testdata.trafficgen_spoof_mac
     tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf1} -c 1 ether host {fwd_mac}"
     code_primary_link, out, err = trafficgen.execute(tcpdump_cmd)
+    assert code_primary_link == 0
 
     link_down_cmd = f"ip link set {pf1} vf 0 state disable"
     execute_and_assert(dut, [link_down_cmd], 0)
-    
     tcpdump_cmd = f"timeout 3 tcpdump -i {trafficgen_pf2} -c 1 ether host {fwd_mac}"
     code_backup_link, out, err = trafficgen.execute(tcpdump_cmd)
-    
-    stop_tmux(trafficgen, ping_tmux_session)
-    stop_testpmd_in_tmux(dut, testpmd_tmux_session)
-    assert code_primary_link == 0
     assert code_backup_link == 0
+    
+    link_down_cmd = f"ip link set {pf1} vf 0 state enable"
+    execute_and_assert(dut, [link_down_cmd], 0)
+    code_primary_link, out, err = trafficgen.execute(tcpdump_cmd)
+    assert code_primary_link == 0
 
 
     
