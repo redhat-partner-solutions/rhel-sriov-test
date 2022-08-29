@@ -626,7 +626,8 @@ def execute_and_assert(
         code, out, err = ssh_obj.execute(cmd)
         outs.append(out)
         errs.append(err)
-        assert code == exit_code, ("\nstdout:" + str(outs) + "\nstderr:" + str(errs))
+        assert code == exit_code, ("\nstdout:" +
+                                   str(outs) + "\nstderr:" + str(errs))
         time.sleep(timeout)
     return outs, errs
 
@@ -654,6 +655,7 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
     print("\nstdout:" + str(out) + "\nstderr:" + str(err))
     return False
 
+
 def wait_tmux_testpmd_ready(ssh_obj: ShellHandler, tmux_session: str,
                             timeout: int) -> bool:
     """wait the testpmd in a tmux session ready
@@ -675,8 +677,9 @@ def wait_tmux_testpmd_ready(ssh_obj: ShellHandler, tmux_session: str,
                 return True
     return False
 
+
 def stop_testpmd_in_tmux(ssh_obj: ShellHandler,
-                        tmux_session: str) -> None:
+                         tmux_session: str) -> None:
     """stop the testpmd in a tmux session
 
     Args:
