@@ -26,7 +26,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         trafficgen: trafficgen ssh connection obj
         settings: setting obj
         testdata: testdata obj
-        request: request fixture 
+        request: request fixture
     """
     mode = request.param
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
@@ -51,7 +51,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     pci_pf1_vf1 = get_pci_address(dut, pf1+"v1")
     assert bind_driver(dut, pci_pf1_vf1, "vfio-pci")
     pci_pf2_vf0 = get_pci_address(dut, pf2+"v0")
-    assert bind_driver(dut, pci_pf2_vf0, "vfio-pci") 
+    assert bind_driver(dut, pci_pf2_vf0, "vfio-pci")
     rx_port_num = 1 if pci_pf1_vf1 < pci_pf2_vf0 else 2
     fwd_mac = testdata.trafficgen_spoof_mac
     dpdk_img = settings.config["dpdk_img"]
