@@ -58,12 +58,17 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     fwd_mac = testdata.trafficgen_spoof_mac
     dpdk_img = settings.config["dpdk_img"]
     cpus = settings.config["dut"]["pmd_cpus"]
+    vdev_str = (
+        f"net_bonding_bond_test,mode={mode},"
+        f"slave={pci_pf1_vf0},slave={pci_pf2_vf0},"
+        f"primary={pci_pf1_vf0}"
+    )
     podman_cmd = f"""podman run -it --rm --privileged \
         -v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules \
         --cpuset-cpus {cpus} {dpdk_img} \
         dpdk-testpmd -l {cpus} -n 4 \
         -a {pci_pf1_vf0} -a {pci_pf1_vf1} -a {pci_pf2_vf0} \
-        --vdev net_bonding_bond_test,mode={mode},slave={pci_pf1_vf0},slave={pci_pf2_vf0},primary={pci_pf1_vf0} \
+        --vdev {vdev_str} \
         -- --forward-mode=mac --portlist {rx_port_num},3 \
         --eth-peer 3,{fwd_mac}"""
     dut.log_str(podman_cmd)
