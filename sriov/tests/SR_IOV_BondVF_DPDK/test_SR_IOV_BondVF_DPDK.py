@@ -96,7 +96,7 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
         testdata.dut_mac,
         testdata,
     )
-    
+
     ping_cmd = f"ping -i 0.3 {dut_ip}"
     trafficgen.log_str(ping_cmd)
     ping_tmux_session = "dpdk_bonding_ping"
@@ -136,7 +136,7 @@ def test_SR_IOV_BondVF_DPDK(
     trafficgen.log_str(tcpdump_cmd)
     code, out, err = trafficgen.execute(tcpdump_cmd)
     assert code == 0, err
-    
+
     if bond_mode == 1:
         link_up_cmd = f"ip link set {pf1} vf 0 state enable"
         execute_and_assert(dut, [link_up_cmd], 0)
