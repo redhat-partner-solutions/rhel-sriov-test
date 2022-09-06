@@ -14,15 +14,16 @@ from sriov.common.utils import (
 
 class Bond:
     """This class is used by bond setup code to yield an object with bond info"""
+
     def __init__(self, mode, mac):
         self.bond_mode = mode
         self.bond_mac = mac
 
 
 bond_setup_params = ({"mode": mode, "mac": mac}
-                    for mode in [0, 1]
-                    for mac in [False, True]
-                    )
+                     for mode in [0, 1]
+                     for mac in [False, True]
+                     )
 
 
 def validate_bond(
