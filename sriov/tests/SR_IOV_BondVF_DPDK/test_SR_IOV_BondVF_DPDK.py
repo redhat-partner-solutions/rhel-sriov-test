@@ -3,6 +3,7 @@ from time import sleep
 from sriov.common.utils import (
     create_vfs,
     set_vf_mac,
+    get_vf_mac,
     execute_and_assert,
     bind_driver,
     prepare_ping_test,
@@ -29,7 +30,8 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         testdata: testdata obj
         request: request fixture
     """
-    mode = request.param
+    mode = request.param["mode"]
+    explicit_mac = request.param["mac"]
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]
     assert create_vfs(dut, pf1, 2)
     pf2 = settings.config["dut"]["interface"]["pf2"]["name"]
@@ -53,28 +55,39 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     assert bind_driver(dut, pci_pf1_vf1, "vfio-pci")
     pci_pf2_vf0 = get_pci_address(dut, pf2 + "v0")
     assert bind_driver(dut, pci_pf2_vf0, "vfio-pci")
+
+    if explicit_mac:
+        bond_mac = testdata.dut_spoof_mac
+    else:
+        bond_mac = get_vf_mac(dut, pf1, 0)
     rx_port_num = 1 if pci_pf1_vf1 < pci_pf2_vf0 else 2
     fwd_mac = testdata.trafficgen_spoof_mac
     dpdk_img = settings.config["dpdk_img"]
     cpus = settings.config["dut"]["pmd_cpus"]
+
     vdev_str = (
         f"net_bonding_bond_test,mode={mode},"
         f"slave={pci_pf1_vf0},slave={pci_pf2_vf0},"
         f"primary={pci_pf1_vf0}"
     )
-    podman_cmd = f"""podman run -it --rm --privileged \
-        -v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules \
-        --cpuset-cpus {cpus} {dpdk_img} \
-        dpdk-testpmd -l {cpus} -n 4 \
-        -a {pci_pf1_vf0} -a {pci_pf1_vf1} -a {pci_pf2_vf0} \
-        --vdev {vdev_str} \
-        -- --forward-mode=mac --portlist {rx_port_num},3 \
-        --eth-peer 3,{fwd_mac}"""
+    if explicit_mac:
+        vdev_str = f"{vdev_str},mac={bond_mac}"
+
+    podman_cmd = (
+        "podman run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        f"--cpuset-cpus {cpus} {dpdk_img} "
+        f"dpdk-testpmd -l {cpus} -n 4 "
+        f"-a {pci_pf1_vf0} -a {pci_pf1_vf1} -a {pci_pf2_vf0} "
+        f"--vdev {vdev_str} "
+        f"-- --forward-mode=mac --portlist {rx_port_num},3 "
+        f"--eth-peer 3,{fwd_mac}"
+    )
     dut.log_str(podman_cmd)
     testpmd_tmux_session = testdata.tmux_session_name
     assert start_tmux(dut, testpmd_tmux_session, podman_cmd)
     assert wait_tmux_testpmd_ready(dut, testpmd_tmux_session, 10)
-    yield Bond(mode)
+    yield Bond(mode, bond_mac)
     stop_testpmd_in_tmux(dut, testpmd_tmux_session)
 
 
@@ -111,7 +124,10 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
     stop_tmux(trafficgen, ping_tmux_session)
 
 
-@pytest.mark.parametrize('dut_setup', (1, 0), indirect=True)
+dut_setup_params = ({"mode": mode, "mac": mac}
+                    for mode in [0, 1] for mac in [False, True])
+@pytest.mark.parametrize('dut_setup', dut_setup_params,
+                         indirect=True)
 def test_SR_IOV_BondVF_DPDK(
     dut, trafficgen, settings, testdata, dut_setup, trafficgen_setup
 ):
@@ -125,5 +141,5 @@ def test_SR_IOV_BondVF_DPDK(
         dut_setup: dut setup and teardown fixture
         trafficgen_setup: trafficgen setup and teardown fixture
     """
-    bond_mode = dut_setup.bond_mode
-    validate_bond (dut, trafficgen, settings, testdata, bond_mode)
+    validate_bond(dut, trafficgen, settings, testdata,
+                  dut_setup.bond_mode, dut_setup.bond_mac)
