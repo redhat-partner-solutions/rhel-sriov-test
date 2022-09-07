@@ -40,7 +40,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         f"ip link set {pf2}v0 down",
         "echo -bond0 > /sys/class/net/bonding_masters || true",
         "echo +bond0 > /sys/class/net/bonding_masters",
-        f"ip link set bond0 down",
+        "ip link set bond0 down",
     ]
 
     if explicit_mac:
