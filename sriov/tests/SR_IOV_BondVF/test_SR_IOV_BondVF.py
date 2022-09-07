@@ -18,7 +18,6 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
 
     Args:
         dut: dut ssh connection obj
-        trafficgen: trafficgen ssh connection obj
         settings: setting obj
         testdata: testdata obj
         request: request fixture

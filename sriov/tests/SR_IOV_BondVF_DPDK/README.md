@@ -1,6 +1,6 @@
 ## Test Case Name: SR-IOV.BondVF.DPDK
 
-### Objective(s): Test and ensure that VFs DPDK bond across PFs work as expected.
+### Objective(s): Test and ensure that VFs DPDK bond across PFs works as expected.
 
 ### Test procedure
 
