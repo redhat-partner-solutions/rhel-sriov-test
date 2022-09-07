@@ -20,12 +20,6 @@ class Bond:
         self.bond_mac = mac
 
 
-bond_setup_params = ({"mode": mode, "mac": mac}
-                     for mode in [0, 1]
-                     for mac in [False, True]
-                     )
-
-
 def validate_bond(
     dut, trafficgen, settings, testdata, bond_mode, bond_mac
 ):

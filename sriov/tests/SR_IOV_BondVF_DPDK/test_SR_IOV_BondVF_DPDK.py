@@ -16,7 +16,6 @@ from sriov.common.utils import (
 from sriov.common.macros import (
     Bond,
     validate_bond,
-    bond_setup_params,
 )
 
 
@@ -123,6 +122,12 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
     assert start_tmux(trafficgen, ping_tmux_session, ping_cmd)
     yield
     stop_tmux(trafficgen, ping_tmux_session)
+
+
+bond_setup_params = ({"mode": mode, "mac": mac}
+                     for mode in [0, 1]
+                     for mac in [False, True]
+                     )
 
 
 @pytest.mark.parametrize('dut_setup', bond_setup_params,
