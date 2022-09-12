@@ -18,7 +18,10 @@ def get_ssh_obj(name: str) -> ShellHandler:
     settings = get_settings_obj()
     host = settings.config[name]["host"]
     user = settings.config[name]["username"]
-    password = settings.config[name]["password"]
+    if "password" in settings.config[name]:
+        password = settings.config[name]["password"]
+    else:
+        password = None
     return ShellHandler(host, user, password, name)
 
 

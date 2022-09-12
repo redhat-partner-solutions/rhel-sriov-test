@@ -34,13 +34,15 @@ yum install -y nmap
 
 The test script can be run from a third server. It will set up one ssh session to the TrafficGen and one to the DUT. The script will send commands over the ssh sessions to set up configuration or to send test traffic.
 
+The test scripts supports both password-based and key-based ssh authentication. If the latter option is used, local user's ssh public key should be transferred to the DUT and trafficgen servers in advance.
+
 The script will look for `tests/testbed.yaml` in order to access the TrafficGen and the DUT. Other than the ssh access information, other information such as the interfaces connecting the DUT and the TrafficGen will also be provided in this file. A template `testbed_template.yaml` is provided as a sample. One can build a local testbed.yaml from this sample file. The content of this file is explained below,
 
 ```
 dut:
   host:                     # DUT ip address
   username: root            # need root access
-  password:                 # root password
+  password:                 # root password (remove this line to use key-based ssh auth)
   pmd_cpus: "30,32,34"      # cpu list used for the testpmd
   interface:
     pf1:
