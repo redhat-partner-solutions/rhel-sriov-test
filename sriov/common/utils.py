@@ -653,3 +653,40 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
         time.sleep(1)
     print("\nstdout:" + str(out) + "\nstderr:" + str(err))
     return False
+
+
+def wait_tmux_testpmd_ready(ssh_obj: ShellHandler, tmux_session: str,
+                            timeout: int) -> bool:
+    """wait until the testpmd in a tmux session is ready
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        tmux_session (str): tmux session name
+        timeout (int): how many seconds to wait
+
+    Returns:
+        bool: True if success; False otherwise
+    """
+    for i in range(timeout):
+        time.sleep(1)
+        cmd = [f"tmux capture-pane -pt {tmux_session}"]
+        outs, errs = execute_and_assert(ssh_obj, cmd, 0)
+        for line in outs[0]:
+            if line.startswith("Press enter to exit"):
+                return True
+    return False
+
+
+def stop_testpmd_in_tmux(ssh_obj: ShellHandler,
+                         tmux_session: str) -> None:
+    """stop the testpmd in a tmux session
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        tmux_session (str): tmux session name
+    """
+    cmd = f"tmux send-keys -t {tmux_session} 'quit' ENTER"
+    ssh_obj.log_str(cmd)
+    ssh_obj.execute(cmd)
+    time.sleep(1)
+    assert stop_tmux(ssh_obj, tmux_session)

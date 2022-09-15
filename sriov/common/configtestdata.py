@@ -14,6 +14,7 @@ class ConfigTestData:
         self.dut_mac = "aa:bb:cc:dd:ee:00"
         self.dut_spoof_mac = "aa:bb:cc:dd:ee:ff"
         self.trafficgen_ip = "101.1.1.1"
+        self.trafficgen_spoof_mac = "aa:00:00:00:00:00"
         self.qos = 5
         self.max_tx_rate = 10
         self.pfs = {}
