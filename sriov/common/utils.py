@@ -54,14 +54,14 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
     return True
 
 
-def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> bool:
+def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bool:
     """Config an IP address on VLAN interface; if VLAN is 0, config IP on
         main interface
 
     Args:
         ssh_obj:    SSH connection obj
         intf (str): interface name
-        vlan (str): VLAN ID
+        vlan (int): VLAN ID
         ip (str):   IP address
 
     Returns:
