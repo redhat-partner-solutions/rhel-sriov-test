@@ -25,13 +25,14 @@ def get_pci_address(ssh_obj: ShellHandler, iface: str) -> str:
     return out[0].strip("\n")
 
 
-def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
+def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) -> bool:
     """Bind the PCI address to the driver
 
     Args:
-        ssh_obj:      ssh_obj to the remote host
-        pci (str):    PCI address, example "0000:17:00.0"
-        driver (str): driver name, example "vfio-pci"
+        ssh_obj:       ssh_obj to the remote host
+        pci (str):     PCI address, example "0000:17:00.0"
+        driver (str):  driver name, example "vfio-pci"
+        timeout (int): seconds of timeout for execute, default of 5
 
     Returns:
         True: on success of binding
@@ -48,20 +49,20 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str) -> bool:
     ]
     for step in steps:
         ssh_obj.log_str(step)
-        code, out, err = ssh_obj.execute(step)
+        code, out, err = ssh_obj.execute(step, timeout)
         if code != 0:
             raise Exception(err)
     return True
 
 
-def config_interface(ssh_obj: ShellHandler, intf: str, vlan: str, ip: str) -> bool:
+def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bool:
     """Config an IP address on VLAN interface; if VLAN is 0, config IP on
         main interface
 
     Args:
         ssh_obj:    SSH connection obj
         intf (str): interface name
-        vlan (str): VLAN ID
+        vlan (int): VLAN ID
         ip (str):   IP address
 
     Returns:
@@ -626,7 +627,7 @@ def execute_and_assert(
         code, out, err = ssh_obj.execute(cmd)
         outs.append(out)
         errs.append(err)
-        assert code == exit_code, ("\nstdout:" + str(outs) + "\nstderr:" + str(errs))
+        assert code == exit_code, "\nstdout:" + str(outs) + "\nstderr:" + str(errs)
         time.sleep(timeout)
     return outs, errs
 
@@ -655,8 +656,9 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
     return False
 
 
-def wait_tmux_testpmd_ready(ssh_obj: ShellHandler, tmux_session: str,
-                            timeout: int) -> bool:
+def wait_tmux_testpmd_ready(
+    ssh_obj: ShellHandler, tmux_session: str, timeout: int
+) -> bool:
     """wait until the testpmd in a tmux session is ready
 
     Args:
@@ -677,8 +679,7 @@ def wait_tmux_testpmd_ready(ssh_obj: ShellHandler, tmux_session: str,
     return False
 
 
-def stop_testpmd_in_tmux(ssh_obj: ShellHandler,
-                         tmux_session: str) -> None:
+def stop_testpmd_in_tmux(ssh_obj: ShellHandler, tmux_session: str) -> None:
     """stop the testpmd in a tmux session
 
     Args:
