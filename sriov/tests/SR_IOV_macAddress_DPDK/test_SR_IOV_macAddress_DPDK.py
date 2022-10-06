@@ -1,3 +1,4 @@
+# UUID: d786bfca-219c-4b9f-ad9b-59fa1bc8cbba
 from sriov.common.utils import (
     create_vfs,
     get_pci_address,

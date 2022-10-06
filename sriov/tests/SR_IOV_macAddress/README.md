@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.macAddress
+# UUID: 93ccf4b8-21e6-4148-848b-0f9eefdb20d6
 
 ### Objective(s): Test and ensure that VF (virtual function) MAC address functions as intended.
 
@@ -36,6 +37,3 @@ ip addr del ${TGEN_IP}/24 dev ${TGEN_PF}
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

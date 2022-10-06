@@ -75,3 +75,10 @@ this document, but it's a useful skill and there are [many](https://thoughtbot.c
 - Favor readability over brevity in both naming and structure
 - Document the _why_ with comments, and the _what_ with clear code
 - When in doubt, follow the [PEP 8](https://peps.python.org/pep-0008/) style guide
+
+## Identifying Tests
+
+All SR-IOV tests must be identified via a UUID representing a formal, globally unique identifier for said test. Should the test
+specification or reference implementation change, a new UUID is required. This provides traceability and an unambiguous way to
+reference specific tests. For this reason, the "common name" a test receives is not considered its formal reference, and may
+remain even if a UUID changes. For specifics on use of UUIDs, see the root level `README.md`.

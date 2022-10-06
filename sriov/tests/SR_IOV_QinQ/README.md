@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.QinQ
+# UUID: ddcb6e81-8433-4dfb-bea9-0351d20f8ac2
 
 ### Objective(s): Test and ensure that QinQ on VF works with kernel drive.
 
@@ -28,6 +29,3 @@ timeout 3 tcpdump -i ${trafficgen_pf} -c 1 vlan ${OUTSIDE_VLAN} and vlan ${INSID
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

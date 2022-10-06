@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.TrustMode
+# UUID: 28be87c8-0b05-4eac-8ce4-6e5ebe95efc8
 
 ### Objective(s): Test and ensure that VF (virtual function) trust mode functions as intended.
 
@@ -25,7 +26,7 @@ ip link set ${DUT_PF} vf 0 trust off
 ```
 
 * The next step is expected to produce an error,
-  
+
 ```
 ip link set ${DUT_PF}v0 address ${MAC_3}
 RTNETLINK answers: Permission denied
@@ -37,6 +38,3 @@ RTNETLINK answers: Permission denied
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

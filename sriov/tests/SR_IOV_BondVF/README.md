@@ -1,4 +1,5 @@
 ## Test Case Name: SR-IOV.BondVF
+# a1df2b99-97af-4290-b55a-2aa777ced821
 
 ### Objective(s): Test and ensure that VFs kernel bond across PFs works as expected.
 
@@ -59,4 +60,3 @@ ip link set ${PF_1} vf 0 state disable
 * On trafficgen, delete the ping tmux session
 
 * On DUT, in the testpmd tmux window, enter “quit\n”, then delete testpmd tmux session, and reset the VFs
-

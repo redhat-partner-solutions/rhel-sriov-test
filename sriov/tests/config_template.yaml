@@ -1,5 +1,5 @@
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
 tests_name_field: "Test Case Name:"
+tests_id_field: "UUID:"
 tests_doc_file: "README.md"
 github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
-
