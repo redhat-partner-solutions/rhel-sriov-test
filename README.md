@@ -111,7 +111,7 @@ After the test is completed, report.html will be generated under the current wor
 
 Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
 
-In order for the html test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
+In order for the HTML test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
 
 To satisfy the requirement of a unique identifier, the `README.md` of any SR-IOV test case must contain a distinct UUID. This will be used to formally reference a specific test specification. In order for the html test report to be generated properly, the UUID line should start with "UUID: ", or what is defined by the `tests_id_field` in the config.yaml file. Additionally, the reference implementation of a test should also be identified with a corresponding UUID, preferably as a comment on the first line. For example:
 ```
