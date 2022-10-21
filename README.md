@@ -46,10 +46,10 @@ dut:
   pmd_cpus: "30,32,34"      # cpu list used for the testpmd
   interface:
     pf1:
-      name: "ens7f3"        # first PF interface name 
+      name: "ens7f3"        # first PF interface name
       pci: "0000:ca:00.3"   # first PF PCI address
     vf1:
-      name: "ens7f3v0"      # first VF interface name 
+      name: "ens7f3v0"      # first VF interface name
       pci: "0000:ca:19.0"   # first VF PCI address
 trafficgen:
   host:                     # TrafficGen ip address
@@ -111,11 +111,18 @@ After the test is completed, report.html will be generated under the current wor
 
 Each test case has its own folder. Under this folder there are two files: `test_<testcase>.py` and `README.md`. The `README.md` under each test case folder contains the test case description. `test_<testcase>.py` is an reference implementation of this test case.
 
-In order for the html test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
+In order for the HTML test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
+
+To satisfy the requirement of a unique identifier, the `README.md` of any SR-IOV test case must contain a distinct UUID. This will be used to formally reference a specific test specification. In order for the html test report to be generated properly, the UUID line should start with "UUID: ", or what is defined by the `tests_id_field` in the config.yaml file. Additionally, the reference implementation of a test should also be identified with a corresponding UUID, preferably as a comment on the first line. For example:
+```
+# UUID: defcb0a3-1d73-45f9-9438-f19c6fba8a8c
+...
+```
+This will allow for clear identification of when a test specification and reference implementation may diverge. See `CONTRIBUTING.md` for more information on test case identification, and the generation of new UUIDs.
 
 ## Common Code
 
-The common code shared by all test cases is under the `sriov/common`. 
+The common code shared by all test cases is under the `sriov/common`.
 
 The common code has its own test cases. The majority of the common code test cases are under the `tests/common/` folder. Pytest is used to execute these test cases. Because a valid `config.yaml` file is expected by pytest to establish ssh connections and execute these test cases, they are considered an e2e test.
 

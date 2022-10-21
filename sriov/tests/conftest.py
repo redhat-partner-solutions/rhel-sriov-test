@@ -156,12 +156,19 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
             lines = f.readlines()
 
         case_name = ""
+        case_id = ""
         for line in lines:
             case_index = line.find(settings.config["tests_name_field"])
+            id_index = line.find(settings.config["tests_id_field"])
             if case_index != -1:
                 case_name = (
                     line[case_index + len(settings.config["tests_name_field"]):]
                 ).strip()
+            if id_index != -1:
+                case_id = (
+                    line[id_index + len(settings.config["tests_id_field"]):]
+                ).strip()
+            if case_name and case_id:
                 break
 
         if case_name != "":
@@ -175,7 +182,10 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
             )
             extra.append(
                 extras.html(
-                    '<p>Link to the test specification: <a href="'
+                    '<p>Local Test Case ID: '
+                    + case_id
+                    + '</p>'
+                    + '<p>Link to the test specification: <a href="'
                     + link
                     + '">'
                     + case_name

@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.Permutation
+# UUID: dc4d0d06-1544-45f4-87c0-01015b11355a
 
 ### Objective(s): Test VFs (virtual function) configuration with different properties combined
 
@@ -7,7 +8,7 @@
 
 ### Test procedure
 
-* On DUT, create 1 VF; set VF 0 with a permutation of the following permutations, 
+* On DUT, create 1 VF; set VF 0 with a permutation of the following permutations,
 
 | Spoofchk (on/off) | Trust(on/off) | vlan(with/without) | QoS (with/without) | max_tx_rate (with/without) |
 | --- | --- | --- | --- | --- |
@@ -45,6 +46,3 @@ ping -W 1 -c 1 ${DUT_IP}
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

@@ -1,4 +1,5 @@
 # Test Case Name: SR-IOV.MultipleVFCreation.withMAC.DPDK
+# UUID: 935c6576-ca12-4592-8b5d-f5a76560be81
 
 ### Objective(s): A robustness test to ensure that, from a clean start, VFs (virtual functions) provision MAC address functions with DPDK
 

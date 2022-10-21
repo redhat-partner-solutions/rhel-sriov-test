@@ -1,4 +1,5 @@
 ## Test Case Name: SR-IOV.macAddress.DPDK
+# UUID: d786bfca-219c-4b9f-ad9b-59fa1bc8cbba
 
 ### Objective(s): Test and ensure that VF (virtual function) MAC address functions as intended when bound to the DPDK driver.
 

@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.MTU
+# UUID: 98e9389d-fc1b-4ea3-b0be-cfa5529dfdbe
 
 ### Objective(s): Test and ensure that VF (virtual function) MTU functions as intended.
 
@@ -36,6 +37,3 @@ ping -W 1 -c -s $((MTU-28)) -M do ${TGEN_IP}
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

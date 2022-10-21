@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.InterVF
+# 5d23e6c6-7954-48de-ab5a-d8da6b7b45c5
 
 ### Objective(s): Test and ensure that VFs (virtual function) on the same PF can communicate
 
@@ -34,7 +35,7 @@ ip netns exec ns0 arp -s ${DUT_IP_1} ${DUT_VF1_MAC}
 ip netns exec ns1 arp -s ${DUT_IP_0} ${DUT_VF0_MAC}
 ```
 
-* From the ns0 ping ns1 address. Assert exit code of ping equal to 0, 
+* From the ns0 ping ns1 address. Assert exit code of ping equal to 0,
 ```
 ip netns exec ns0 ping ${DUT_IP_1}/24
 ```
@@ -47,6 +48,3 @@ ip netns exec ns0 ping ${DUT_IP_1}/24
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

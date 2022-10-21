@@ -1,5 +1,6 @@
 
 ## Test Case Name: SR-IOV.Spoof.Mac
+# UUID: 66627809-09ff-4c41-a732-35b2f6f9528c
 
 ### Objective(s): Test and ensure that VF (virtual function) spoof check and custom mac can be set at the same time.
 
@@ -38,6 +39,3 @@ timeout 2 tcpdump -i ${trafficgen_PF} -c 1 ether host ${SPOOF_MAC}
 ```
 echo 0 > /sys/class/net/${DUT_PF}/device/sriov_numvfs
 ```
-
-
-

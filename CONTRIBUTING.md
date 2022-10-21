@@ -75,3 +75,18 @@ this document, but it's a useful skill and there are [many](https://thoughtbot.c
 - Favor readability over brevity in both naming and structure
 - Document the _why_ with comments, and the _what_ with clear code
 - When in doubt, follow the [PEP 8](https://peps.python.org/pep-0008/) style guide
+
+## Identifying Tests
+
+All SR-IOV tests must be identified via a UUID representing a formal, globally unique identifier for said test. Should the test
+specification or reference implementation change, a new UUID is required. This provides traceability and an unambiguous way to
+reference specific tests. For this reason, the "common name" a test receives is not considered its formal reference, and may
+remain even if a UUID changes. For specifics on use of UUIDs, see the root level `README.md`.
+
+The recommended best practice is to use the CLI tool `uuidgen` to generate a UUID, as follows:
+```
+$ uuidgen
+3df99cbc-ec2f-406c-b344-39ff32b440f0
+```
+
+As this identifier is used to identify a specific, unique test definition, the UUID may need to be changed during a pull request. A change to the UUID is required whenever the functionality of a test case changes. This is inclusive of bug fixes, which may lead to differing behavior. A UUID may remain if the difference is purely documentation, and does not change the interpretation of the text. An example of this is a simple spelling or formatting change. Anything more consequential should be considered for a UUID change, implying the test case has changed. This should be a main consideration when reviewing and approving pull requests. Changes which either alter implied functionality or change the reference implementation, but do not receive an updated UUID, will not be acceptable.
