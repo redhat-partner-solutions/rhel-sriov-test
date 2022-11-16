@@ -1,6 +1,6 @@
 
 ## Test Case Name: SR-IOV.InterVF.DPDK
-# da929907-c54a-485d-8cc9-1ece9348d69f
+# UUID: da929907-c54a-485d-8cc9-1ece9348d69f
 
 ### Objective(s): Test and ensure that VFs (virtual function) bound to DPDK driver can communicate with VF on the same PF.
 

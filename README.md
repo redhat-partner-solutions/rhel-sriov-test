@@ -66,13 +66,18 @@ If one chooses to run the test script from the TrafficGen, the trafficgen host w
 Besides `tests/testbed.yaml`, the script will also look for `tests/config.yaml`. A template `config_template.yaml` is provided as a sample. In most situations, users can simply copy from this sample file into a local config.yaml. The content of this file is explained below,
 
 ```
-dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"  # DPDK build container image
-github_tests_path:          # URL to the test directory
-                            # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
-tests_doc_file: 	          # test specification name under the test case directory
+dpdk_img:		    # DPDK build container image
+			    # example: "docker.io/patrickkutch/dpdk:v21.11"
+tests_name_field	    # test specification string prepending test name
+			    # example: "Test Case Name:"
+tests_doc_file: 	    # test specification file name under the test case directory
                             # example: "README.md"
-tests_name_field: 	        # name field in the test specification
+tests_name_field: 	    # name field in the test specification
                             # example: "Test Case Name:"
+tests_id_field: 	    # ID field in the test specification
+			    # example: "UUID:"
+github_tests_path:          # URL to the test directory
+                            # example: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/main/sriov/tests
 ```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,
