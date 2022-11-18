@@ -1,10 +1,13 @@
+import git
 import os
 import pytest
 from pytest_html import extras
+import requests
 from sriov.common.config import Config
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
 from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
+import yaml
 
 
 def get_settings_obj() -> Config:
@@ -149,51 +152,72 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
     lines = []
     monkeypatch.chdir(request.fspath.dirname)
 
-    try:
-        # This is assuming the current working directory contains the test
-        # specification.
-        with open(settings.config["tests_doc_file"]) as f:
-            lines = f.readlines()
+    # try:
+    # This is assuming the current working directory contains the test
+    # specification.
+    with open(settings.config["tests_doc_file"]) as f:
+        lines = f.readlines()
 
-        case_name = ""
-        case_id = ""
-        for line in lines:
-            case_index = line.find(settings.config["tests_name_field"])
-            id_index = line.find(settings.config["tests_id_field"])
-            if case_index != -1:
-                case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]):]
-                ).strip()
-            if id_index != -1:
-                case_id = (
-                    line[id_index + len(settings.config["tests_id_field"]):]
-                ).strip()
-            if case_name and case_id:
-                break
+    case_name = ""
+    case_id = ""
+    for line in lines:
+        case_index = line.find(settings.config["tests_name_field"])
+        id_index = line.find(settings.config["tests_id_field"])
+        if case_index != -1:
+            case_name = (
+                line[case_index + len(settings.config["tests_name_field"]):]
+            ).strip()
+        if id_index != -1:
+            case_id = (
+                line[id_index + len(settings.config["tests_id_field"]):]
+            ).strip()
+        if case_name and case_id:
+            break
 
-        if case_name != "":
+    if case_name != "":
+        repo = git.Repo(search_parent_directories=True)
+        sha = repo.head.object.hexsha
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        uuid_mapping_file_path = script_dir + "/uuid_mapping.yaml"
+        uuid_mapping_file = ""
+        file = open(uuid_mapping_file_path, "r+")
+        uuid_mapping_file = yaml.safe_load(file)
+        if not uuid_mapping_file:
+            uuid_mapping_file = {}
+        print(uuid_mapping_file)
+        if case_id not in uuid_mapping_file:
             test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
             link = (
-                settings.config["github_tests_path"]
+                settings.config["github_tests_path"].replace("main", sha)
                 + "/"
                 + test_dir
                 + "/"
                 + settings.config["tests_doc_file"]
             )
-            extra.append(
-                extras.html(
-                    '<p>Local Test Case ID: '
-                    + case_id
-                    + '</p>'
-                    + '<p>Link to the test specification: <a href="'
-                    + link
-                    + '">'
-                    + case_name
-                    + " Documentation</a></p>"
-                )
+            try:
+                r = requests.head(link)
+            except requests.ConnectionError:
+                print("Failed connection")
+            if r and (r.status_code == 200 or r.status_code == 301):
+                temp_uuid_map = {case_id: link}
+                yaml.dump(temp_uuid_map, file)
+            else:
+                link = None
+        else:
+            link = uuid_mapping_file[case_id]
+        file.close()
+        html_content = "<p>Local Test Case ID: " + case_id + "</p>"
+        if link:
+            html_content += (
+                '<p>Link to the test specification: <a href="'
+                + link
+                + '">'
+                + case_name
+                + " Documentation</a></p>"
             )
-    except Exception:
-        return
+        extra.append(extras.html(html_content))
+    # except Exception:
+    #    return
 
 
 def pytest_addoption(parser) -> None:

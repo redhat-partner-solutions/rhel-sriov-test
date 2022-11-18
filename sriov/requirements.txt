@@ -3,3 +3,5 @@ pytest==6.2.5
 PyYAML==6.0
 pytest-html
 docutils
+gitpython
+requests

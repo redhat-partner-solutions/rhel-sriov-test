@@ -1,0 +1,16 @@
+# UUID: commit
+a1df2b99-97af-4290-b55a-2aa777ced821: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_BondVF/README.md
+ada901f7-fc3f-40dd-8c13-6c07f00badfe: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_BondVF_DPDK/README.md
+5d23e6c6-7954-48de-ab5a-d8da6b7b45c5: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_InterVF/README.md
+da929907-c54a-485d-8cc9-1ece9348d69f: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_InterVF_DPDK/README.md
+93ccf4b8-21e6-4148-848b-0f9eefdb20d6: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_macAddress/README.md
+d786bfca-219c-4b9f-ad9b-59fa1bc8cbba: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_macAddress_DPDK/README.md
+67e90840-5f2f-4423-a80d-828e99d43e55: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_macAddressDuplicate/README.md
+935c6576-ca12-4592-8b5d-f5a76560be81: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_MultipleVFCreation_withMAC_DPDK/README.md
+67f7961c-1967-41fa-a2f1-dc1f73ef37d1: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_MultipleVFCreation_withMTU/README.md
+dc4d0d06-1544-45f4-87c0-01015b11355a: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_Permutation/README.md
+52d5e6ca-8a98-4151-9b2e-7a2946073325: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_Permutation_DPDK/README.md
+ddcb6e81-8433-4dfb-bea9-0351d20f8ac2: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_QinQ/README.md
+66627809-09ff-4c41-a732-35b2f6f9528c: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_Spoof_Mac/README.md
+28be87c8-0b05-4eac-8ce4-6e5ebe95efc8: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_TrustMode/README.md
+98e9389d-fc1b-4ea3-b0be-cfa5529dfdbe: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/d94fbf6aeb344518e5f90fd9ea2de15d6cca2617/sriov/tests/SR_IOV_MTU/README.md
