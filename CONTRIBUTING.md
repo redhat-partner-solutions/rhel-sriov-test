@@ -81,12 +81,33 @@ this document, but it's a useful skill and there are [many](https://thoughtbot.c
 All SR-IOV tests must be identified via a UUID representing a formal, globally unique identifier for said test. Should the test
 specification or reference implementation change, a new UUID is required. This provides traceability and an unambiguous way to
 reference specific tests. For this reason, the "common name" a test receives is not considered its formal reference, and may
-remain even if a UUID changes. For specifics on use of UUIDs, see the root level `README.md`.
+remain even if a UUID changes.
 
+### Generating a UUID
 The recommended best practice is to use the CLI tool `uuidgen` to generate a UUID, as follows:
 ```
 $ uuidgen
 3df99cbc-ec2f-406c-b344-39ff32b440f0
 ```
 
-As this identifier is used to identify a specific, unique test definition, the UUID may need to be changed during a pull request. A change to the UUID is required whenever the functionality of a test case changes. This is inclusive of bug fixes, which may lead to differing behavior. A UUID may remain if the difference is purely documentation, and does not change the interpretation of the text. An example of this is a simple spelling or formatting change. Anything more consequential should be considered for a UUID change, implying the test case has changed. This should be a main consideration when reviewing and approving pull requests. Changes which either alter implied functionality or change the reference implementation, but do not receive an updated UUID, will not be acceptable.
+### Creating a Test
+When creating a test (modification of an existing test should be considered akin to creating a new test, as a new ID is generated), the specification should be the first contribution, with a unique UUID. Once this is pushed to the repository, only then should the reference implementation be created and `uuid_mapping.yaml` updated. The steps should be as follows:
+1. Generate a UUID for the new test
+2. Create a new README.md in an appropriate test directory under `sriov/tests/` including the UUID and a definition of the test
+    1. Once the test specification is considered "stable", it should be committed and pushed to the repository
+    2. At this point the test specification should be effectively treated as immutable, see the rationale below
+3. Create a new reference implementation, include the UUID in the comment at the start of the file
+    1. If programmatically updating the `uuid_mapping.yaml` entry, create a "template" test that will pass
+4. Update the `uuid_mapping.yaml` file using one of the following methods:
+    1. Manually with a link to the latest commit hash containing the stable test specification in the repository
+    2. Programmatically by running the test, which will attempt to update the file using the current git hash for the link if it is accessible
+        * NOTE: If the HEAD is still at the commit which added the test specification, this link will work immediately (either from `uuid_mapping.yaml` or from a test report HTML file). If one commits changes after the update to the test specification and before the update to the `uuid_mapping.yaml`, this link will not immediately work, so it will not appear in the report, nor will the link be added to `uuid_mapping.yaml`. To resolve this one can either manually update the `uuid_mapping.yaml` with the link to the commit in the repository (option 4.a. above), create a "template" reference implementation that will be run before actual implementation (ensuring a working link, see 3.a. above), or ignore the missing links and test them once the committed changes are pushed to the repository (not recommended).
+5. Continue with the reference implementation
+    1. Once the reference implementation is considered "stable", it should be committed and pushed to the repository
+    2. At this point the reference implementation should be effectively treated as immutable, see the rationale below
+6. Include a copy of the HTML report the pull request requesting this test be added to the repository
+
+### Rationale
+As this identifier is used to identify a specific, unique test definition, the UUID may need to be changed during a pull request. A change to the UUID is required whenever the functionality of a test case changes. This includes bug fixes, which may lead to differing behavior. A UUID may remain if the difference is purely documentation, and does not change the interpretation of the text. An example of this is a simple spelling or formatting change. Anything more consequential should be considered for a UUID change, implying the test case has changed. If in doubt, and in the vast majority of cases, the UUID requires change. This should be a main consideration when reviewing and approving pull requests. Changes which either alter implied functionality or change the reference implementation, but do not receive an updated UUID, will not be acceptable.
+
+For more details on use of UUIDs, see the root level `README.md`.
