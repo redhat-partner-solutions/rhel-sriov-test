@@ -1,3 +1,4 @@
+setuptools_rust
 paramiko==2.11.0
 pytest==6.2.5
 PyYAML==6.0
