@@ -147,37 +147,33 @@ def pytest_html_report_title(report) -> None:
     report.title = "SR-IOV Test Report"
 
 
+def parse_file_for_field(file_path, field) -> str:
+    lines = []
+    field_str = ""
+    with open(file_path) as f:
+        lines = f.readlines()
+    for line in lines:
+        field_index = line.find(field)
+        if field_index != -1:
+            field_str = (line[field_index + len(field):]).strip()
+        if field_str:
+            break
+    return field_str
+
+
 @pytest.fixture(autouse=True)
 def _report_extras(extra, request, settings, monkeypatch) -> None:
-    lines = []
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
         # This is assuming the current working directory contains the test
         # specification.
-        with open(request.module.__file__) as test_file:
-            test_file_lines = test_file.readlines()
-        case_id = ""
-        for line in test_file_lines:
-            id_index = line.find(settings.config["tests_id_field"])
-            if id_index != -1:
-                case_id = (
-                    line[id_index + len(settings.config["tests_id_field"]):]
-                ).strip()
-            if case_id:
-                break
-
-        with open(settings.config["tests_doc_file"]) as f:
-            lines = f.readlines()
-        case_name = ""
-        for line in lines:
-            case_index = line.find(settings.config["tests_name_field"])
-            if case_index != -1:
-                case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]):]
-                ).strip()
-            if case_name:
-                break
+        case_id = parse_file_for_field(
+            request.module.__file__, settings.config["tests_id_field"]
+        )
+        case_name = parse_file_for_field(
+            settings.config["tests_doc_file"], settings.config["tests_name_field"]
+        )
 
         if case_name != "":
             repo = git.Repo(search_parent_directories=True)
