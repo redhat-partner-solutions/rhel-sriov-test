@@ -1,3 +1,4 @@
+import git
 import os
 import pytest
 from pytest_html import extras
@@ -144,6 +145,20 @@ def pytest_html_report_title(report) -> None:
     report.title = "SR-IOV Test Report"
 
 
+def parse_file_for_field(file_path, field) -> str:
+    lines = []
+    field_str = ""
+    with open(file_path) as f:
+        lines = f.readlines()
+    for line in lines:
+        field_index = line.find(field)
+        if field_index != -1:
+            field_str = (line[field_index + len(field):]).strip()
+        if field_str:
+            break
+    return field_str
+
+
 @pytest.fixture(autouse=True)
 def _report_extras(extra, request, settings, monkeypatch) -> None:
     lines = []
@@ -155,31 +170,42 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
         with open(settings.config["tests_doc_file"]) as f:
             lines = f.readlines()
 
-        case_name = ""
-        case_id = ""
-        for line in lines:
-            case_index = line.find(settings.config["tests_name_field"])
-            id_index = line.find(settings.config["tests_id_field"])
-            if case_index != -1:
-                case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]):]
-                ).strip()
-            if id_index != -1:
-                case_id = (
-                    line[id_index + len(settings.config["tests_id_field"]):]
-                ).strip()
-            if case_name and case_id:
-                break
+        case_id = parse_file_for_field(
+            request.module.__file__, settings.config["tests_id_field"]
+        )
+        case_name = parse_file_for_field(
+            settings.config["tests_doc_file"], settings.config["tests_name_field"]
+        )
 
         if case_name != "":
+            repo = git.Repo(search_parent_directories=True)
+            sha = repo.head.commit
+            git_tag = ''
+            for tag in repo.tags:
+                if tag.commit == sha:
+                    git_tag = tag
+                    break
+            
             test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
-            link = (
-                settings.config["github_tests_path"]
-                + "/"
-                + test_dir
-                + "/"
-                + settings.config["tests_doc_file"]
-            )
+            if git_tag:
+                link = (
+                    settings.config["github_tests_path"].replace("main", git_tag)
+                    + "/"
+                    + test_dir
+                    + "/"
+                    + settings.config["tests_doc_file"]
+                )
+            elif sha:
+                link = (
+                    settings.config["github_tests_path"].replace("main", sha.hexsha)
+                    + "/"
+                    + test_dir
+                    + "/"
+                    + settings.config["tests_doc_file"]
+                )
+            else:
+                link = "Not Found"
+                
             extra.append(
                 extras.html(
                     '<p>Local Test Case ID: '
