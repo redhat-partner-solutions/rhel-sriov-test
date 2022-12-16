@@ -1,4 +1,3 @@
-# UUID: ddcb6e81-8433-4dfb-bea9-0351d20f8ac2
 from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
 
 

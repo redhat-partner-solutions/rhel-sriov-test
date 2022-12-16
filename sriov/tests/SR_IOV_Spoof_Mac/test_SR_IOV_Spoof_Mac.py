@@ -1,4 +1,3 @@
-# UUID: 66627809-09ff-4c41-a732-35b2f6f9528c
 import pytest
 from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
 

@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.TrustMode
-# UUID: 28be87c8-0b05-4eac-8ce4-6e5ebe95efc8
 
 ### Objective(s): Test and ensure that VF (virtual function) trust mode functions as intended.
 

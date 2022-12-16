@@ -1,5 +1,4 @@
 ## Test Case Name: SR-IOV.BondVF
-# a1df2b99-97af-4290-b55a-2aa777ced821
 
 ### Objective(s): Test and ensure that VFs kernel bond across PFs works as expected.
 

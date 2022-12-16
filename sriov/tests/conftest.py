@@ -1,3 +1,4 @@
+import git
 import os
 import pytest
 from pytest_html import extras
@@ -144,48 +145,69 @@ def pytest_html_report_title(report) -> None:
     report.title = "SR-IOV Test Report"
 
 
+def parse_file_for_field(file_path, field) -> str:
+    lines = []
+    field_str = ""
+    with open(file_path) as f:
+        lines = f.readlines()
+    for line in lines:
+        field_index = line.find(field)
+        if field_index != -1:
+            field_str = (line[field_index + len(field):]).strip()
+        if field_str:
+            break
+    return field_str
+
+
 @pytest.fixture(autouse=True)
 def _report_extras(extra, request, settings, monkeypatch) -> None:
-    lines = []
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
         # This is assuming the current working directory contains the test
         # specification.
-        with open(settings.config["tests_doc_file"]) as f:
-            lines = f.readlines()
-
-        case_name = ""
-        case_id = ""
-        for line in lines:
-            case_index = line.find(settings.config["tests_name_field"])
-            id_index = line.find(settings.config["tests_id_field"])
-            if case_index != -1:
-                case_name = (
-                    line[case_index + len(settings.config["tests_name_field"]):]
-                ).strip()
-            if id_index != -1:
-                case_id = (
-                    line[id_index + len(settings.config["tests_id_field"]):]
-                ).strip()
-            if case_name and case_id:
-                break
+        case_name = parse_file_for_field(
+            settings.config["tests_doc_file"], settings.config["tests_name_field"]
+        )
 
         if case_name != "":
+            sha = ""
+            git_tag = ""
+            try:
+                repo = git.Repo(search_parent_directories=True)
+                sha = repo.head.commit
+                # This will assume that there is one tag per commit.
+                for tag in repo.tags:
+                    if tag.commit == sha:
+                        git_tag = tag
+                        break
+            except Exception:
+                pass
+
             test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
-            link = (
-                settings.config["github_tests_path"]
-                + "/"
-                + test_dir
-                + "/"
-                + settings.config["tests_doc_file"]
-            )
+            if git_tag:
+                link = (
+                    settings.config["github_tests_path"].replace("main", str(git_tag))
+                    + "/"
+                    + test_dir
+                    + "/"
+                    + settings.config["tests_doc_file"]
+                )
+            elif sha:
+                link = (
+                    settings.config["github_tests_path"].replace("main", sha.hexsha)
+                    + "/"
+                    + test_dir
+                    + "/"
+                    + settings.config["tests_doc_file"]
+                )
+            else:
+                case_name = "No tag or commit hash: No Link to"
+                link = "#"
+
             extra.append(
                 extras.html(
-                    '<p>Local Test Case ID: '
-                    + case_id
-                    + '</p>'
-                    + '<p>Link to the test specification: <a href="'
+                    '<p>Link to the test specification: <a href="'
                     + link
                     + '">'
                     + case_name
