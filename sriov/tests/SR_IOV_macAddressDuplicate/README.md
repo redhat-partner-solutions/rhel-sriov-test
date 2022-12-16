@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.macAddressDuplicate
-# UUID: 67e90840-5f2f-4423-a80d-828e99d43e55
 
 ### Objective(s): Test and ensure that duplicate mac address across VFs on the same PF is permitted.
 

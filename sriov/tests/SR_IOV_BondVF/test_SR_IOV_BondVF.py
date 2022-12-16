@@ -1,4 +1,3 @@
-# UUID: a1df2b99-97af-4290-b55a-2aa777ced821
 import pytest
 from sriov.common.utils import (
     create_vfs,

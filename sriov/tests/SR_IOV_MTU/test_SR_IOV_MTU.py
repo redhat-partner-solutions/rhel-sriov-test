@@ -1,4 +1,3 @@
-# UUID: 98e9389d-fc1b-4ea3-b0be-cfa5529dfdbe
 import re
 from sriov.common.utils import (
     create_vfs,

@@ -113,12 +113,8 @@ Each test case has its own folder. Under this folder there are two files: `test_
 
 In order for the HTML test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
 
-To satisfy the requirement of a unique identifier, the `README.md` of any SR-IOV test case must contain a distinct UUID. This will be used to formally reference a specific test specification. In order for the html test report to be generated properly, the UUID line should start with "UUID: ", or what is defined by the `tests_id_field` in the config.yaml file. Additionally, the reference implementation of a test should also be identified with a corresponding UUID, preferably as a comment on the first line. For example:
-```
-# UUID: defcb0a3-1d73-45f9-9438-f19c6fba8a8c
-...
-```
-This will allow for clear identification of when a test specification and reference implementation may diverge. See `CONTRIBUTING.md` for more information on test case identification, and the generation of new UUIDs.
+To satisfy the requirement of a unique identifier, semantic versioning should be observed when tagging releases. This will be used to formally reference a specific test specification. In order for the html test report to be generated properly, the tests should be run from the git repo, which will get either the tag or, if not tagged, the specific commit hash for a link.
+This will allow for clear identification of when a test specification and reference implementation may diverge. See `CONTRIBUTING.md` for more information on test case identification.
 
 ## Common Code
 

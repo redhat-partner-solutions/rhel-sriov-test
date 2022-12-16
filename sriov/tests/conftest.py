@@ -170,26 +170,28 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
         with open(settings.config["tests_doc_file"]) as f:
             lines = f.readlines()
 
-        case_id = parse_file_for_field(
-            request.module.__file__, settings.config["tests_id_field"]
-        )
         case_name = parse_file_for_field(
             settings.config["tests_doc_file"], settings.config["tests_name_field"]
         )
 
         if case_name != "":
-            repo = git.Repo(search_parent_directories=True)
-            sha = repo.head.commit
+            sha = ''
             git_tag = ''
-            for tag in repo.tags:
-                if tag.commit == sha:
-                    git_tag = tag
-                    break
-            
+            try:
+                repo = git.Repo(search_parent_directories=True)
+                sha = repo.head.commit
+                # This will assume that there is one tag per commit.
+                for tag in repo.tags:
+                    if tag.commit == sha:
+                        git_tag = tag
+                        break
+            except Exception:
+                pass
+
             test_dir = os.path.dirname(request.module.__file__).split(os.sep)[-1]
             if git_tag:
                 link = (
-                    settings.config["github_tests_path"].replace("main", git_tag)
+                    settings.config["github_tests_path"].replace("main", str(git_tag))
                     + "/"
                     + test_dir
                     + "/"
@@ -204,14 +206,13 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
                     + settings.config["tests_doc_file"]
                 )
             else:
-                link = "Not Found"
+                case_name = "No tag or commit hash: No Link to"
+                link = "#"
+
                 
             extra.append(
                 extras.html(
-                    '<p>Local Test Case ID: '
-                    + case_id
-                    + '</p>'
-                    + '<p>Link to the test specification: <a href="'
+                    '<p>Link to the test specification: <a href="'
                     + link
                     + '">'
                     + case_name
