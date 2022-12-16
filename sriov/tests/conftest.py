@@ -161,22 +161,18 @@ def parse_file_for_field(file_path, field) -> str:
 
 @pytest.fixture(autouse=True)
 def _report_extras(extra, request, settings, monkeypatch) -> None:
-    lines = []
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
         # This is assuming the current working directory contains the test
         # specification.
-        with open(settings.config["tests_doc_file"]) as f:
-            lines = f.readlines()
-
         case_name = parse_file_for_field(
             settings.config["tests_doc_file"], settings.config["tests_name_field"]
         )
 
         if case_name != "":
-            sha = ''
-            git_tag = ''
+            sha = ""
+            git_tag = ""
             try:
                 repo = git.Repo(search_parent_directories=True)
                 sha = repo.head.commit
@@ -209,7 +205,6 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
                 case_name = "No tag or commit hash: No Link to"
                 link = "#"
 
-                
             extra.append(
                 extras.html(
                     '<p>Link to the test specification: <a href="'
