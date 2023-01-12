@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.MTU
-# UUID: 98e9389d-fc1b-4ea3-b0be-cfa5529dfdbe
 
 ### Objective(s): Test and ensure that VF (virtual function) MTU functions as intended.
 

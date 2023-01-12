@@ -113,12 +113,13 @@ Each test case has its own folder. Under this folder there are two files: `test_
 
 In order for the HTML test report to be generated properly, the test case name line should start with "Test Case Name: ", or what is defined by `tests_name_field` in the config.yaml file. The script will try to match `tests_name_field` to locate the test case name.
 
-To satisfy the requirement of a unique identifier, the `README.md` of any SR-IOV test case must contain a distinct UUID. This will be used to formally reference a specific test specification. In order for the html test report to be generated properly, the UUID line should start with "UUID: ", or what is defined by the `tests_id_field` in the config.yaml file. Additionally, the reference implementation of a test should also be identified with a corresponding UUID, preferably as a comment on the first line. For example:
+To satisfy the requirement of a unique identifier, semantic versioning should be observed when tagging releases. This will be used to formally reference a specific test specification. Where tags are not applicable, or in a case where a specific case has not yet been tagged, one may use the specific commit hash to reference a test case. For example, the following links are both valid references to the same test case specification:
 ```
-# UUID: defcb0a3-1d73-45f9-9438-f19c6fba8a8c
-...
-```
-This will allow for clear identification of when a test specification and reference implementation may diverge. See `CONTRIBUTING.md` for more information on test case identification, and the generation of new UUIDs.
+https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/v0.0.1/sriov/tests/SR_IOV_MultipleVFCreation_withMTU/README.md
+https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/85e9c78a0ea1fcf978f79f9b8402e46b6078690f/sriov/tests/SR_IOV_MultipleVFCreation_withMTU/README.md
+``` 
+The benefits of tagging and releases are that they allow for easy reference to/distribution of a complete test suite. When a change causes a new release, the test suite will be referenced by a new semantic version number. If one desires to run tests on a more adhoc basis, use a subset of tests, or perhaps run different versions of tests from different releases then a list of tests can be created with specific links (utilizing releases, commit hashes, or a combination of either). In order for the html test report to be generated properly, the tests should be run from the git repo, which will get either the tag or, if not tagged, the specific commit hash for a link.
+This will allow for clear identification of when a test specification and reference implementation may diverge. See `CONTRIBUTING.md` for more information on test case identification.
 
 ## Common Code
 

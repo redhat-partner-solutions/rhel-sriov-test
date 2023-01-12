@@ -1,5 +1,4 @@
 # Test Case Name: SR-IOV.MultipleVFCreation.withMTU
-# UUID: 67f7961c-1967-41fa-a2f1-dc1f73ef37d1
 
 ### Objective(s): A robustness test to ensure that, from a clean start, the maximum number of VFs (virtual functions) can be created and the maximum MTU (maximum transmission unit) configured for each VF
 

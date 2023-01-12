@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.InterVF
-# 5d23e6c6-7954-48de-ab5a-d8da6b7b45c5
 
 ### Objective(s): Test and ensure that VFs (virtual function) on the same PF can communicate
 

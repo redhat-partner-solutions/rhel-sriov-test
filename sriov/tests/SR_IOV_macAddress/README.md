@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.macAddress
-# UUID: 93ccf4b8-21e6-4148-848b-0f9eefdb20d6
 
 ### Objective(s): Test and ensure that VF (virtual function) MAC address functions as intended.
 

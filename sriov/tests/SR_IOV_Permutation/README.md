@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.Permutation
-# UUID: dc4d0d06-1544-45f4-87c0-01015b11355a
 
 ### Objective(s): Test VFs (virtual function) configuration with different properties combined
 

@@ -1,4 +1,3 @@
-# UUID: 67e90840-5f2f-4423-a80d-828e99d43e55
 from sriov.common.utils import create_vfs, execute_and_assert, verify_vf_address
 
 

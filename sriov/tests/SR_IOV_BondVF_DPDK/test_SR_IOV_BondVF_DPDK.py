@@ -1,4 +1,3 @@
-# UUID: ada901f7-fc3f-40dd-8c13-6c07f00badfe
 import pytest
 from time import sleep
 from sriov.common.utils import (

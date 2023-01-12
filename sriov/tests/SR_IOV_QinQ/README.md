@@ -1,6 +1,5 @@
 
 ## Test Case Name: SR-IOV.QinQ
-# UUID: ddcb6e81-8433-4dfb-bea9-0351d20f8ac2
 
 ### Objective(s): Test and ensure that QinQ on VF works with kernel drive.
 

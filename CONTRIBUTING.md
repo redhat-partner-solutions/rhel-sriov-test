@@ -78,15 +78,8 @@ this document, but it's a useful skill and there are [many](https://thoughtbot.c
 
 ## Identifying Tests
 
-All SR-IOV tests must be identified via a UUID representing a formal, globally unique identifier for said test. Should the test
-specification or reference implementation change, a new UUID is required. This provides traceability and an unambiguous way to
+All SR-IOV tests must be identified via either a tag or a commit hash, representing a globally unique identifier for said test. This provides traceability and an unambiguous way to
 reference specific tests. For this reason, the "common name" a test receives is not considered its formal reference, and may
-remain even if a UUID changes. For specifics on use of UUIDs, see the root level `README.md`.
+remain even if a test changes. Semantic versioning of tags should be observed to create relevant links to unique tests. For more information, see the root level `README.md`, [Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository), and [Semantic Versioning](https://semver.org/).
 
-The recommended best practice is to use the CLI tool `uuidgen` to generate a UUID, as follows:
-```
-$ uuidgen
-3df99cbc-ec2f-406c-b344-39ff32b440f0
-```
-
-As this identifier is used to identify a specific, unique test definition, the UUID may need to be changed during a pull request. A change to the UUID is required whenever the functionality of a test case changes. This is inclusive of bug fixes, which may lead to differing behavior. A UUID may remain if the difference is purely documentation, and does not change the interpretation of the text. An example of this is a simple spelling or formatting change. Anything more consequential should be considered for a UUID change, implying the test case has changed. This should be a main consideration when reviewing and approving pull requests. Changes which either alter implied functionality or change the reference implementation, but do not receive an updated UUID, will not be acceptable.
+As this identifier is used to identify a specific, unique test definition, a change to the tag is required whenever the functionality/content of a test case changes, inclusive of bug fixes. Practically, this means that when changes are merged to main the tag and release should change. Maintaining proper versioning should be a main consideration of the repository maintainers after accepting a pull request and merging to main.
