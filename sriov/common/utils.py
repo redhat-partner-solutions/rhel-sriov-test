@@ -55,6 +55,29 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) 
     return True
 
 
+def get_driver(ssh_obj: ShellHandler, intf: str, timeout: int = 5) -> str:
+    """Get the interface driver
+
+    Args:
+        ssh_obj:       ssh_obj to the remote host
+        intf (str):    interface name
+        timeout (int): seconds of timeout for execute, default of 5
+
+    Returns:
+        (str) driver: on success
+
+    Raises:
+        Exception: command failure
+    """
+    step = f"ethtool -i {intf} | grep driver | cut -c9-"
+    ssh_obj.log_str(step)
+    code, out, err = ssh_obj.execute(step, timeout)
+    if code != 0:
+        raise Exception(err)
+
+    return out[0].strip("\n")
+
+
 def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bool:
     """Config an IP address on VLAN interface; if VLAN is 0, config IP on
         main interface
@@ -632,8 +655,10 @@ def execute_and_assert(
     return outs, errs
 
 
-def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) -> bool:
-    """Execute cmd and check for 0 exit code until timeout
+def execute_until_timeout(
+    ssh_obj: ShellHandler, cmd: str, timeout: int = 10, exit_code=0
+) -> bool:
+    """Execute cmd and check for exit code until timeout
 
     Args:
         ssh_obj:         ssh connection obj
@@ -648,7 +673,7 @@ def execute_until_timeout(ssh_obj: ShellHandler, cmd: str, timeout: int = 10) ->
     count = max(1, int(timeout))
     while count > 0:
         code, out, err = ssh_obj.execute(cmd)
-        if code == 0:
+        if code == exit_code:
             return True
         count -= 1
         time.sleep(1)
@@ -674,7 +699,7 @@ def wait_tmux_testpmd_ready(
         cmd = [f"tmux capture-pane -pt {tmux_session}"]
         outs, errs = execute_and_assert(ssh_obj, cmd, 0)
         for line in outs[0]:
-            if line.startswith("Press enter to exit"):
+            if line.startswith("Press enter to exit") or line.startswith("testpmd>"):
                 return True
     return False
 

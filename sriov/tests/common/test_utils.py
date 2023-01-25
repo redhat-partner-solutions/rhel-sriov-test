@@ -1,4 +1,5 @@
 from sriov.common.utils import (
+    get_driver,
     bind_driver,
     start_tmux,
     stop_tmux,
@@ -34,6 +35,11 @@ def test_get_pci_address(dut, settings):
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     vf_name = settings.config["dut"]["interface"]["vf1"]["name"]
     assert vf_pci == get_pci_address(dut, vf_name)
+
+
+def test_get_driver(dut, settings):
+    pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
+    assert get_driver(dut, pf_name) == "ice"
 
 
 def test_bind_driver(dut, settings):
