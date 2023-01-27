@@ -1,5 +1,5 @@
 
-## Test Case Name: SR-IOV.Permutation
+## Test Case Name: SR-IOV.Permutation.DPDK
 
 ### Objective(s): Test VFs (virtual function) bound to DPDK driver with different properties combined
 

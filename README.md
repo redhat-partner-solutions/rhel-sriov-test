@@ -80,6 +80,7 @@ Running the script from a python3 virtual environment is recommended. Install th
 ```
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r sriov/requirements.txt
 ```
 
