@@ -3,8 +3,6 @@
 
 ### Objective(s): Test VFs (virtual function) configuration with different properties combined
 
-### Preconfig:  If a switch is used between the DUT and the trafficgen, the DUT facing switchport should be configured as dot1q trunk to allowed vlan tag from the DUT
-
 ### Test procedure
 
 * On DUT, create 1 VF; set VF 0 with a permutation of the following permutations,
