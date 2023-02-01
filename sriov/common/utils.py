@@ -656,7 +656,7 @@ def execute_and_assert(
 
 
 def execute_until_timeout(
-    ssh_obj: ShellHandler, cmd: str, timeout: int = 10, exit_code=0
+    ssh_obj: ShellHandler, cmd: str, timeout: int = 10, exit_code: int = 0
 ) -> bool:
     """Execute cmd and check for exit code until timeout
 
@@ -664,6 +664,7 @@ def execute_until_timeout(
         ssh_obj:         ssh connection obj
         cmd (str):       a single command to run
         timeout (int):   optional timeout between cmds (default 10)
+        exit_code (int): optional code to check for (default 0)
 
     Returns:
         True: cmd return exit code 0 before timeout
