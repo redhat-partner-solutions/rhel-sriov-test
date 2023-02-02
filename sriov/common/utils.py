@@ -717,3 +717,28 @@ def stop_testpmd_in_tmux(ssh_obj: ShellHandler, tmux_session: str) -> None:
     ssh_obj.execute(cmd)
     time.sleep(1)
     assert stop_tmux(ssh_obj, tmux_session)
+
+
+def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
+    """Return a list of the isolated CPUs
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+
+    Returns:
+        list: The list of isolated CPUs
+    """
+    cmd = ["cat /sys/devices/system/cpu/isolated"]
+    outs, errs = execute_and_assert(ssh_obj, cmd, 0)
+    isolated = outs[0][0]
+    isolated_cores = isolated.split(",")
+    isolated_list = []
+    for core in isolated_cores:
+        if "-" not in core:
+            isolated_list.append(int(core))
+        else:
+            a, b = core.split("-")
+            sub_list = list(range(int(a), int(b) + 1))
+            isolated_list.extend(sub_list)
+
+    return isolated_list

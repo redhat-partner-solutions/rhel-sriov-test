@@ -67,16 +67,20 @@ Besides `tests/testbed.yaml`, the script will also look for `tests/config.yaml`.
 
 ```
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"  # DPDK build container image
-github_tests_path:              # URL to the test directory
-                                # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
-tests_doc_file: 	              # test specification name under the test case directory
-                                # example: "README.md"
-tests_name_field: 	            # name field in the test specification
-                                # example: "Test Case Name:"
-randomly_terminate_test_chance: # percentage chance to randomly terminate testpmd in test_SR_IOV_Randomly_Terminate_DPDK, from 0.0 to 1.0
-                                # example: 0.5
-randomly_terminate_test_length: # amount of time, in minutes, to run test_SR_IOV_Randomly_Terminate_DPDK
-                                # example: 10.5
+github_tests_path:                # URL to the test directory
+                                  # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
+tests_doc_file: 	                # test specification name under the test case directory
+                                  # example: "README.md"
+tests_name_field: 	              # name field in the test specification
+                                  # example: "Test Case Name:"
+randomly_terminate_control_core:  # the cpu core to share across testpmd sessions 
+                                  # example: 2
+randomly_terminate_max_vfs:       # a limit to put on the number of testpmd sessions and VFs
+                                  # example: 8
+randomly_terminate_test_chance:   # percentage chance to randomly terminate testpmd in test_SR_IOV_Randomly_Terminate_DPDK, from 0.0 to 1.0
+                                  # example: 0.5
+randomly_terminate_test_length:   # amount of time, in minutes, to run test_SR_IOV_Randomly_Terminate_DPDK
+                                  # example: 10.5
 ```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,

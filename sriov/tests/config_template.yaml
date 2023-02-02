@@ -2,5 +2,7 @@ dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"
 tests_name_field: "Test Case Name:"
 tests_doc_file: "README.md"
 github_tests_path: "https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests"
+randomly_terminate_control_core: 2
+randomly_terminate_max_vfs: 8
 randomly_terminate_test_chance: 0.5
-randomly_terminate_test_length: 10
+randomly_terminate_test_length: 10.5
