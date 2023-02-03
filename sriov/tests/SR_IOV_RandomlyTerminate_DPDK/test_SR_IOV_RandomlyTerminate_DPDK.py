@@ -20,7 +20,7 @@ def get_podman_cmd(name, cpus, dpdk_img, vf_pci):
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
         f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
         f"-n 4 -a {vf_pci} "
-        "-- --nb-cores=2 --forward=txonly -i"
+        "-- --nb-cores=1 --forward=txonly -i"
     )
     return tmux_cmd
 
@@ -29,9 +29,7 @@ def get_testpmd_cpus(control_core, i):
     cpus = (
         str(control_core)
         + ","
-        + str(control_core + (i * 2) + 1)
-        + ","
-        + str(control_core + (i * 2) + 2)
+        + str(control_core + i + 1)
     )
     return cpus
 
@@ -96,8 +94,8 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
     max_cpus_cmd = ["grep -c processor /proc/cpuinfo"]
     outs, errs = execute_and_assert(dut, max_cpus_cmd, 0)
     max_cpus = int(
-        int(outs[0][0].strip()) / 2 - 3
-    )  # 2 cores for housekeeping, 1 control core
+        int(outs[0][0].strip()) - 3  # 2 cores for housekeeping, 1 control core
+    )
 
     # Create the minimum acceptable number of VFs
     num_vfs = min(max_vfs, max_cpus, settings.config["randomly_terminate_max_vfs"])
