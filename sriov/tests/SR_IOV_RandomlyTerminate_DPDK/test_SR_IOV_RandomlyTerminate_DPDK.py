@@ -136,8 +136,8 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 execute_and_assert(dut, steps, 0)
 
                 # Ensure that the container is killed before proceeding
-                steps = f"podman ps | grep {name}"
-                execute_until_timeout(dut, steps, 10, 1)
+                steps = f"podman ps -f name={name}$ | grep {name}"
+                assert execute_until_timeout(dut, steps, 10, 1)
 
                 # Restart the container, as well as rebind drivers if required
                 if options:
