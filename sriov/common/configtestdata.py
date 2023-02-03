@@ -11,9 +11,11 @@ class ConfigTestData:
         """
         self.vlan = 10
         self.dut_ip = "101.1.1.2"
+        self.dut_ip_v6 = "2001::2"
         self.dut_mac = "aa:bb:cc:dd:ee:00"
         self.dut_spoof_mac = "aa:bb:cc:dd:ee:ff"
         self.trafficgen_ip = "101.1.1.1"
+        self.trafficgen_ip_v6 = "2001::1"
         self.trafficgen_spoof_mac = "aa:00:00:00:00:00"
         self.qos = 5
         self.max_tx_rate = 10
