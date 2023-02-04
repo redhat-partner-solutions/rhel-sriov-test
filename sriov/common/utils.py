@@ -685,7 +685,7 @@ def execute_until_timeout(
 def wait_tmux_testpmd_ready(
     ssh_obj: ShellHandler, tmux_session: str, timeout: int
 ) -> bool:
-    """wait until the testpmd in a tmux session is ready
+    """Wait until the testpmd in a tmux session is ready
 
     Args:
         ssh_obj (ShellHandler): ssh connection obj
@@ -706,7 +706,7 @@ def wait_tmux_testpmd_ready(
 
 
 def stop_testpmd_in_tmux(ssh_obj: ShellHandler, tmux_session: str) -> None:
-    """stop the testpmd in a tmux session
+    """Stop the testpmd in a tmux session
 
     Args:
         ssh_obj (ShellHandler): ssh connection obj
