@@ -42,7 +42,7 @@ def test_SR_IOV_InterVF_DPDK(
     """
     # Setup hugepages for 1 testpmd instance
     setup_hugepages(dut, 1)
-    
+
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     mac_prefix = "aa:bb:cc:dd:ee:0"
     ip_prefix = "100.1.1.1"

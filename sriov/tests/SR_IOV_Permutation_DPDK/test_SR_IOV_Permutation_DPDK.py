@@ -38,7 +38,7 @@ def test_SR_IOV_Permutation_DPDK(
     # If all these steps are put in a script and run the script over the ssh session,
     # then it is much better
     # this is only needed for DPDK case
-    
+
     # Setup hugepages for 1 testpmd instance
     setup_hugepages(dut, 1)
     pf = settings.config["dut"]["interface"]["pf1"]["name"]

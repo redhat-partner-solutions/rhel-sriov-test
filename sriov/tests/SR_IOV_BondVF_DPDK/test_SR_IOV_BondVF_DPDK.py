@@ -32,7 +32,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     """
     # Setup hugepages for 1 testpmd instance
     setup_hugepages(dut, 1)
-    
+
     mode = request.param["mode"]
     explicit_mac = request.param["mac"]
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]

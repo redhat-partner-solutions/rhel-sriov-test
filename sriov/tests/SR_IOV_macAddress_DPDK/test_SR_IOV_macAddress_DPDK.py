@@ -21,7 +21,7 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     """
     # Setup hugepages for 1 testpmd instance
     setup_hugepages(dut, 1)
-    
+
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_ip = testdata.trafficgen_ip
     dut_ip = testdata.dut_ip
