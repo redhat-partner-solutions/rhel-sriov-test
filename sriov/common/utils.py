@@ -724,6 +724,7 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
 
     Args:
         ssh_obj (ShellHandler): ssh connection obj
+        type (str): type of hugepage, 1G or 2M
 
     Returns:
         list: The list of isolated CPUs

@@ -11,6 +11,19 @@ A physical NIC card installed in the Device Under Test (DUT) capable of SR-IOV. 
 
 Two ports of the NIC under test are directly connected to the traffic generator (TrafficGen). In most of the test cases only one port is used. The second connection will be used for bonding tests.
 
+The DUT kernal boot parameters should at least include iommu setting, e.g.:
+```
+intel_iommu=on iommu=pt
+```
+
+Running DPDK test will also require hugepages on the DUT. It's recommended to pre-setup hugepages on the DUT via its kernal boot parameters. Here is a sample kernal parameter setting that will enable 2MB hugepages as well as iommu,
+```
+default_hugepagesz=2M hugepagesz=2M hugepages=16384 iommu=pt intel_iommu=on
+```  
+
+If the hugepage is not defined via the kernel boot parameter, the test script will try to allocate the hugepages at run time. The allocation may fail and lead to test failure if the continous memory region is not big enough.
+
+
 ## Required Packages
 
 On the DUT server, the following RPM packages are required,
