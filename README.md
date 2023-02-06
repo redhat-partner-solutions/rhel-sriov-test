@@ -16,6 +16,7 @@ Two ports of the NIC under test are directly connected to the traffic generator 
 On the DUT server, the following RPM packages are required,
 * tmux
 * nmap
+* podman
 
 To install,
 ```
@@ -68,7 +69,7 @@ Besides `tests/testbed.yaml`, the script will also look for `tests/config.yaml`.
 ```
 dpdk_img: "docker.io/patrickkutch/dpdk:v21.11"  # DPDK build container image
 github_tests_path:                # URL to the test directory
-                                  # example: https://github.com/redhat-partner-solutions/intel-sriov-test/tree/main/sriov/tests
+                                  # example: https://github.com/redhat-partner-solutions/rhel-sriov-test/tree/main/sriov/tests
 tests_doc_file: 	                # test specification name under the test case directory
                                   # example: "README.md"
 tests_name_field: 	              # name field in the test specification
