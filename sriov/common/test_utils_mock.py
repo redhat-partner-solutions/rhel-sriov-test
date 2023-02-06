@@ -4,6 +4,7 @@ from sriov.common.utils import (
     verify_vf_address,
     get_pci_address,
     bind_driver,
+    get_driver,
     config_interface,
     clear_interface,
     add_arp_entry,
@@ -47,6 +48,10 @@ class UtilsTest(unittest.TestCase):
     def test_bind_driver(self):
         ssh_obj = self.create_mock_ssh_obj()
         assert bind_driver(ssh_obj, "0000:00:00.0", "vfio-pci") is True
+
+    def test_get_driver(self):
+        ssh_obj = self.create_mock_ssh_obj(0, ["ice"], "")
+        assert get_driver(ssh_obj, "ens2f3") == "ice"
 
     def test_config_interface(self):
         ssh_obj = self.create_mock_ssh_obj()
