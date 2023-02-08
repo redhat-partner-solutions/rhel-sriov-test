@@ -10,6 +10,8 @@ class ConfigTestData:
             settings (Config): config object
         """
         self.vlan = 10
+        if "vlan" in settings.config:
+            self.vlan = int(settings.config["vlan"])
         self.dut_ip = "101.1.1.2"
         self.dut_ip_v6 = "2001::2"
         self.dut_mac = "aa:bb:cc:dd:ee:00"
