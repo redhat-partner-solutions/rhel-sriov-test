@@ -743,3 +743,106 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
             isolated_list.extend(sub_list)
 
     return isolated_list
+
+
+def page_in_kb(type: str) -> str:
+    """convert "1G" or "2M" to page size in KB
+
+    Args:
+        type (str): "1G" or "2M"
+
+    Returns:
+        str: page size in KB
+    """
+    type_to_kb = {"2M": "2048", "1G": "1048576"}
+    if type not in type_to_kb:
+        raise Exception(f"Unsupported hugepage type {type}")
+    return type_to_kb[type]
+
+
+def get_hugepage_info(ssh_obj: ShellHandler, type: str) -> Tuple[int, int]:
+    """Get hugepage info
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        type (str): type of hugepage, 1G or 2M
+
+    Returns:
+        Tuple[int, int, int]: total pages, free pages
+    """
+    kb = page_in_kb(type)
+    cmd = [
+        f"cat /sys/kernel/mm/hugepages/hugepages-{kb}kB/nr_hugepages",
+        f"cat /sys/kernel/mm/hugepages/hugepages-{kb}kB/free_hugepages",
+    ]
+    out, _ = execute_and_assert(ssh_obj, cmd, 0)
+    return int(out[0][0]), int(out[1][0])
+
+
+def allocate_hugepages(ssh_obj: ShellHandler, type: str, count: int):
+    """Allocate hugepages
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        type (str): type of hugepage, 1G or 2M
+        count (int): number of hugepage to allocate
+    """
+    kb = page_in_kb(type)
+
+    cmd = [
+        "awk '/MemFree:/{print $2}' /proc/meminfo",
+    ]
+    out, _ = execute_and_assert(ssh_obj, cmd, 0)
+    free_kb = int(out[0][0])
+
+    # To be safe, let's not allocate more than half of the free memory to hugepages
+    if 2 * count * int(kb) > free_kb:
+        raise Exception("Too many hugepages allocation not allowed")
+
+    cmd = [
+        f"echo {count} > /sys/kernel/mm/hugepages/hugepages-{kb}kB/nr_hugepages",
+        f"mkdir -p /dev/pagesize-{type}",
+        f"umount /dev/pagesize-{type} || true",
+        f"mount -t hugetlbfs -o pagesize={type} none /dev/pagesize-{type}",
+    ]
+    execute_and_assert(ssh_obj, cmd, 0)
+
+
+def calc_required_pages_2M(ssh_obj: ShellHandler, testpmd_instance: int) -> int:
+    """_summary_
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        testpmd_instance (int): number of testpmd instances to support
+
+    Returns:
+        int: number of 2M pages required, 0 means existing pages are sufficient
+    """
+    _, free_1G = get_hugepage_info(ssh_obj, "1G")
+    # For 1GB hugepage size, each free page support 1 testpmd instance
+    if free_1G >= testpmd_instance:
+        # Existing 1GB free page is sufficient
+        return 0
+    # Each extra instance requires 200 2M size page
+    num_page_2M = 200 * (testpmd_instance - free_1G)
+
+    total_2M, free_2M = get_hugepage_info(ssh_obj, "2M")
+    if free_2M >= num_page_2M:
+        # Existing 2MB free page is sufficient
+        return 0
+
+    # In addition to the currently used 2M pages
+    num_page_2M += total_2M - free_2M
+    return num_page_2M
+
+
+def setup_hugepages(ssh_obj: ShellHandler, testpmd_instance: int) -> None:
+    """setup hugepages to support the testpmd instances
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        testpmd_instance (int): number of testpmd instances to support
+    """
+    pages = calc_required_pages_2M(ssh_obj, testpmd_instance)
+    if pages > 0:
+        allocate_hugepages(ssh_obj, "2M", pages)
