@@ -10,6 +10,7 @@ from sriov.common.utils import (
     reset_mtu,
     set_pipefail,
     stop_testpmd_in_tmux,
+    cleanup_after_ping_ipv6,
 )
 
 
@@ -108,6 +109,7 @@ def _cleanup(
 
     dut.stop_testpmd()
     assert cleanup_after_ping(trafficgen, dut, testdata)
+    cleanup_after_ping_ipv6(trafficgen, dut, testdata)
     assert reset_mtu(trafficgen, dut, testdata)
     reset_command(dut, testdata)
 

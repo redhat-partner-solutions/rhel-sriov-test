@@ -110,12 +110,51 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bo
     return True
 
 
-def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> bool:
+def config_interface_ipv6(ssh_obj: ShellHandler, intf: str,
+                          vlan: int, ipv6: str) -> bool:
+    """Config an IPv6 address on VLAN interface; if VLAN is 0, config IPv6 on
+        main interface
+
+    Args:
+        ssh_obj:    SSH connection obj
+        intf (str): interface name
+        vlan (int): VLAN ID
+        ipv6 (str): IPv6 address
+
+    Returns:
+        True: on success
+
+    Raises:
+        Exception: command failure
+    """
+    if vlan != 0:
+        steps = [
+            f"ip -6 add del {ipv6}/64 dev {intf} 2>/dev/null || true",
+            f"ip link add link {intf} name {intf}.{vlan} type vlan id {vlan}",
+            f"ip -6 add add {ipv6}/64 dev {intf}.{vlan}",
+            f"ip link set {intf}.{vlan} up",
+        ]
+    else:
+        steps = [
+            f"ip -6 add del {ipv6}/64 dev {intf} 2>/dev/null || true",
+            f"ip -6 add add {ipv6}/64 dev {intf}",
+        ]
+    for step in steps:
+        ssh_obj.log_str(step)
+        code, _, err = ssh_obj.execute(step)
+        if code != 0:
+            raise Exception(err)
+    return True
+
+
+def clear_interface(ssh_obj: ShellHandler, intf: str, ip: str,
+                    vlan: int = 0) -> bool:
     """Clear the IP address from the VLAN interface and the main interface
 
     Args:
         ssh_obj:    SSH connection obj
         intf (str): interface name
+        ip (str): IP address
         vlan (int): VLAN ID
 
     Returns:
@@ -127,12 +166,39 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, vlan: int = 0) -> bool:
     # The virtual interface may not exist, force true to ignore the command failure
     if vlan != 0:
         steps = [
-            f"ip addr flush dev {intf}.{vlan} || true",
             f"ip link del {intf}.{vlan} || true",
-            f"ip addr flush dev {intf} || true",
+            f"ip address del {ip}/24 dev {intf} || true",
         ]
     else:
-        steps = [f"ip addr flush dev {intf} || true"]
+        steps = [f"ip address del {ip}/24 dev {intf} || true"]
+    for step in steps:
+        ssh_obj.log_str(step)
+        code, _, err = ssh_obj.execute(step)
+        if code != 0:
+            raise Exception(err)
+    return True
+
+
+def clear_interface_ipv6(ssh_obj: ShellHandler, intf: str, ipv6: str,
+                         vlan: int = 0) -> bool:
+    """Clear the IPv6 address from the VLAN interface and the main interface
+
+    Args:
+        ssh_obj:    SSH connection obj
+        intf (str): interface name
+        ipv6 (str): ipv6 address
+        vlan (int): VLAN ID
+
+    Returns:
+        True: on success
+
+    Raises:
+        Exception: command failure
+    """
+    steps = [f"ip -6 addr del {ipv6}/64 dev {intf} || true"]
+    if vlan != 0:
+        steps.append(f"ip link del {intf}.{vlan} || true")
+
     for step in steps:
         ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
@@ -227,6 +293,39 @@ def prepare_ping_test(
     return True
 
 
+def prepare_ping_ipv6_test(
+    tgen: ShellHandler,
+    tgen_intf: str,
+    tgen_vlan: int,
+    tgen_ip_v6: str,
+    dut_ip_v6: str,
+    testdata: ConfigTestData,
+) -> bool:
+    """Collection of steps to prepare for ping test
+
+    Args:
+        tgen (object): trafficgen ssh handler
+        tgen_intf (str): trafficgen physical interface name
+        tgen_vlan (int): vlan ID on the trafficgen physical interface
+        tgen_ip_v6 (str): trafficgen ipv6 address
+        dut_ip_v6 (str): DUT ipv6 address
+        testdata (object): testdata object
+
+    Returns:
+        True: on success
+    """
+    # Track if ping is executed when cleanup_after_ping is called for cleanup
+    testdata.ping["run_ipv6"] = True
+    testdata.ping["tgen_intf"] = tgen_intf
+    testdata.ping["tgen_vlan"] = tgen_vlan
+    testdata.ping["tgen_ip_v6"] = tgen_ip_v6
+    testdata.ping["dut_ip_v6"] = dut_ip_v6
+
+    clear_interface_ipv6(tgen, tgen_intf, tgen_ip_v6, tgen_vlan)
+    assert config_interface_ipv6(tgen, tgen_intf, tgen_vlan, tgen_ip_v6)
+    return True
+
+
 def cleanup_after_ping(
     tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData
 ) -> bool:
@@ -242,16 +341,39 @@ def cleanup_after_ping(
     """
     run = testdata.ping.get("run", False)
     if run:
+        testdata.ping["run"] = False
         tgen_intf = testdata.ping.get("tgen_intf")
         tgen_vlan = testdata.ping.get("tgen_vlan")
         tgen_ip = testdata.ping.get("tgen_ip")
         dut_ip = testdata.ping.get("dut_ip")
         tgen_mac = testdata.ping["tgen_mac"]
         assert rm_arp_entry(tgen, dut_ip)
-        assert clear_interface(tgen, tgen_intf, tgen_vlan)
+        assert clear_interface(tgen, tgen_intf, tgen_ip, tgen_vlan)
         if tgen_mac is not None:
             assert rm_arp_entry(dut, tgen_ip)
     return True
+
+
+def cleanup_after_ping_ipv6(
+    tgen: ShellHandler, dut: ShellHandler, testdata: ConfigTestData
+):
+    """Collection of steps to cleanup after ipv6 ping test
+
+    Args:
+        tgen (object): trafficgen ssh handler
+        dut (object): DUT ssh handler
+        testdata (object): testdata object
+    """
+    run = testdata.ping.get("run_ipv6", True)
+    if run:
+        testdata.ping["run_ipv6"] = False
+        tgen_intf = testdata.ping.get("tgen_intf")
+        tgen_vlan = testdata.ping.get("tgen_vlan")
+        tgen_ip_v6 = testdata.ping.get("tgen_ip_v6")
+        dut_ip_v6 = testdata.ping.get("dut_ip_v6")
+        delete_ipv6_neighbor(tgen, dut_ip_v6)
+        clear_interface_ipv6(tgen, tgen_intf, tgen_ip_v6, tgen_vlan)
+        delete_ipv6_neighbor(dut, tgen_ip_v6)
 
 
 def set_mtu(
@@ -846,3 +968,21 @@ def setup_hugepages(ssh_obj: ShellHandler, testpmd_instance: int) -> None:
     pages = calc_required_pages_2M(ssh_obj, testpmd_instance)
     if pages > 0:
         allocate_hugepages(ssh_obj, "2M", pages)
+
+
+def delete_ipv6_neighbor(ssh_obj: ShellHandler, ipv6: str):
+    """Delete IPv6 neighbor entry
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        ipv6 (str): IPv6 address
+    """
+    cmd = [f"ip -6 neigh show | awk '/{ipv6}/{{print $3}}'"]
+    outs, _ = execute_and_assert(ssh_obj, cmd, 0)
+    try:
+        intf = outs[0][0].strip()
+    except IndexError:
+        # empty outs, do nothing
+        return
+    cmd = [f"ip -6 neigh del {ipv6} dev {intf}"]
+    execute_and_assert(ssh_obj, cmd, 0)
