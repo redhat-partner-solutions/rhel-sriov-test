@@ -1,4 +1,5 @@
 import re
+import pytest
 from sriov.common.utils import (
     create_vfs,
     execute_and_assert,
@@ -6,6 +7,7 @@ from sriov.common.utils import (
     prepare_ping_test,
     execute_until_timeout,
     get_vf_mac,
+    switch_detected,
 )
 
 
@@ -21,6 +23,9 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
 
     dut_ip = testdata.dut_ip
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
+
+    if switch_detected(dut, pf) and "mtu" not in settings.config:
+        pytest.skip("Switch detected but mtu is not defined")
 
     assert create_vfs(dut, pf, 1)
 
@@ -48,7 +53,10 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     assert trafficgen_mtu != 0
 
     # use the smaller mtu between dut and trafficgen
-    mtu = min(dut_mtu, trafficgen_mtu)
+    if "mtu" in settings.config:
+        mtu = min(int(settings.config["mtu"]), dut_mtu, trafficgen_mtu)
+    else:
+        mtu = min(dut_mtu, trafficgen_mtu)
 
     assert set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
 

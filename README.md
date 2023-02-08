@@ -11,6 +11,8 @@ A physical NIC card installed in the Device Under Test (DUT) capable of SR-IOV. 
 
 Two ports of the NIC under test are directly connected to the traffic generator (TrafficGen). In most of the test cases only one port is used. The second connection will be used for bonding tests.
 
+It's possible to connect the DUT and the traffic generator via a layer 2 switch, though not recommended for couple of reasons. Most of the SR-IOV test cases involve vlan tagging, e.g., the servers will send traffic with a vlan tag, or in the case of QinQ, two vlan tags. That means the switch ports should be set to trunk mode; the vlan tag from the server should be allowed on the switch ports; the ports facing DUT port and the traffic generator should have the same native vlan. Even with the proper switch port setting, the QinQ test cases still may fail, depnding on the switch brand. Also, the switch port MTU will impact the MTU test cases and need to be handled carefully. More information can be found under the [switch setting](#switch-settings).
+
 The DUT kernal boot parameters should at least include iommu setting, e.g.:
 ```
 intel_iommu=on iommu=pt
@@ -169,3 +171,55 @@ After the debug is complete, one has to manually clean up the setup.
 
 The following test options are uncommon and meant to use under rare situations:
 + `--debug-execute`: debug command execution over the ssh session
+
+## Switch settings
+
+If a layer 2 switch is used to connect the traffic generator and the DUT, the switch ports facing the servers should have the same native vlan. The native vlan may have different terminologies for different switch brands. For example for dell switch, it is defined as an access vlan on the trunking ports. The vlan tag used for the vlan testing, or the outer vlan used for QinQ testing, has a default value 10. To allow the vlan-tagged traffic through the switch, the switch ports should be set to trunk mode and allow this vlan. In addition, the switch port MTU should be spcified in the `tests/config.yaml`. Here is an port configure example for a dell switch,
+```
+interface ethernet1/1/11:3
+ description "trafficgen port 1"
+ no shutdown
+ switchport mode trunk
+ switchport access vlan 100
+ switchport trunk allowed vlan 10
+ mtu 9216
+ flowcontrol receive off
+ spanning-tree disable
+
+interface ethernet1/1/11:4
+ description "trafficgen port 2"
+ no shutdown
+ switchport mode trunk
+ switchport access vlan 101
+ switchport trunk allowed vlan 10
+ mtu 9216
+ flowcontrol receive off
+
+interface ethernet1/1/12:1
+ description "DUT port 1"
+ no shutdown
+ switchport mode trunk
+ switchport access vlan 100
+ switchport trunk allowed vlan 10
+ mtu 9216
+ flowcontrol receive off
+
+interface ethernet1/1/12:2
+ description "DUT port 2"
+ no shutdown
+ switchport mode trunk
+ switchport access vlan 101
+ switchport trunk allowed vlan 10
+ mtu 9216
+ flowcontrol receive off
+```
+
+In the above example, port 1 of the DUT and the traffic generator are put in the same native vlan (100). Port 2  of the DUT and the traffic generator are put in another native vlan (101). The switch ports are set to trunk mode and allow the servers to use vlan 10.
+
+The switch MTU is set under the ports. This mtu vlaue should be included in `tests/config.yaml` so the test script will consider it when running the MTU test case,
+```
+...
+mtu: 1500
+...
+```
+
