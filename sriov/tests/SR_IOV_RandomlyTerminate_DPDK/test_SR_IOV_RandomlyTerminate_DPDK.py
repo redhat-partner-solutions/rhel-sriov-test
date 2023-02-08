@@ -11,6 +11,7 @@ from sriov.common.utils import (
     wait_tmux_testpmd_ready,
     stop_testpmd_in_tmux,
     get_pci_address,
+    setup_hugepages,
 )
 
 
@@ -100,6 +101,7 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
     # Create the minimum acceptable number of VFs
     num_vfs = min(max_vfs, max_cpus, settings.config["randomly_terminate_max_vfs"])
     assert create_vfs(dut, pf, num_vfs)
+    setup_hugepages(dut, num_vfs)
 
     base_name = "random_terminate"
     dpdk_img = settings.config["dpdk_img"]
