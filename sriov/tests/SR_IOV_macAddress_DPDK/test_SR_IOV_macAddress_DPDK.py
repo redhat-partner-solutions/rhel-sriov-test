@@ -5,6 +5,7 @@ from sriov.common.utils import (
     bind_driver,
     prepare_ping_test,
     execute_until_timeout,
+    setup_hugepages,
 )
 
 
@@ -18,6 +19,8 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
         settings:    settings obj
         testdata:    testdata obj
     """
+    # Setup hugepages for 1 testpmd instance
+    setup_hugepages(dut, 1)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_ip = testdata.trafficgen_ip

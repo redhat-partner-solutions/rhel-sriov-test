@@ -12,6 +12,7 @@ from sriov.common.utils import (
     wait_tmux_testpmd_ready,
     stop_tmux,
     stop_testpmd_in_tmux,
+    setup_hugepages,
 )
 from sriov.common.macros import (
     Bond,
@@ -29,6 +30,9 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         testdata: testdata obj
         request: request fixture
     """
+    # Setup hugepages for 1 testpmd instance
+    setup_hugepages(dut, 1)
+
     mode = request.param["mode"]
     explicit_mac = request.param["mac"]
     pf1 = settings.config["dut"]["interface"]["pf1"]["name"]

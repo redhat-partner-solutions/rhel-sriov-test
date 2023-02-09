@@ -24,6 +24,7 @@ from sriov.common.utils import (
     no_zero_macs_vf,
     set_pipefail,
     execute_until_timeout,
+    calc_required_pages_2M,
 )  # noqa: E402
 import unittest
 
@@ -185,6 +186,33 @@ class UtilsTest(unittest.TestCase):
     def test_execute_until_timeout(self):
         ssh_obj = self.create_mock_ssh_obj()
         assert execute_until_timeout(ssh_obj, "cmd") is True
+
+    @patch("sriov.common.utils.get_hugepage_info")
+    def test_calc_required_pages_2M(self, mock_get_hugepage_info):
+        ssh_obj = self.create_mock_ssh_obj()
+
+        testcases = [
+            {"2M": (0, 0), "1G": (0, 0), "instance": 1, "expected": 200},
+            {"2M": (0, 0), "1G": (1, 1), "instance": 1, "expected": 0},
+            {"2M": (0, 0), "1G": (1, 0), "instance": 1, "expected": 200},
+            {"2M": (200, 200), "1G": (1, 0), "instance": 1, "expected": 0},
+            {"2M": (200, 199), "1G": (1, 0), "instance": 1, "expected": 201},
+            {"2M": (200, 199), "1G": (1, 1), "instance": 1, "expected": 0},
+            {"2M": (200, 199), "1G": (1, 0), "instance": 2, "expected": 401},
+        ]
+
+        for testcase in testcases:
+            def get_hugepage_info_side_effect(*args, **kwargs):
+                if args[1] == "2M":
+                    return testcase["2M"]
+                elif args[1] == "1G":
+                    return testcase["1G"]
+                else:
+                    raise Exception("Invalid input")
+            mock_get_hugepage_info.side_effect = get_hugepage_info_side_effect
+            actual = calc_required_pages_2M(ssh_obj, testcase["instance"])
+            expected = testcase["expected"]
+            assert actual == expected, f"actual: {actual}, expected: {expected}"
 
 
 if __name__ == "__main__":

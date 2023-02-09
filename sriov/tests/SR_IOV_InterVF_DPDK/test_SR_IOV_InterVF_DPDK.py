@@ -7,6 +7,7 @@ from sriov.common.utils import (
     execute_and_assert,
     bind_driver,
     get_vf_mac,
+    setup_hugepages,
 )
 
 
@@ -39,6 +40,8 @@ def test_SR_IOV_InterVF_DPDK(
         vlan:        vlan parameter
         max_tx_rate: max_tx_rate parameter
     """
+    # Setup hugepages for 1 testpmd instance
+    setup_hugepages(dut, 1)
 
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
     mac_prefix = "aa:bb:cc:dd:ee:0"

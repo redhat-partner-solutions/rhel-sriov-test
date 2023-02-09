@@ -8,6 +8,7 @@ from sriov.common.utils import (
     verify_vf_address,
     prepare_ping_test,
     execute_until_timeout,
+    setup_hugepages,
 )
 
 
@@ -38,6 +39,8 @@ def test_SR_IOV_Permutation_DPDK(
     # then it is much better
     # this is only needed for DPDK case
 
+    # Setup hugepages for 1 testpmd instance
+    setup_hugepages(dut, 1)
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     assert create_vfs(dut, pf, 1)
