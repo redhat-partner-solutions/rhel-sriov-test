@@ -33,16 +33,8 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     vf_pci = get_pci_address(dut, pf + "v0")
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
-    dpdk_img = settings.config["dpdk_img"]
-    cpus = settings.config["dut"]["pmd_cpus"]
-    podman_cmd = (
-        "podman run -it --rm --privileged "
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-        "--cpuset-cpus {} {} dpdk-testpmd -l {} -n 4 -a {} "
-        "-- --nb-cores=2 -i".format(cpus, dpdk_img, cpus, vf_pci)
-    )
-    print(podman_cmd)
-    dut.start_testpmd(podman_cmd)
+    print(testdata.container_cmd)
+    dut.start_testpmd(testdata.container_cmd)
     assert dut.testpmd_active()
 
     steps = ["set fwd icmpecho", "start"]

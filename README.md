@@ -16,7 +16,7 @@ Two ports of the NIC under test are directly connected to the traffic generator 
 On the DUT server, the following RPM packages are required,
 * tmux
 * nmap
-* podman
+* a container manager (podman or docker)
 
 To install,
 ```
@@ -82,6 +82,8 @@ randomly_terminate_test_chance:   # percentage chance to randomly terminate test
                                   # example: 0.5
 randomly_terminate_test_length:   # amount of time, in minutes, to run test_SR_IOV_Randomly_Terminate_DPDK
                                   # example: 10.5
+container_manager:                # the container manager command to use (podman or docker)
+                                  # example: podman
 ```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,

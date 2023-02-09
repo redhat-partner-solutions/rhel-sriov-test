@@ -68,18 +68,9 @@ def test_SR_IOV_InterVF_DPDK(
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
     # start first instance testpmd in echo mode
-    dpdk_img = settings.config["dpdk_img"]
-    cpus = settings.config["dut"]["pmd_cpus"]
-    tmux_cmd = (
-        "podman run -it --rm --privileged "
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-        "--cpuset-cpus {} {} dpdk-testpmd -l {} "
-        "-n 4 -a {} "
-        "-- --nb-cores=2 --forward=icmpecho".format(cpus, dpdk_img, cpus, vf_pci)
-    )
-    print(tmux_cmd)
+    print(testdata.container_cmd_echo)
     tmux_session = testdata.tmux_session_name
-    assert start_tmux(dut, tmux_session, tmux_cmd)
+    assert start_tmux(dut, tmux_session, testdata.container_cmd_echo)
 
     # make sure tmux testpmd session has started
     for i in range(15):
