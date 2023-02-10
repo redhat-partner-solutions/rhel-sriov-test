@@ -248,11 +248,11 @@ class ShellHandler:
         # first and last lines of shout/sherr contain a prompt
         if shout and echo_cmd in shout[-1]:
             shout.pop()
-        if shout and shout[0].endswith(cmd + "\n"):
+        if shout and len(shout) > 1 and cmd in shout[0]:
             shout.pop(0)
         if sherr and echo_cmd in sherr[-1]:
             sherr.pop()
-        if sherr and len(sherr) > 1 and sherr[0].endswith(cmd + "\n"):
+        if sherr and len(sherr) > 1 and cmd in sherr[0]:
             sherr.pop(0)
 
         return exit_status, shout, sherr
