@@ -96,12 +96,16 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bo
     """
     if vlan != 0:
         steps = [
+            f"ip link del {intf}.{vlan} 2>/dev/null || true",
             f"ip link add link {intf} name {intf}.{vlan} type vlan id {vlan}",
             f"ip add add {ip}/24 dev {intf}.{vlan}",
             f"ip link set {intf}.{vlan} up",
         ]
     else:
-        steps = [f"ip add add {ip}/24 dev {intf}"]
+        steps = [
+            f"ip add del {ip}/24 dev {intf} 2>/dev/null || true",
+            f"ip add add {ip}/24 dev {intf}"
+        ]
     for step in steps:
         ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
@@ -163,14 +167,10 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, ip: str,
     Raises:
         Exception: command failure
     """
-    # The virtual interface may not exist, force true to ignore the command failure
+    steps = [f"ip address del {ip}/24 dev {intf} 2> /dev/null || true"]
     if vlan != 0:
-        steps = [
-            f"ip link del {intf}.{vlan} || true",
-            f"ip address del {ip}/24 dev {intf} || true",
-        ]
-    else:
-        steps = [f"ip address del {ip}/24 dev {intf} || true"]
+        steps.append(f"ip link del {intf}.{vlan} || true")
+
     for step in steps:
         ssh_obj.log_str(step)
         code, _, err = ssh_obj.execute(step)
@@ -195,7 +195,7 @@ def clear_interface_ipv6(ssh_obj: ShellHandler, intf: str, ipv6: str,
     Raises:
         Exception: command failure
     """
-    steps = [f"ip -6 addr del {ipv6}/64 dev {intf} || true"]
+    steps = [f"ip -6 addr del {ipv6}/64 dev {intf} 2> /dev/null || true"]
     if vlan != 0:
         steps.append(f"ip link del {intf}.{vlan} || true")
 
@@ -364,7 +364,7 @@ def cleanup_after_ping_ipv6(
         dut (object): DUT ssh handler
         testdata (object): testdata object
     """
-    run = testdata.ping.get("run_ipv6", True)
+    run = testdata.ping.get("run_ipv6", False)
     if run:
         testdata.ping["run_ipv6"] = False
         tgen_intf = testdata.ping.get("tgen_intf")
@@ -981,6 +981,8 @@ def delete_ipv6_neighbor(ssh_obj: ShellHandler, ipv6: str):
     outs, _ = execute_and_assert(ssh_obj, cmd, 0)
     try:
         intf = outs[0][0].strip()
+        if intf == "":
+            return
     except IndexError:
         # empty outs, do nothing
         return
