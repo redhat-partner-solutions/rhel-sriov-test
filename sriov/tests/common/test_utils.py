@@ -91,7 +91,7 @@ def test_config_and_clear_interface_fail(dut, trafficgen, settings, testdata):
         assert True
 
     try:
-        assert clear_interface(trafficgen, trafficgen_pf, trafficgen_ip, 
+        assert clear_interface(trafficgen, trafficgen_pf, trafficgen_ip,
                                trafficgen_vlan)
         assert False  # Should always short circuit this
     except Exception:
