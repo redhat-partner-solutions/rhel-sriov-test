@@ -239,6 +239,7 @@ def pytest_addoption(parser) -> None:
         help="Debug command execute",
     )
 
+
 def pytest_generate_tests(metafunc) -> None:
     if "execution_number" in metafunc.fixturenames:
         if metafunc.config.getoption("iteration"):

@@ -7,6 +7,7 @@ from typing import Tuple
 
 class ShellHandler:
     debug_cmd_execute = False
+
     def __init__(self, host: str, user: str, psw: str, name: str) -> None:
         """Initialize the shell handler object
 
