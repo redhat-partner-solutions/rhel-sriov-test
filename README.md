@@ -16,11 +16,11 @@ Two ports of the NIC under test are directly connected to the traffic generator 
 On the DUT server, the following RPM packages are required,
 * tmux
 * nmap
-* a container manager (podman or docker)
+* a container manager (podman or docker: The recommendation is to use podman for RHEL)
 
 To install,
 ```
-yum install -y tmux nmap
+yum install -y tmux nmap podman
 ```
 
 On the traffic generator server, the following RPM packages are required,
