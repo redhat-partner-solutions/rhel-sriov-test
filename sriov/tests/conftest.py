@@ -103,12 +103,13 @@ def _cleanup(
         # most likely request.node.rep_call not exist, continue normal cleanup
         pass
 
-    for i in range(settings.config["randomly_terminate_max_vfs"]):
-        stop_testpmd_in_tmux(dut, testdata.tmux_session_name + str(i))
-
     dut.stop_testpmd()
     assert cleanup_after_ping(trafficgen, dut, testdata)
     assert reset_mtu(trafficgen, dut, testdata)
+
+    for i in range(settings.config["randomly_terminate_max_vfs"]):
+        stop_testpmd_in_tmux(dut, testdata.tmux_session_name + str(i))
+
     reset_command(dut, testdata)
 
 
