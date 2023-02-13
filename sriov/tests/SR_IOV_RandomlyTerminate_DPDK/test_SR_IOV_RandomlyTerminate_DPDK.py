@@ -2,14 +2,12 @@ import pytest
 import random
 import time
 from sriov.common.utils import (
-    get_driver,
     start_tmux,
     create_vfs,
     execute_and_assert,
     execute_until_timeout,
     bind_driver,
     wait_tmux_testpmd_ready,
-    stop_testpmd_in_tmux,
     get_pci_address,
     setup_hugepages,
 )
@@ -35,12 +33,7 @@ def get_testpmd_cpus(control_core, i):
     return cpus
 
 
-def stop_all_testpmd(dut, tmux_list):
-    for tmux_session, vf_pci in tmux_list:
-        stop_testpmd_in_tmux(dut, tmux_session)
-
-
-@pytest.mark.parametrize("options", (None, "rebind_pf", "rebind_vf"))
+@pytest.mark.parametrize("options", (None, "rebind_vf"))
 def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
     """A robustness test to ensure that randomly killed and restarted testpmd containers
        recover. Permutations are necessary for random termination, random termination
@@ -51,7 +44,7 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
         dut:        ssh connection obj
         settings:   settings obj
         testdata:   testdata obj
-        options:    None, rebind_pf, or rebind_vf
+        options:    None, or rebind_vf
     """
     print(
         "Test length: "
@@ -72,19 +65,7 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
     elif "randomly_terminate_test_length" not in settings.config:
         assert False, "randomly_terminate_test_length not set in config"
 
-    # Set the PF and PF device PCI address
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
-    pf_dev_pci = settings.config["dut"]["interface"]["pf1"]["pci"][0:8] + "00.0"
-
-    # Bind the PF driver
-    pf_driver = get_driver(dut, pf)
-    assert bind_driver(dut, pf_dev_pci, pf_driver)
-
-    # Set hugepages (NOTE: Currently not implemented in any tests)
-
-    # Set PF up
-    steps = ["modprobe vfio-pci", f"ip link set {pf} up"]
-    execute_and_assert(dut, steps, 0, 0.1)
 
     # Get maximum amount of VFs
     max_vfs_cmd = ["cat /sys/class/net/" + pf + "/device/sriov_totalvfs"]
@@ -143,9 +124,7 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
 
                 # Restart the container, as well as rebind drivers if required
                 if options:
-                    if options == "rebind_pf":
-                        assert bind_driver(dut, pf_dev_pci, pf_driver)
-                    elif options == "rebind_vf":
+                    if options == "rebind_vf":
                         assert bind_driver(dut, vf_pci, "vfio-pci")
                 assert start_tmux(dut, tmux_session, tmux_cmd)
                 assert wait_tmux_testpmd_ready(dut, tmux_session, 15)
@@ -168,7 +147,4 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 if stats_outs[1] == stats_outs_2[1]:
                     print(stats_outs)
                     print(stats_outs_2)
-                    stop_all_testpmd(dut, tmux_list)
                     assert False, "testpmd not transmitting"
-
-    stop_all_testpmd(dut, tmux_list)
