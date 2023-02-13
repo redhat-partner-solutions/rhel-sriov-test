@@ -1,6 +1,6 @@
 ## Test Case Name: SR-IOV.RandomlyTerminate.DPDK
 
-### Objective(s): A robustness test to ensure that randomly killed and restarted testpmd containers recover. Permutations are necessary for random termination, random termination with iavf binding, and random termination when resetting the PF.
+### Objective(s): A robustness test to ensure that randomly killed and restarted testpmd containers recover. Permutations are necessary for random termination and random termination with iavf binding.
 
 ### Test procedure
 
@@ -37,7 +37,7 @@ echo ${num_vfs} > /sys/class/net/$PF/device/sriov_numvfs
 
 * Randomly kill containers
 
-* Rebind iavf or reset PF, if required by permutation
+* Rebind iavf, if required by permutation
 
 * Restart containers, checking all are up and transmitting after restart
 

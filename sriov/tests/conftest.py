@@ -5,7 +5,12 @@ from pytest_html import extras
 from sriov.common.config import Config
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
-from sriov.common.utils import cleanup_after_ping, reset_mtu, set_pipefail
+from sriov.common.utils import (
+    cleanup_after_ping,
+    reset_mtu,
+    set_pipefail,
+    stop_testpmd_in_tmux,
+)
 
 
 def get_settings_obj() -> Config:
@@ -80,7 +85,12 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(autouse=True)
 def _cleanup(
-    dut: ShellHandler, trafficgen: ShellHandler, testdata, skipclean: bool, request
+    dut: ShellHandler,
+    trafficgen: ShellHandler,
+    settings,
+    testdata,
+    skipclean: bool,
+    request,
 ) -> None:
     reset_command(dut, testdata)
     yield
@@ -92,6 +102,10 @@ def _cleanup(
     except (AttributeError, NameError):
         # most likely request.node.rep_call not exist, continue normal cleanup
         pass
+
+    for i in range(settings.config["randomly_terminate_max_vfs"]):
+        stop_testpmd_in_tmux(dut, testdata.tmux_session_name + str(i))
+
     dut.stop_testpmd()
     assert cleanup_after_ping(trafficgen, dut, testdata)
     assert reset_mtu(trafficgen, dut, testdata)
