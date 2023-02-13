@@ -36,8 +36,8 @@ def get_testpmd_cpus(control_core, i):
 @pytest.mark.parametrize("options", (None, "rebind_vf"))
 def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
     """A robustness test to ensure that randomly killed and restarted testpmd containers
-       recover. Permutations are necessary for random termination, random termination
-       with iavf binding, and resetting the PF. Adapted from the original pkstress shell
+       recover. Permutations are necessary for random termination and random termination
+       with iavf binding. Adapted from the original pkstress shell
        script written by Patrick Kutch.
 
     Args:
