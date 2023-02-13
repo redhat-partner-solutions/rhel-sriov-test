@@ -162,3 +162,8 @@ For example, if some permutation in `SR_IOV_Permutation_DPDK` has failed, re-run
 The test execution will stop immediately without cleaning up, and one may access the DUT and the trafficgen to debug.
 
 After the debug is complete, one has to manually clean up the setup.
+
+## Uncommon options
+
+The following test options are uncommon and meant to use under rare situations:
++ `--debug-execute`: debug command execution over the ssh session

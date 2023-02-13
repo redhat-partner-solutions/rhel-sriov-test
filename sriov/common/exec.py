@@ -6,6 +6,8 @@ from typing import Tuple
 
 
 class ShellHandler:
+    debug_cmd_execute = False
+
     def __init__(self, host: str, user: str, psw: str, name: str) -> None:
         """Initialize the shell handler object
 
@@ -23,7 +25,7 @@ class ShellHandler:
             self.ssh.connect(host, username=user, port=22)
         else:
             self.ssh.connect(host, username=user, password=psw, port=22)
-        channel = self.ssh.invoke_shell()
+        channel = self.ssh.invoke_shell(width=300)
         self.stdin = channel.makefile("wb")
         self.stdout = channel.makefile("r")
 
@@ -217,17 +219,27 @@ class ShellHandler:
         signal.alarm(timeout)
         try:
             for line in self.stdout:
-                if str(line).startswith(cmd):
+                if ShellHandler.debug_cmd_execute:
+                    print(f"Got line: {repr(line)}")
+                if str(line).endswith(cmd + "\r\n") or str(line).endswith(cmd + "\n"):
                     # up for now filled with shell junk from stdin
+                    if ShellHandler.debug_cmd_execute:
+                        print("reset shout")
                     shout = []
-                elif str(line).startswith(echo_cmd):
+                elif echo_cmd in str(line):
+                    if ShellHandler.debug_cmd_execute:
+                        print("skip line")
                     continue
                 elif str(line).startswith(finish):
                     # our finish command ends with the exit status
                     exit_status = int(str(line).rsplit(maxsplit=1)[1])
+                    if ShellHandler.debug_cmd_execute:
+                        print(f"cmd exit_status: {exit_status}")
                     if exit_status:
                         # stderr is combined with stdout.
                         # thus, swap sherr with shout in a case of failure.
+                        if ShellHandler.debug_cmd_execute:
+                            print("Swap sherr with shout, and reset shout")
                         sherr = shout
                         shout = []
                     break
@@ -239,6 +251,9 @@ class ShellHandler:
                         .replace("\b", "")
                         .replace("\r", "")
                     )
+                if ShellHandler.debug_cmd_execute:
+                    print(f"shout: {shout}")
+                    print(f"sherr: {sherr}")
         except Exception as err:
             exit_status = -1
             sherr.append(str(err))
@@ -248,13 +263,15 @@ class ShellHandler:
         # first and last lines of shout/sherr contain a prompt
         if shout and echo_cmd in shout[-1]:
             shout.pop()
-        if shout and len(shout) > 1 and cmd in shout[0]:
+        if shout and shout[0].endswith(cmd + "\n"):
             shout.pop(0)
         if sherr and echo_cmd in sherr[-1]:
             sherr.pop()
-        if sherr and len(sherr) > 1 and cmd in sherr[0]:
+        if sherr and sherr[0].endswith(cmd + "\n"):
             sherr.pop(0)
-
+        if ShellHandler.debug_cmd_execute:
+            print(f"returning shout: {shout}")
+            print(f"returning sherr: {sherr}")
         return exit_status, shout, sherr
 
     def log_str(self, string: str) -> None:

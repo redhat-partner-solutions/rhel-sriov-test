@@ -99,6 +99,7 @@ def _cleanup(
 
 
 def pytest_configure(config: Config) -> None:
+    ShellHandler.debug_cmd_execute = config.getoption("--debug-execute")
     dut = get_ssh_obj("dut")
     # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
@@ -230,6 +231,12 @@ def pytest_addoption(parser) -> None:
         action="store_true",
         default=False,
         help="Do not clean up when a test case fails",
+    )
+    parser.addoption(
+        "--debug-execute",
+        action="store_true",
+        default=False,
+        help="Debug command execute",
     )
 
 
