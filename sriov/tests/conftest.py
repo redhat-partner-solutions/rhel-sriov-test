@@ -107,6 +107,7 @@ def _cleanup(
     assert cleanup_after_ping(trafficgen, dut, testdata)
     assert reset_mtu(trafficgen, dut, testdata)
 
+    # DU commands need to run after the stop_testpmd and cleanup above
     for i in range(settings.config["randomly_terminate_max_vfs"]):
         stop_testpmd_in_tmux(dut, testdata.tmux_session_name + str(i))
 
