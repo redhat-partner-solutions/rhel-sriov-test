@@ -121,7 +121,7 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 # Ensure that the container is killed before proceeding
                 steps = (
                     f"{settings.config['container_manager']} ps -f name={name}$ | "
-                    "grep {name}"
+                    f"grep {name}"
                 )
                 assert execute_until_timeout(dut, steps, 10, 1)
 
@@ -129,6 +129,11 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 if options:
                     if options == "rebind_vf":
                         assert bind_driver(dut, vf_pci, "vfio-pci")
+
+                # Ensure that the tmux session has ended before proceeding
+                steps = f"tmux has-session -t {tmux_session}"
+                assert execute_until_timeout(dut, steps, 10, 1)
+
                 assert start_tmux(dut, tmux_session, tmux_cmd)
                 assert wait_tmux_testpmd_ready(dut, tmux_session, 15)
 
