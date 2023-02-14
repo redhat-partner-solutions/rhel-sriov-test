@@ -76,8 +76,10 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     if explicit_mac:
         vdev_str = f"{vdev_str},mac={bond_mac}"
 
-    podman_cmd = (
-        "podman run -it --rm --privileged "
+    # The bond container command is specialized, so the testdata based commands
+    # are not used.
+    container_cmd = (
+        f"{settings.config['container_manager']} run -it --rm --privileged "
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
         f"--cpuset-cpus {cpus} {dpdk_img} "
         f"dpdk-testpmd -l {cpus} -n 4 "
@@ -86,9 +88,9 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         f"-- --forward-mode=mac --portlist {rx_port_num},3 "
         f"--eth-peer 3,{fwd_mac}"
     )
-    dut.log_str(podman_cmd)
+    dut.log_str(container_cmd)
     testpmd_tmux_session = testdata.tmux_session_name
-    assert start_tmux(dut, testpmd_tmux_session, podman_cmd)
+    assert start_tmux(dut, testpmd_tmux_session, container_cmd)
     assert wait_tmux_testpmd_ready(dut, testpmd_tmux_session, 10)
     yield Bond(mode, bond_mac)
     stop_testpmd_in_tmux(dut, testpmd_tmux_session)
@@ -127,14 +129,12 @@ def trafficgen_setup(dut, trafficgen, settings, testdata):
     stop_tmux(trafficgen, ping_tmux_session)
 
 
-bond_setup_params = ({"mode": mode, "mac": mac}
-                     for mode in [0, 1]
-                     for mac in [False, True]
-                     )
+bond_setup_params = (
+    {"mode": mode, "mac": mac} for mode in [0, 1] for mac in [False, True]
+)
 
 
-@pytest.mark.parametrize('dut_setup', bond_setup_params,
-                         indirect=True)
+@pytest.mark.parametrize("dut_setup", bond_setup_params, indirect=True)
 def test_SR_IOV_BondVF_DPDK(
     dut, trafficgen, settings, testdata, dut_setup, trafficgen_setup
 ):
@@ -148,5 +148,6 @@ def test_SR_IOV_BondVF_DPDK(
         dut_setup: dut setup and teardown fixture
         trafficgen_setup: trafficgen setup and teardown fixture
     """
-    validate_bond(dut, trafficgen, settings, testdata,
-                  dut_setup.bond_mode, dut_setup.bond_mac)
+    validate_bond(
+        dut, trafficgen, settings, testdata, dut_setup.bond_mode, dut_setup.bond_mac
+    )

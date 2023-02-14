@@ -13,9 +13,9 @@ from sriov.common.utils import (
 )
 
 
-def get_podman_cmd(name, cpus, dpdk_img, vf_pci):
+def get_container_cmd(container_manager, name, cpus, dpdk_img, vf_pci):
     tmux_cmd = (
-        f"podman run -it --name {name} --rm --privileged "
+        f"{container_manager} run -it --name {name} --rm --privileged "
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
         f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
         f"-n 4 -a {vf_pci} "
@@ -25,11 +25,7 @@ def get_podman_cmd(name, cpus, dpdk_img, vf_pci):
 
 
 def get_testpmd_cpus(control_core, i):
-    cpus = (
-        str(control_core)
-        + ","
-        + str(control_core + i + 1)
-    )
+    cpus = str(control_core) + "," + str(control_core + i + 1)
     return cpus
 
 
@@ -94,7 +90,9 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
 
         cpus = get_testpmd_cpus(settings.config["randomly_terminate_control_core"], i)
         name = base_name + str(i)
-        tmux_cmd = get_podman_cmd(name, cpus, dpdk_img, vf_pci)
+        tmux_cmd = get_container_cmd(
+            settings.config["container_manager"], name, cpus, dpdk_img, vf_pci
+        )
 
         # Start instance of testpmd
         tmux_session = testdata.tmux_session_name + str(i)
@@ -112,14 +110,19 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 name = base_name + str(i)
                 tmux_session = tmux_list[i][0]
                 vf_pci = tmux_list[i][1]
-                tmux_cmd = get_podman_cmd(name, cpus, dpdk_img, vf_pci)
+                tmux_cmd = get_container_cmd(
+                    settings.config["container_manager"], name, cpus, dpdk_img, vf_pci
+                )
 
                 # Kill the container
-                steps = [f"podman kill {name}"]
+                steps = [f"{settings.config['container_manager']} kill {name}"]
                 execute_and_assert(dut, steps, 0)
 
                 # Ensure that the container is killed before proceeding
-                steps = f"podman ps -f name={name}$ | grep {name}"
+                steps = (
+                    f"{settings.config['container_manager']} ps -f name={name}$ | "
+                    "grep {name}"
+                )
                 assert execute_until_timeout(dut, steps, 10, 1)
 
                 # Restart the container, as well as rebind drivers if required

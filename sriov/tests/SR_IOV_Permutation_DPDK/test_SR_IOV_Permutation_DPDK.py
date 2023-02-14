@@ -74,7 +74,7 @@ def test_SR_IOV_Permutation_DPDK(
 
     assert verify_vf_address(dut, pf, 0, testdata.dut_mac)
 
-    dut.start_testpmd(testdata.podman_cmd)
+    dut.start_testpmd(testdata.container_cmd)
     assert dut.testpmd_active()
 
     steps = ["set fwd icmpecho", "start"]

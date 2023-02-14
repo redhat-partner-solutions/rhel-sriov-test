@@ -62,13 +62,13 @@ def test_start_and_stop_testpmd(dut, settings):
         dut.log_str(step)
         code, out, err = dut.execute(step)
         assert code == 0, step
-    testpmd_podman_cmd = (
-        "podman run -it --rm --privileged -v /sys:/sys "
-        "-v /dev:/dev -v /lib/modules:/lib/modules "
+    testpmd_container_cmd = (
+        f"{settings.config['container_manager']} run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
         "--cpuset-cpus 30,32,34 docker.io/patrickkutch/dpdk:v21.11 "
         "dpdk-testpmd -l 30,32,34 -n 4 -a " + vf_pci + " -- --nb-cores=2 -i"
     )
-    code, out, err = dut.start_testpmd(testpmd_podman_cmd)
+    code, out, err = dut.start_testpmd(testpmd_container_cmd)
     assert code == 0
     assert dut.testpmd_active()
     assert dut.stop_testpmd() == 0
