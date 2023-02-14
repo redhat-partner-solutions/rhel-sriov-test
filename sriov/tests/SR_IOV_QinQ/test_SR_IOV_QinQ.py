@@ -12,7 +12,7 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     """
 
     dut_ip = testdata.dut_ip
-    outside_tag = 10
+    outside_tag = testdata.vlan
     inside_tag = 20
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
