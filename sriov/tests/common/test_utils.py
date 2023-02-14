@@ -53,7 +53,7 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_vlan = 0
     trafficgen_ip = "1.2.3.4"
-    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_ip, trafficgen_vlan)
     assert config_interface(trafficgen, trafficgen_pf, trafficgen_vlan, trafficgen_ip)
 
     step = [f"ip addr show {trafficgen_pf}"]
@@ -67,7 +67,7 @@ def test_config_and_clear_interface(dut, trafficgen, settings, testdata):
 
     assert ip_addr_found is True
 
-    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+    assert clear_interface(trafficgen, trafficgen_pf, trafficgen_ip, trafficgen_vlan)
 
     outs, errs = execute_and_assert(trafficgen, step, 0)
 
@@ -91,7 +91,8 @@ def test_config_and_clear_interface_fail(dut, trafficgen, settings, testdata):
         assert True
 
     try:
-        assert clear_interface(trafficgen, trafficgen_pf, trafficgen_vlan)
+        assert clear_interface(trafficgen, trafficgen_pf, trafficgen_ip,
+                               trafficgen_vlan)
         assert False  # Should always short circuit this
     except Exception:
         assert True
