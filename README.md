@@ -125,6 +125,11 @@ To run a specific test case and generate an HTML report file,
 pytest -v --html=report.html --self-contained-html SR_IOV_Permutation
 ```
 
+To run a specific test case permutation and generate an HTML report file run the full path to the test permutation, for example,
+```
+pytest -v --html=report.html --self-contained-html SR_IOV_Permutation/test_SR_IOV_Permutation.py::test_SR_IOV_Permutation[False-False-False-off-off]
+```
+
 To run all SR-IOV test cases and generate an HTML report file,
 ```
 pytest -v --html=report.html --self-contained-html SR*
