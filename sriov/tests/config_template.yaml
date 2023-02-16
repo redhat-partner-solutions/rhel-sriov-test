@@ -9,3 +9,4 @@ randomly_terminate_test_length: 10.5
 container_manager: podman
 vlan: 10
 mtu: 1500
+bonding_switch_delay: 5

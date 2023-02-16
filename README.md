@@ -99,6 +99,7 @@ container_manager:                # the container manager command to use (podman
                                   # example: podman
 vlan:                             # vlan tag used by the vlan tests, default is 10
 mtu:                              # MTU size; if unspecified, the script will derive it
+bonding_switch_delay              # Expected bonding switch over/back delay in second, default is 1
 ```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,
