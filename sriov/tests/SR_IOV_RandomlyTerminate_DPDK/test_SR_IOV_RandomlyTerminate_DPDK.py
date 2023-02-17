@@ -148,8 +148,8 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                     f"tmux send-keys -t {tmux_session} 'show fwd stats all' ENTER",
                     f"tmux capture-pane -pt {tmux_session} | tail -4 | grep TX-packets",
                 ]
-                stats_outs, errs = execute_and_assert(dut, stats_steps, 0)
-                stats_outs_2, errs = execute_and_assert(dut, stats_steps, 0)
+                stats_outs, errs = execute_and_assert(dut, stats_steps, 0, 0.1)
+                stats_outs_2, errs = execute_and_assert(dut, stats_steps, 0, 0.1)
 
                 # Ensure testpmd is transmitting
                 if stats_outs[1] == stats_outs_2[1]:

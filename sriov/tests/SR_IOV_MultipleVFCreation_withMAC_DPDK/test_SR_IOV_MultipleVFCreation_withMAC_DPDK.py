@@ -1,5 +1,7 @@
+import time
 from sriov.common.utils import (
     execute_and_assert,
+    execute_until_timeout,
     create_vfs,
     set_pipefail,
     get_pci_address,
@@ -28,7 +30,8 @@ def test_SRIOVMultipleVFCreationwithMACDPDK(dut, settings, testdata, execution_n
     outs, errs = execute_and_assert(dut, max_vfs_cmd, 0)
     max_vfs = outs[0][0].strip()
     assert create_vfs(dut, testdata.pfs[pf]["name"], int(max_vfs))
-
+    # Some NICs (observed on xxv710) need time after VF creation
+    time.sleep(0.1)
     # Set the MAC address for each VF, bind each VF to vfio-pci
     for i in range(int(max_vfs)):
         base_mac = "{:012X}".format(int(base_mac, 16) + 1)
@@ -44,6 +47,8 @@ def test_SRIOVMultipleVFCreationwithMACDPDK(dut, settings, testdata, execution_n
             + new_mac
         ]
         execute_and_assert(dut, steps, 0)
-
-        vf_pci = get_pci_address(dut, testdata.pfs[pf]["name"] + "v" + str(i))
-        assert bind_driver(dut, vf_pci, "vfio-pci", 1)
+        iface = testdata.pfs[pf]["name"] + "v" + str(i)
+        mac_check_cmd = f"ip link show {iface} | grep link/ether | grep {new_mac}"
+        execute_until_timeout(dut, mac_check_cmd)
+        vf_pci = get_pci_address(dut, iface)
+        assert bind_driver(dut, vf_pci, "vfio-pci")
