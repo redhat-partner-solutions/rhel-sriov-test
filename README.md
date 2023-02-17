@@ -99,6 +99,8 @@ randomly_terminate_test_length:   # amount of time, in minutes, to run test_SR_I
                                   # example: 10.5
 container_manager:                # the container manager command to use (podman or docker)
                                   # example: podman
+vlan:                             # vlan tag used by the vlan tests, default is 10
+mtu:                              # MTU size; if unspecified, the script will derive it
 ```
 
 Running the script from a python3 virtual environment is recommended. Install the required python modules,
@@ -184,7 +186,6 @@ interface ethernet1/1/11:3
  switchport trunk allowed vlan 10
  mtu 9216
  flowcontrol receive off
- spanning-tree disable
 
 interface ethernet1/1/11:4
  description "trafficgen port 2"
@@ -219,7 +220,7 @@ In the above example, port 1 of the DUT and the traffic generator are put in the
 The switch MTU is set under the ports. This mtu vlaue should be included in `tests/config.yaml` so the test script will consider it when running the MTU test case,
 ```
 ...
-mtu: 1500
+mtu: 9216
 ...
 ```
 
