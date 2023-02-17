@@ -5,7 +5,7 @@
 
 ### Test procedure
 
-* On DUT, find the maxmtu using `ip -d link list`; do the same on the trafficgen; use the minimum of these two as the common MTU size,
+* On DUT, find the maxmtu using `ip -d link list`; do the same on the trafficgen; use the minimum of these two as the common MTU size. If a MTU is specified via settings, the minimum of the three will be used as the common MTU size.
 
 * On DUT, create 1 VF with the common MTU; assert 0 exit code on each of the following steps,
 ```
