@@ -11,7 +11,7 @@ from sriov.common.utils import (
 
 dut_vif_ipv6 = "2001:1b74:4d9:1002::4"
 trafficgen_ipv6 = "2001:1b74:4d9:1002::5"
-# VF ip has different network portion as the VIF, but same host portion
+# VF IPv6 has different network portion as the VIF, but same host portion
 dut_vf_ipv6 = "2001:1b74:4d9:1003::4"
 
 
@@ -54,7 +54,7 @@ def ovs_setup(dut, trafficgen, settings, testdata):
 def test_SR_IOV_OVS_IPv6(
     dut, trafficgen, settings, testdata, ovs_setup
 ):
-    """Test IPv6 on a VF sharing the same PF with a openvswitch virtual port
+    """Test IPv6 on a VF sharing the same PF with a Open vSwitch virtual port
 
     Args:
         dut:         ssh connection obj
@@ -72,7 +72,7 @@ def test_SR_IOV_OVS_IPv6(
 
     create_vfs(dut, pf, 1)
 
-    # VF vlan is not important
+    # VF VLAN is not important
     vf_vlan = testdata.vlan + 1
     steps = [
         f"ip link set {pf}v0 down",
