@@ -36,6 +36,12 @@ To install,
 yum install -y tmux nmap podman
 ```
 
+One special test case, SR_IOV_OVS_IPv6, requires Open vSwitch. Without Open vSwitch installed, this test case will be skipped. To install an up to date Open vSwitch, install from the source tree is recommended. Alternatively, an out of date Open vSwitch version can be installed on RHEL just for the testing purpose,
+```
+yum install -y https://rdoproject.org/repos/rdo-release.rpm
+yum install -y openvswitch
+```
+
 On the traffic generator server, the following RPM packages are required,
 * nmap
 
