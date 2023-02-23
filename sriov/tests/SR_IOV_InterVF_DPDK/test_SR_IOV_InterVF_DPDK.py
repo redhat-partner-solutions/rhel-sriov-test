@@ -2,21 +2,13 @@ import pytest
 import time
 from sriov.common.utils import (
     start_tmux,
-    stop_tmux,
     create_vfs,
     execute_and_assert,
     bind_driver,
     get_vf_mac,
     setup_hugepages,
+    stop_testpmd_in_tmux
 )
-
-
-def stop_testpmd_in_tmux(dut, tmux_session):
-    cmd = f"tmux send-keys -t {tmux_session} 'quit' ENTER"
-    dut.log_str(cmd)
-    dut.execute(cmd)
-    time.sleep(1)
-    assert stop_tmux(dut, tmux_session)
 
 
 @pytest.mark.parametrize("spoof", ("on", "off"))
