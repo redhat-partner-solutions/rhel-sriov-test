@@ -1,5 +1,5 @@
 name: GitHub Actions mock test
-on: [push]
+on: [push, pull_request]
 jobs:
   GitHub-Actions-mock-test:
     runs-on: ubuntu-latest
