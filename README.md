@@ -36,6 +36,12 @@ To install,
 yum install -y tmux nmap podman
 ```
 
+One special test case, SR_IOV_OVS_IPv6, requires openvswitch. Without openvswitch installed, this test case will be skipped. To install openvswitch on RHEL 8,
+```
+subscription-manager repos --enable "rhel-8-for-x86_64-appstream-rpms"
+yum install -y openvswitch
+```
+
 On the traffic generator server, the following RPM packages are required,
 * nmap
 
