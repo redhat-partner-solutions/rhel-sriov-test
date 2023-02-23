@@ -36,9 +36,9 @@ To install,
 yum install -y tmux nmap podman
 ```
 
-One special test case, SR_IOV_OVS_IPv6, requires openvswitch. Without openvswitch installed, this test case will be skipped. To install openvswitch on RHEL 8,
+One special test case, SR_IOV_OVS_IPv6, requires openvswitch. Without openvswitch installed, this test case will be skipped. To install an up to date openvswitch, install from the openvswitch source tree is recommended. Alternatively, an out of date  openvswitch version can be installed on RHEL just for the testing purpose,
 ```
-subscription-manager repos --enable "rhel-8-for-x86_64-appstream-rpms"
+yum install -y https://rdoproject.org/repos/rdo-release.rpm
 yum install -y openvswitch
 ```
 
