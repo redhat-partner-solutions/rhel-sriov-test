@@ -1,6 +1,6 @@
 name: Lint
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -20,4 +20,5 @@ jobs:
         pip install flake8
     - name: Lint with flake8
       run: |
-        flake8 sriov --count --select=E --max-complexity=20 --max-line-length=88 --show-source --statistics
+        flake8 sriov --count --select=E --max-complexity=20 --max-line-length=88 --show-source \
+        --statistics 
