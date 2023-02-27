@@ -52,11 +52,8 @@ jobs:
           else
             echo "no common code or test case code change - no e2e run"
           fi
-      - name: Display HTML report
-        uses: pavi2410/html-preview-action@v2
-        with:
-          html_file: sriov/tests/report.html
-      - run: echo "This job's status is ${{ job.status }}."
+      - name: Display Status
+        run: echo "This job's status is ${{ job.status }}."
   remove-label:
     needs: e2e-tests
     permissions:
