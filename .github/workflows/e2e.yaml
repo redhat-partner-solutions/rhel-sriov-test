@@ -42,6 +42,7 @@ jobs:
           cp /config/*.yaml ./
           if [[ "${mode}" == "full" ]]; then
             pytest -v --html=report.html --self-contained-html SR_IOV_* common
+            echo "generated=true" >> $GITHUB_ENV
           elif [[ ${#tests[@]} -ne 0 ]]; then
             test_string="pytest -v --html=report.html --self-contained-html"
             for testname in $(echo "${tests[@]}" | tr ' ' '\n' | sort -u); do
@@ -49,9 +50,18 @@ jobs:
               echo "Testing ${testname}"
             done
             ${test_string}
+            echo "generated=true" >> $GITHUB_ENV
           else
             echo "no common code or test case code change - no e2e run"
+            echo "generated=false" >> $GITHUB_ENV
           fi
+      - name: Upload HTML Artifact
+        if: ${{ env.generated == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report
+          path: sriov/tests/report.html
+          retention-days: 3
       - name: Display Status
         run: echo "This job's status is ${{ job.status }}."
   remove-label:
