@@ -11,7 +11,6 @@ from sriov.common.utils import (
 )
 
 
-# CI test line, to be removed
 @pytest.mark.parametrize("spoof", ("on", "off"))
 @pytest.mark.parametrize("trust", ("on", "off"))
 @pytest.mark.parametrize("qos", (True, False))

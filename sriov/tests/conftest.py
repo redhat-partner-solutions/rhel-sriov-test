@@ -14,6 +14,7 @@ from sriov.common.utils import (
 )
 
 
+# CI test line
 def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     config_file = script_dir + "/config.yaml"
