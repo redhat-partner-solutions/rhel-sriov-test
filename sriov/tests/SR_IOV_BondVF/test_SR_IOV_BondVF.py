@@ -96,4 +96,3 @@ def test_SR_IOV_BondVF(
     """
     validate_bond(dut, trafficgen, settings, testdata,
                   dut_setup.bond_mode, dut_setup.bond_mac)
-
