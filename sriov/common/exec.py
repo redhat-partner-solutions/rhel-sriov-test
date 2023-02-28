@@ -27,7 +27,7 @@ class ShellHandler:
             else:
                 self.ssh.connect(host, username=user, password=psw, port=22)
 
-        except paramiko.AuthenticationException as Ex:
+        except paramiko.AuthenticationException:
             print("ERROR: invalid credentials provided for {}".format(host))
             raise
 
@@ -198,7 +198,8 @@ class ShellHandler:
 
         return exit_code
 
-    def execute(self, cmd: str, timeout: int = 5) -> Tuple[int, list, list]:
+    def execute(self, cmd: str, timeout: int = 5) \
+            -> Tuple[int, list, list]:  # noqa: C901
         """Execute a command in the SSH session
 
         Args:
