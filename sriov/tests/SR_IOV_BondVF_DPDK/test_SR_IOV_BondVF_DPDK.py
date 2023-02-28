@@ -20,7 +20,6 @@ from sriov.common.macros import (
 )
 
 
-# CI test line, to be deleted
 @pytest.fixture
 def dut_setup(dut, settings, testdata, request) -> Bond:
     """dut setup and teardown fixture
