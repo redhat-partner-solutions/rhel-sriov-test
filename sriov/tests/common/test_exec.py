@@ -35,7 +35,7 @@ def test_execute_cmd_timeout(dut):
     dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
     # Allow for original sleep to end (5 second timeout + 1 second) before cleanup
-    time.sleep(1)
+    time.sleep(1.5)
     assert code != 0 and "timeout" in err[0]
 
 
