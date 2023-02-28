@@ -20,5 +20,5 @@ jobs:
         pip install flake8
     - name: Lint with flake8
       run: |
-        flake8 sriov --count -select=E,C,F,W --ignore W503 --max-complexity=15 \
+        flake8 sriov --count --select=E,C,F,W --ignore W503 --max-complexity=15 \
         --max-line-length=88 --show-source --statistics 
