@@ -1,4 +1,11 @@
-from sriov.common.utils import create_vfs, execute_and_assert, start_tmux, stop_tmux
+import pytest
+from sriov.common.utils import (
+    create_vfs,
+    execute_and_assert,
+    get_nic_model,
+    start_tmux,
+    stop_tmux,
+)
 
 
 def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
@@ -15,6 +22,9 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     outside_tag = testdata.vlan
     inside_tag = 20
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
+
+    if "xxv710" in get_nic_model(dut, pf).lower():
+        pytest.xfail("Expected failure - XXV710 NICs fail QinQ.")
 
     assert create_vfs(dut, pf, 1)
 
