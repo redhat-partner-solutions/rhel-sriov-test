@@ -6,6 +6,7 @@ from sriov.common.utils import (
 )
 
 
+# CI test insert line
 def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
     """Test and ensure that VF MAC address functions as intended
 
