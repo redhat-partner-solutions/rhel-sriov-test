@@ -24,7 +24,7 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
     if "xxv710" in get_nic_model(dut, pf).lower():
-        pytest.xfail("Expected failure - XXV710 NICs fail QinQ.")
+        pytest.skip("QinQ unsupported on XXV710 NICs - skipping test.")
 
     assert create_vfs(dut, pf, 1)
 
