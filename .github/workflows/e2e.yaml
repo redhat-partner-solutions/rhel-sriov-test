@@ -69,9 +69,13 @@ jobs:
     permissions:
       pull-requests: write
       issues: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: always() && contains(github.event.label.name, 'e2e-test')
     steps:
       - name: remove label
         run: |
-          curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test'
+          TOKEN=${{ github.token }}
+          if [[ -e /run/secrets/github_token ]]; then
+            TOKEN=$(tr -d "[:space:]" < /run/secrets/github_token)
+          fi
+          curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${TOKEN}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test"
