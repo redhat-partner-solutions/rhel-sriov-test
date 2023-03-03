@@ -1,0 +1,23 @@
+name: Mock test
+on: [pull_request, workflow_dispatch]
+jobs:
+  mock-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f sriov/requirements.txt ]; then pip install -r sriov/requirements.txt; fi
+          pip install mock
+      - name: Run mock tests
+        run: |
+          python -m unittest -v sriov/common/test_utils_mock.py
+
