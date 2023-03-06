@@ -25,6 +25,7 @@ from sriov.common.utils import (
     set_pipefail,
     execute_until_timeout,
     calc_required_pages_2M,
+    get_nic_model,
 )  # noqa: E402
 import unittest
 
@@ -202,6 +203,7 @@ class UtilsTest(unittest.TestCase):
         ]
 
         for testcase in testcases:
+
             def get_hugepage_info_side_effect(*args, **kwargs):
                 if args[1] == "2M":
                     return testcase["2M"]
@@ -209,10 +211,32 @@ class UtilsTest(unittest.TestCase):
                     return testcase["1G"]
                 else:
                     raise Exception("Invalid input")
+
             mock_get_hugepage_info.side_effect = get_hugepage_info_side_effect
             actual = calc_required_pages_2M(ssh_obj, testcase["instance"])
             expected = testcase["expected"]
             assert actual == expected, f"actual: {actual}, expected: {expected}"
+
+    def test_get_nic_model(self):
+        ssh_obj = self.create_mock_ssh_obj(
+            0,
+            [
+                "             CPUID     PCI (sysfs)           ISA PnP       PnP "
+                + "(sysfs)           PCMCIA      PCMCIA      Virtual I/O (VIRTIO) "
+                + "devices                            IBM Virtual I/O (VIO)       "
+                + "              kernel device tree (sysfs)                       "
+                + "   USB   IDE   SCSI    NVMe    MMC   sound     graphics        "
+                + "input     S/390 devices             Network interfaces         "
+                + "         Framebuffer devices                   Display       "
+                + "CPUFreq       ABI   pci@0000:00:00.0  ens0f0      network      "
+                + "  Ethernet Controller XXV710 for 25GbE SFP28\n"
+            ],
+            "",
+        )
+        assert (
+            get_nic_model(ssh_obj, "ens0f0")
+            == "Ethernet Controller XXV710 for 25GbE SFP28"
+        )
 
 
 if __name__ == "__main__":

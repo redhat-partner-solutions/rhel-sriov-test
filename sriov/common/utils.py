@@ -1,3 +1,4 @@
+import re
 from sriov.common.configtestdata import ConfigTestData
 from sriov.common.exec import ShellHandler
 import time
@@ -104,7 +105,7 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bo
     else:
         steps = [
             f"ip add del {ip}/24 dev {intf} 2>/dev/null || true",
-            f"ip add add {ip}/24 dev {intf}"
+            f"ip add add {ip}/24 dev {intf}",
         ]
     for step in steps:
         ssh_obj.log_str(step)
@@ -114,8 +115,9 @@ def config_interface(ssh_obj: ShellHandler, intf: str, vlan: int, ip: str) -> bo
     return True
 
 
-def config_interface_ipv6(ssh_obj: ShellHandler, intf: str,
-                          vlan: int, ipv6: str) -> bool:
+def config_interface_ipv6(
+    ssh_obj: ShellHandler, intf: str, vlan: int, ipv6: str
+) -> bool:
     """Config an IPv6 address on VLAN interface; if VLAN is 0, config IPv6 on
         main interface
 
@@ -151,8 +153,7 @@ def config_interface_ipv6(ssh_obj: ShellHandler, intf: str,
     return True
 
 
-def clear_interface(ssh_obj: ShellHandler, intf: str, ip: str,
-                    vlan: int = 0) -> bool:
+def clear_interface(ssh_obj: ShellHandler, intf: str, ip: str, vlan: int = 0) -> bool:
     """Clear the IP address from the VLAN interface and the main interface
 
     Args:
@@ -179,8 +180,9 @@ def clear_interface(ssh_obj: ShellHandler, intf: str, ip: str,
     return True
 
 
-def clear_interface_ipv6(ssh_obj: ShellHandler, intf: str, ipv6: str,
-                         vlan: int = 0) -> bool:
+def clear_interface_ipv6(
+    ssh_obj: ShellHandler, intf: str, ipv6: str, vlan: int = 0
+) -> bool:
     """Clear the IPv6 address from the VLAN interface and the main interface
 
     Args:
@@ -1006,7 +1008,7 @@ def switch_detected(ssh_obj: ShellHandler, interface: str) -> bool:
     return code == 0
 
 
-def is_package_installed(ssh_obj: ShellHandler, package_name) -> bool:
+def is_package_installed(ssh_obj: ShellHandler, package_name: str) -> bool:
     """Test if the specified RPM package is installed
 
     Args:
@@ -1020,3 +1022,18 @@ def is_package_installed(ssh_obj: ShellHandler, package_name) -> bool:
     ssh_obj.log_str(cmd)
     code, _, _ = ssh_obj.execute(cmd)
     return code == 0
+
+
+def get_nic_model(ssh_obj: ShellHandler, pf: str) -> str:
+    """Get the NIC model
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        pf (str): interface name
+
+    Returns:
+        str: The model of the NIC
+    """
+    cmd = [f"lshw -C network -businfo | grep {pf}"]
+    outs, _ = execute_and_assert(ssh_obj, cmd, 0)
+    return re.split("\\s{2,}", outs[0][0])[-1].strip()
