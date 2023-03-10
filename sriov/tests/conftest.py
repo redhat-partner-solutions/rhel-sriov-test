@@ -11,6 +11,10 @@ from sriov.common.utils import (
     set_pipefail,
     stop_testpmd_in_tmux,
     cleanup_after_ping_ipv6,
+    get_pci_address,
+    get_intf_mac,
+    create_vfs,
+    destroy_vfs,
 )
 
 
@@ -44,8 +48,18 @@ def get_testdata_obj(settings: Config) -> ConfigTestData:
 
 
 @pytest.fixture
-def settings() -> Config:
-    return get_settings_obj()
+def settings(dut, trafficgen) -> Config:
+    settings = get_settings_obj()
+    pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
+    settings.config["dut"]["interface"]["pf1"]["pci"] = get_pci_address(dut, pf1_name)
+    create_vfs(dut, pf1_name, 1)
+    vf1_name = settings.config["dut"]["interface"]["vf1"]["name"]
+    settings.config["dut"]["interface"]["vf1"]["pci"] = get_pci_address(dut, vf1_name)
+    trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    settings.config["trafficgen"]["interface"]["pf1"]["mac"] = \
+        get_intf_mac(trafficgen, trafficgen_pf)
+    destroy_vfs(dut, pf1_name)
+    return settings
 
 
 @pytest.fixture

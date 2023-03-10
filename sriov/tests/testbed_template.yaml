@@ -6,13 +6,10 @@ dut:
   interface:
     pf1:
       name: "ens7f0"
-      pci: "0000:87:00.0"
     pf2:
       name: "ens7f1"
-      # For pf2 the pci info is not required
     vf1:
       name: "ens7f0v0"
-      pci: "0000:87:02.0"
 trafficgen:
   host: "TrafficGen ip address"
   username: root
@@ -20,8 +17,6 @@ trafficgen:
   interface:
     pf1:
       name: "ens8f0"
-      mac: "40:a6:b7:2b:19:a0"
     pf2:
       name: "ens8f1"
-      # For pf2 the MAC address info is not required
 
