@@ -3,6 +3,7 @@ run-name: sriov-e2e-test initiated by ${{ github.actor }}
 on:
   pull_request:
     types: [labeled]
+  workflow_dispatch:
 jobs:
   e2e-tests:
     runs-on: self-hosted
