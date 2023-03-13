@@ -7,6 +7,7 @@ randomly_terminate_max_vfs: 8
 randomly_terminate_test_chance: 0.5
 randomly_terminate_test_length: 10.5
 container_manager: podman
+container_volumes: "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules"
 vlan: 10
 mtu: 1500
 bonding_switch_delay: 5
