@@ -41,15 +41,15 @@ class ConfigTestData:
         cpus = settings.config["dut"]["pmd_cpus"]
         self.container_cmd = (
             f"{settings.config['container_manager']} run -it --rm --privileged "
-            f"{settings.config['container_volumes']}"
-            f" --cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
+            f"{settings.config['container_volumes']} "
+            f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
             f"-n 4 -a {vf_pci} "
             "-- --nb-cores=2 -i"
         )
         self.container_cmd_echo = (
             f"{settings.config['container_manager']} run -it --rm --privileged "
-            f"{settings.config['container_volumes']}"
-            f" --cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
+            f"{settings.config['container_volumes']} "
+            f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
             f"-n 4 -a {vf_pci} "
             "-- --nb-cores=2 --forward=icmpecho"
         )

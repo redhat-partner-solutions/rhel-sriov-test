@@ -109,7 +109,7 @@ randomly_terminate_test_length:   # amount of time, in minutes, to run test_SR_I
                                   # example: 10.5
 container_manager:                # the container manager command to use (podman or docker)
                                   # example: podman
-container_volumes:                # the volumes to use with the container command
+container_volumes:                # the volume mapping to use with the container command
                                   # example: "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules"
 vlan:                             # vlan tag used by the vlan tests, default is 10
 mtu:                              # MTU size; if unspecified, the script will derive it

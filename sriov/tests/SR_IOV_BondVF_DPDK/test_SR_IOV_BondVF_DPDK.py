@@ -84,8 +84,8 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     # are not used.
     container_cmd = (
         f"{settings.config['container_manager']} run -it --rm --privileged "
-        f"{settings.config['container_volumes']}"
-        f" --cpuset-cpus {cpus} {dpdk_img} "
+        f"{settings.config['container_volumes']} "
+        f"--cpuset-cpus {cpus} {dpdk_img} "
         f"dpdk-testpmd -l {cpus} -n 4 "
         f"-a {pci_pf1_vf0} -a {pci_pf1_vf1} -a {pci_pf2_vf0} "
         f"--vdev {vdev_str} "

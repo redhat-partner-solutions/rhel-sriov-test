@@ -18,8 +18,8 @@ def get_container_cmd(
 ):
     tmux_cmd = (
         f"{container_manager} run -it --name {name} --rm --privileged "
-        f"{container_volumes}"
-        f" --cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
+        f"{container_volumes} "
+        f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
         f"-n 4 -a {vf_pci} "
         "-- --nb-cores=1 --forward=txonly -i"
     )

@@ -66,8 +66,8 @@ def test_start_and_stop_testpmd(dut, settings):
         assert code == 0, step
     testpmd_container_cmd = (
         f"{settings.config['container_manager']} run -it --rm --privileged "
-        f"{settings.config['container_volumes']}"
-        f" --cpuset-cpus {settings.config['dut']['pmd_cpus']} "
+        f"{settings.config['container_volumes']} "
+        f"--cpuset-cpus {settings.config['dut']['pmd_cpus']} "
         f"{settings.config['dpdk_img']} dpdk-testpmd -l "
         f"{settings.config['dut']['pmd_cpus']} -n 4 -a {vf_pci} -- --nb-cores=2 -i"
     )
