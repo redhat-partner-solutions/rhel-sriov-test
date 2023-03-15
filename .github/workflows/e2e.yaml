@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 jobs:
   e2e-tests:
-    runs-on: self-hosted
-    if: contains(github.event.label.name, 'e2e-test')
+    if: contains(github.event.label.name, 'e2e-test') || (github.event_name == 'workflow_dispatch')
+    runs-on: [self-hosted, 810]
     steps:
       - uses: actions/checkout@v3
         with:
