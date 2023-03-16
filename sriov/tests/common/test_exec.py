@@ -1,6 +1,7 @@
 import logging
 import time
 
+from sriov.common.utils import get_pci_address, create_vfs
 
 LOGGER = logging.getLogger(__name__)
 
@@ -47,15 +48,11 @@ def test_execute_cmd_with_delay(dut):
 
 
 def test_start_and_stop_testpmd(dut, settings):
-    pf_pci = settings.config["dut"]["interface"]["pf1"]["pci"]
-    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
+    assert create_vfs(dut, settings.config["dut"]["interface"]["pf1"]["name"], 1)
 
-    pf_device_path = "/sys/bus/pci/devices/" + pf_pci
+    vf_pci = get_pci_address(dut, settings.config["dut"]["interface"]["vf1"]["name"])
     vf_device_path = "/sys/bus/pci/devices/" + vf_pci
     steps = [
-        "modprobe vfio-pci",
-        "echo 0 > " + pf_device_path + "/sriov_numvfs",
-        "echo 1 > " + pf_device_path + "/sriov_numvfs",
         "echo " + vf_pci + " > " + vf_device_path + "/driver/unbind",
         "echo vfio-pci > " + vf_device_path + "/driver_override",
         "echo " + vf_pci + " > " + "/sys/bus/pci/drivers/vfio-pci/bind",
@@ -64,6 +61,7 @@ def test_start_and_stop_testpmd(dut, settings):
         dut.log_str(step)
         code, out, err = dut.execute(step)
         assert code == 0, step
+
     testpmd_container_cmd = (
         f"{settings.config['container_manager']} run -it --rm --privileged "
         "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "

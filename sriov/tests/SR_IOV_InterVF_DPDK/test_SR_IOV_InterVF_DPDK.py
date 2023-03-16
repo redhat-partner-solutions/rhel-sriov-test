@@ -7,7 +7,9 @@ from sriov.common.utils import (
     bind_driver,
     get_vf_mac,
     setup_hugepages,
-    stop_testpmd_in_tmux
+    stop_testpmd_in_tmux,
+    get_pci_address,
+    get_container_cmd_echo,
 )
 
 
@@ -59,13 +61,14 @@ def test_SR_IOV_InterVF_DPDK(
     execute_and_assert(dut, steps, 0, 0.1)
 
     # bind VF0 to vfio-pci
-    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
+    vf_pci = get_pci_address(dut, settings.config["dut"]["interface"]["vf1"]["name"])
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
     # start first instance testpmd in echo mode
-    print(testdata.container_cmd_echo)
+    container_cmd_echo = get_container_cmd_echo(vf_pci, settings)
+    print(container_cmd_echo)
     tmux_session = testdata.tmux_session_name
-    assert start_tmux(dut, tmux_session, testdata.container_cmd_echo)
+    assert start_tmux(dut, tmux_session, container_cmd_echo)
 
     # make sure tmux testpmd session has started
     for i in range(15):

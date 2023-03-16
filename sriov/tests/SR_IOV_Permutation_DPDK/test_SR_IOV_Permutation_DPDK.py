@@ -9,6 +9,8 @@ from sriov.common.utils import (
     prepare_ping_test,
     execute_until_timeout,
     setup_hugepages,
+    get_pci_address,
+    get_container_cmd,
 )
 
 
@@ -69,12 +71,12 @@ def test_SR_IOV_Permutation_DPDK(
 
     execute_and_assert(dut, steps, 0, 0.1)
 
-    pci = settings.config["dut"]["interface"]["vf1"]["pci"]
+    pci = get_pci_address(dut, settings.config["dut"]["interface"]["vf1"]["name"])
     assert bind_driver(dut, pci, "vfio-pci")
 
     assert verify_vf_address(dut, pf, 0, testdata.dut_mac)
 
-    dut.start_testpmd(testdata.container_cmd)
+    dut.start_testpmd(get_container_cmd(pci, settings))
     assert dut.testpmd_active()
 
     steps = ["set fwd icmpecho", "start"]

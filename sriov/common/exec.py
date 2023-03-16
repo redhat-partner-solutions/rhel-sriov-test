@@ -198,8 +198,9 @@ class ShellHandler:
 
         return exit_code
 
-    def execute(self, cmd: str, timeout: int = 5) \
-            -> Tuple[int, list, list]:  # noqa: C901
+    def execute(  # noqa: C901
+        self, cmd: str, timeout: int = 5
+    ) -> Tuple[int, list, list]:
         """Execute a command in the SSH session
 
         Args:

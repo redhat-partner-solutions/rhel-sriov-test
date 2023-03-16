@@ -6,6 +6,7 @@ from sriov.common.utils import (
     prepare_ping_test,
     execute_until_timeout,
     setup_hugepages,
+    get_container_cmd,
 )
 
 
@@ -33,11 +34,12 @@ def test_SR_IOV_macAddress_DPDK(dut, trafficgen, settings, testdata):
     cmd = ["ip link set {} vf 0 mac {}".format(pf, vf0_mac)]
     execute_and_assert(dut, cmd, 0)
 
-    vf_pci = get_pci_address(dut, pf + "v0")
+    vf_pci = get_pci_address(dut, settings.config["dut"]["interface"]["vf1"]["name"])
     assert bind_driver(dut, vf_pci, "vfio-pci")
 
-    print(testdata.container_cmd)
-    dut.start_testpmd(testdata.container_cmd)
+    container_cmd = get_container_cmd(vf_pci, settings)
+    print(container_cmd)
+    dut.start_testpmd(container_cmd)
     assert dut.testpmd_active()
 
     steps = ["set fwd icmpecho", "start"]

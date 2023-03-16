@@ -1037,3 +1037,47 @@ def get_nic_model(ssh_obj: ShellHandler, pf: str) -> str:
     cmd = [f"lshw -C network -businfo | grep {pf}"]
     outs, _ = execute_and_assert(ssh_obj, cmd, 0)
     return re.split("\\s{2,}", outs[0][0])[-1].strip()
+
+
+def get_container_cmd(vf_pci: str, settings: ConfigTestData) -> str:
+    """Get an interactive container command
+
+    Args:
+        vf_pci (str): the PCIe address of the VF
+        settings (ConfigTestData): settings object
+
+    Returns:
+        str: the container command str
+    """
+    dpdk_img = settings.config["dpdk_img"]
+    cpus = settings.config["dut"]["pmd_cpus"]
+    container_cmd = (
+        f"{settings.config['container_manager']} run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
+        f"-n 4 -a {vf_pci} "
+        "-- --nb-cores=2 -i"
+    )
+    return container_cmd
+
+
+def get_container_cmd_echo(vf_pci: str, settings: ConfigTestData) -> str:
+    """Get a icmpecho container command
+
+    Args:
+        vf_pci (str): the PCIe address of the VF
+        settings (ConfigTestData): settings object
+
+    Returns:
+        str: the container command str
+    """
+    dpdk_img = settings.config["dpdk_img"]
+    cpus = settings.config["dut"]["pmd_cpus"]
+    container_cmd_echo = (
+        f"{settings.config['container_manager']} run -it --rm --privileged "
+        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
+        f"-n 4 -a {vf_pci} "
+        "-- --nb-cores=2 --forward=icmpecho"
+    )
+    return container_cmd_echo

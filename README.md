@@ -67,13 +67,10 @@ dut:
   interface:
     pf1:
       name: "ens7f0"        # first PF interface name
-      pci: "0000:87:00.0"   # first PF PCI address
     pf2:
       name: "ens7f1"
-      # For pf2 the pci info is not required
     vf1:
       name: "ens7f3v0"      # first VF interface name
-      pci: "0000:87:02.0"   # first VF PCI address
 trafficgen:
   host:                     # TrafficGen ip address
   username: root            # need root access

@@ -49,20 +49,24 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         bond_mac = get_vf_mac(dut, pf1, 0)
 
     steps.extend(
-        [f"echo {mode} > /sys/class/net/bond0/bonding/mode",
-         "echo 100 > /sys/class/net/bond0/bonding/miimon",
-         f"echo +{pf1}v0 > /sys/class/net/bond0/bonding/slaves",
-         f"echo +{pf2}v0 > /sys/class/net/bond0/bonding/slaves",
-         ])
+        [
+            f"echo {mode} > /sys/class/net/bond0/bonding/mode",
+            "echo 100 > /sys/class/net/bond0/bonding/miimon",
+            f"echo +{pf1}v0 > /sys/class/net/bond0/bonding/slaves",
+            f"echo +{pf2}v0 > /sys/class/net/bond0/bonding/slaves",
+        ]
+    )
 
     if mode == 1:
         steps.append(f"echo {pf1}v0 > /sys/class/net/bond0/bonding/primary")
 
-    steps.extend([
-        "ip link set bond0 up",
-        f"ip address add {testdata.dut_ip}/24 dev bond0",
-        f"arp -s {fwd_ip} {fwd_mac}",
-    ])
+    steps.extend(
+        [
+            "ip link set bond0 up",
+            f"ip address add {testdata.dut_ip}/24 dev bond0",
+            f"arp -s {fwd_ip} {fwd_mac}",
+        ]
+    )
 
     execute_and_assert(dut, steps, 0, 0.1)
 
@@ -75,16 +79,13 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
     execute_and_assert(dut, steps, 0, 0.1)
 
 
-bond_setup_params = ({"mode": mode, "mac": mac}
-                     for mode in [0, 1]
-                     for mac in [False, True]
-                     )
+bond_setup_params = (
+    {"mode": mode, "mac": mac} for mode in [0, 1] for mac in [False, True]
+)
 
 
-@pytest.mark.parametrize('dut_setup', bond_setup_params, indirect=True)
-def test_SR_IOV_BondVF(
-    dut, trafficgen, settings, testdata, dut_setup
-):
+@pytest.mark.parametrize("dut_setup", bond_setup_params, indirect=True)
+def test_SR_IOV_BondVF(dut, trafficgen, settings, testdata, dut_setup):
     """Test and ensure that Kernel VF bonding (mode 0, 1) functions as intended
 
     Args:
@@ -94,5 +95,6 @@ def test_SR_IOV_BondVF(
         testdata: testdata obj
         dut_setup: dut setup and teardown fixture
     """
-    validate_bond(dut, trafficgen, settings, testdata,
-                  dut_setup.bond_mode, dut_setup.bond_mac)
+    validate_bond(
+        dut, trafficgen, settings, testdata, dut_setup.bond_mode, dut_setup.bond_mac
+    )

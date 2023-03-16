@@ -36,22 +36,5 @@ class ConfigTestData:
             else:
                 self.vfs[interface] = settings.config["dut"]["interface"][interface]
         self.tmux_session_name = "sriov_job"
-        vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
-        dpdk_img = settings.config["dpdk_img"]
-        cpus = settings.config["dut"]["pmd_cpus"]
-        self.container_cmd = (
-            f"{settings.config['container_manager']} run -it --rm --privileged "
-            "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-            f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
-            f"-n 4 -a {vf_pci} "
-            "-- --nb-cores=2 -i"
-        )
-        self.container_cmd_echo = (
-            f"{settings.config['container_manager']} run -it --rm --privileged "
-            "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-            f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
-            f"-n 4 -a {vf_pci} "
-            "-- --nb-cores=2 --forward=icmpecho"
-        )
         self.ping = {}  # track ping test
         self.mtu = {}  # track mtu change

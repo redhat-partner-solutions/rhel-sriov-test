@@ -6,9 +6,7 @@ For example, common test steps that involve test case specific asserts and are s
 between multiple test cases may be good candidate for this file.
 """
 import time
-from sriov.common.utils import (
-    execute_and_assert,
-)
+from sriov.common.utils import execute_and_assert
 
 
 class Bond:
@@ -19,9 +17,7 @@ class Bond:
         self.bond_mac = mac
 
 
-def validate_bond(
-    dut, trafficgen, settings, testdata, bond_mode, bond_mac
-):
+def validate_bond(dut, trafficgen, settings, testdata, bond_mode, bond_mac):
     """A common collection of steps to validate kernel bond and DPDK bond
 
     Args:

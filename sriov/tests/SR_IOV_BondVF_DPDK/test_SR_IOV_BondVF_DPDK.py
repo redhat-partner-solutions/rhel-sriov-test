@@ -56,11 +56,15 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
 
     execute_and_assert(dut, steps, 0, 0.1)
 
-    pci_pf1_vf0 = get_pci_address(dut, pf1 + "v0")
+    pci_pf1_vf0 = get_pci_address(
+        dut, settings.config["dut"]["interface"]["vf1"]["name"]
+    )
     assert bind_driver(dut, pci_pf1_vf0, "vfio-pci")
     pci_pf1_vf1 = get_pci_address(dut, pf1 + "v1")
     assert bind_driver(dut, pci_pf1_vf1, "vfio-pci")
-    pci_pf2_vf0 = get_pci_address(dut, pf2 + "v0")
+    pci_pf2_vf0 = get_pci_address(
+        dut, settings.config["dut"]["interface"]["vf2"]["name"]
+    )
     assert bind_driver(dut, pci_pf2_vf0, "vfio-pci")
 
     if explicit_mac:
