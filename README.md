@@ -114,7 +114,9 @@ mtu:                              # MTU size; if unspecified, the script will de
 bonding_switch_delay              # Expected bonding switch over/back delay in second, default is 1
 ```
 
-Running the script from a python3 virtual environment is recommended. Install the required python modules,
+A current version of Python is recommended to run the tests. As of writing the minimum version to avoid warnings would be 3.7. However, the tests have been successfully run up to version 3.11, the latest active release as of writing. The same is true of pip, which should be a current version (23.0 as of writing, but this should be upgraded in the following steps).
+
+Running the script from a python3 virtual environment is recommended (note that the Python version of your venv can differ from the default Python path, if desired). Install the required python modules,
 
 ```
 python3 -m venv venv
