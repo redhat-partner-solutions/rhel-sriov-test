@@ -1,13 +1,37 @@
-name: sriov-e2e-test710
-run-name: sriov-e2e-test710 initiated by ${{ github.actor }}
+name: sriov-e2e-test
+run-name: sriov-e2e-test initiated by ${{ github.actor }}
 on:
   pull_request:
-    types: [labeled]
+    types: [ labeled ]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'NIC hardware'
+        required: true
+        default: '810'
+        type: choice
+        options:
+        - 810
+        - 710 
 jobs:
-  test710:
-    if: contains(github.event.label.name, 'test710') || (github.event_name == 'workflow_dispatch')
-    runs-on: [self-hosted, 710]
+  prepare-label:
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.step1.outputs.label }}
+    steps:
+      - name: Check label
+        id: step1
+        run: |
+          if [ ${{ github.event.label.name }} == 'e2e-test' ]; then
+            echo "label=810" >> $GITHUB_OUTPUT
+          elif [ ${{ github.event.label.name }} == 'e2e-test-710' ]; then
+            echo "label=710" >> $GITHUB_OUTPUT
+          elif [ -n ${{ github.event.inputs.tag }} ]; then
+            echo "label=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+  e2e-tests:
+    needs: [ prepare-label ]
+    runs-on: ${{ needs.prepare-label.outputs.label }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -66,13 +90,14 @@ jobs:
       - name: Display Status
         run: echo "This job's status is ${{ job.status }}."
   remove-label:
-    needs: test710
+    needs: e2e-tests
     permissions:
       pull-requests: write
       issues: write
     runs-on: ubuntu-latest
-    if: always() && contains(github.event.label.name, 'test710')
+    if: always() && contains(github.event.label.name, 'e2e-test')
     steps:
       - name: remove label
         run: |
-          curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/test710'
+          curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test'
+          curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test-710'
