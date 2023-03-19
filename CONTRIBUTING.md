@@ -90,4 +90,4 @@ All SR-IOV and common tests should be validated to work and, in cases where chan
 
 The optional "real" testing can be run by applying the "e2e-test" label to the Pull Request. This will start an action which queues either an end-to-end test (where common code is affected) or runs the specific test modified (when no common code is affected). Because these tests take both time and resources, they should only be started after the PR is ready to merge as a final check of functionality, and this label should only be utilized by repository maintainers. After the test run, the Action will remove the "e2e-test" label.
 
-"e2e-test" label triggers end-to-end test execution using 810-series NIC ports. Alternatively, "test710" label can be used for end-to-end test execution on 710-series NICs.
+"e2e-test" label triggers end-to-end test execution using 810-series NIC ports. Alternatively, "e2e-test-710" label can be used for end-to-end test execution on 710-series NICs.

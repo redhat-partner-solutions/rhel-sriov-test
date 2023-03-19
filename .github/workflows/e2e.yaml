@@ -31,6 +31,7 @@ jobs:
           fi
   e2e-tests:
     needs: [ prepare-label ]
+    if: ${{ needs.prepare-label.outputs.label }}
     runs-on: ${{ needs.prepare-label.outputs.label }}
     steps:
       - uses: actions/checkout@v3
