@@ -2,12 +2,37 @@ name: sriov-e2e-test
 run-name: sriov-e2e-test initiated by ${{ github.actor }}
 on:
   pull_request:
-    types: [labeled]
+    types: [ labeled ]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'NIC hardware'
+        required: true
+        default: '810'
+        type: choice
+        options:
+        - 810
+        - 710 
 jobs:
+  prepare-label:
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.step1.outputs.label }}
+    steps:
+      - name: Check label
+        id: step1
+        run: |
+          if [ ${{ github.event.label.name }} == 'e2e-test' ]; then
+            echo "label=810" >> $GITHUB_OUTPUT
+          elif [ ${{ github.event.label.name }} == 'e2e-test-710' ]; then
+            echo "label=710" >> $GITHUB_OUTPUT
+          elif [ -n ${{ github.event.inputs.tag }} ]; then
+            echo "label=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
   e2e-tests:
-    runs-on: self-hosted
-    if: contains(github.event.label.name, 'e2e-test')
+    needs: [ prepare-label ]
+    if: ${{ needs.prepare-label.outputs.label }}
+    runs-on: ${{ needs.prepare-label.outputs.label }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -76,3 +101,4 @@ jobs:
       - name: remove label
         run: |
           curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test'
+          curl --silent -X DELETE -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/labels/e2e-test-710'
