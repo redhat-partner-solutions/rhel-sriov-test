@@ -639,7 +639,7 @@ def vfs_created(
     return False
 
 
-def destroy_vfs(ssh_obj: ShellHandler, pf_interface: str):
+def destroy_vfs(ssh_obj: ShellHandler, pf_interface: str) -> None:
     """Destroy the VFs on pf_interface
 
     Args:
