@@ -639,6 +639,18 @@ def vfs_created(
     return False
 
 
+def destroy_vfs(ssh_obj: ShellHandler, pf_interface: str) -> None:
+    """Destroy the VFs on pf_interface
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        pf_interface (str): name of the PF
+    """
+    clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
+    ssh_obj.log_str(clear_vfs)
+    ssh_obj.execute(clear_vfs, 60)
+
+
 def create_vfs(
     ssh_obj: ShellHandler, pf_interface: str, num_vfs: int, timeout: int = 10
 ) -> bool:
@@ -657,9 +669,7 @@ def create_vfs(
     Raises:
         Exception:  failed to create VFs before timeout exceeded
     """
-    clear_vfs = f"echo 0 > /sys/class/net/{pf_interface}/device/sriov_numvfs"
-    ssh_obj.log_str(clear_vfs)
-    ssh_obj.execute(clear_vfs, 60)
+    destroy_vfs(ssh_obj, pf_interface)
     create_vfs = f"echo {num_vfs} > /sys/class/net/{pf_interface}/device/sriov_numvfs"
     ssh_obj.log_str(create_vfs)
     ssh_obj.execute(create_vfs, 60)

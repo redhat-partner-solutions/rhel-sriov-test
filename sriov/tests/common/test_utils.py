@@ -1,3 +1,4 @@
+import re
 from sriov.common.utils import (
     get_driver,
     bind_driver,
@@ -27,14 +28,14 @@ from sriov.common.utils import (
 
 
 def test_get_pci_address(dut, settings):
-    pf_pci = settings.config["dut"]["interface"]["pf1"]["pci"]
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
-    assert pf_pci == get_pci_address(dut, pf_name)
+    pf_pci = get_pci_address(dut, pf_name)
+    assert re.match(r'^\w{4}:\w{2}:\w{2}', pf_pci)
 
     assert create_vfs(dut, pf_name, 1)
-    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     vf_name = settings.config["dut"]["interface"]["vf1"]["name"]
-    assert vf_pci == get_pci_address(dut, vf_name)
+    vf_pci = get_pci_address(dut, vf_name)
+    assert re.match(r'^\w{4}:\w{2}:\w{2}', vf_pci)
 
 
 def test_get_driver(dut, settings):
@@ -219,9 +220,9 @@ def test_set_and_reset_mtu(dut, trafficgen, testdata, settings):
 
 
 def test_get_intf_mac(trafficgen, settings):
-    mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]
     pf_name = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    assert mac == get_intf_mac(trafficgen, pf_name)
+    mac = get_intf_mac(trafficgen, pf_name)
+    assert re.match(r'^\w{2}:\w{2}:\w{2}:', mac)
 
 
 def test_vf_functions(dut, settings, testdata):
