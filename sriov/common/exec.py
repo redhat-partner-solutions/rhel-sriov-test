@@ -23,9 +23,9 @@ class ShellHandler:
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             if psw is None:
-                self.ssh.connect(host, username=user, port=22)
+                self.ssh.connect(host, username=user, port=22, timeout=10)
             else:
-                self.ssh.connect(host, username=user, password=psw, port=22)
+                self.ssh.connect(host, username=user, password=psw, port=22, timeout=10)
 
         except paramiko.AuthenticationException:
             print("ERROR: invalid credentials provided for {}".format(host))
