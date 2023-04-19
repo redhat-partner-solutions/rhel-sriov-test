@@ -35,6 +35,8 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         "modprobe bonding",
         f"ip link set {pf1} vf 0 trust on",
         f"ip link set {pf2} vf 0 trust on",
+        f"ip link set {pf1} vf 0 spoofchk off",
+        f"ip link set {pf2} vf 0 spoofchk off",
         f"ip link set {pf1}v0 down",
         f"ip link set {pf2}v0 down",
         "echo -bond0 > /sys/class/net/bonding_masters || true",
