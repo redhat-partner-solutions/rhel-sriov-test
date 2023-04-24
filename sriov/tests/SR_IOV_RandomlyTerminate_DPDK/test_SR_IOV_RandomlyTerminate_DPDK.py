@@ -13,10 +13,12 @@ from sriov.common.utils import (
 )
 
 
-def get_container_cmd(container_manager, name, cpus, dpdk_img, vf_pci):
+def get_container_cmd(
+    container_manager, container_volumes, name, cpus, dpdk_img, vf_pci
+):
     tmux_cmd = (
         f"{container_manager} run -it --name {name} --rm --privileged "
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
+        f"{container_volumes} "
         f"--cpuset-cpus {cpus} {dpdk_img} dpdk-testpmd -l {cpus} "
         f"-n 4 -a {vf_pci} "
         "-- --nb-cores=1 --forward=txonly -i"
@@ -91,7 +93,12 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
         cpus = get_testpmd_cpus(settings.config["randomly_terminate_control_core"], i)
         name = base_name + str(i)
         tmux_cmd = get_container_cmd(
-            settings.config["container_manager"], name, cpus, dpdk_img, vf_pci
+            settings.config["container_manager"],
+            settings.config["container_volumes"],
+            name,
+            cpus,
+            dpdk_img,
+            vf_pci,
         )
 
         # Start instance of testpmd
@@ -111,7 +118,12 @@ def test_SR_IOV_RandomlyTerminate_DPDK(dut, settings, testdata, options):
                 tmux_session = tmux_list[i][0]
                 vf_pci = tmux_list[i][1]
                 tmux_cmd = get_container_cmd(
-                    settings.config["container_manager"], name, cpus, dpdk_img, vf_pci
+                    settings.config["container_manager"],
+                    settings.config["container_volumes"],
+                    name,
+                    cpus,
+                    dpdk_img,
+                    vf_pci,
                 )
 
                 # Kill the container

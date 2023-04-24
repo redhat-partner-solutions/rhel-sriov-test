@@ -66,9 +66,10 @@ def test_start_and_stop_testpmd(dut, settings):
         assert code == 0, step
     testpmd_container_cmd = (
         f"{settings.config['container_manager']} run -it --rm --privileged "
-        "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules "
-        "--cpuset-cpus 30,32,34 docker.io/patrickkutch/dpdk:v21.11 "
-        "dpdk-testpmd -l 30,32,34 -n 4 -a " + vf_pci + " -- --nb-cores=2 -i"
+        f"{settings.config['container_volumes']} "
+        f"--cpuset-cpus {settings.config['dut']['pmd_cpus']} "
+        f"{settings.config['dpdk_img']} dpdk-testpmd -l "
+        f"{settings.config['dut']['pmd_cpus']} -n 4 -a {vf_pci} -- --nb-cores=2 -i"
     )
     code, out, err = dut.start_testpmd(testpmd_container_cmd)
     assert code == 0
