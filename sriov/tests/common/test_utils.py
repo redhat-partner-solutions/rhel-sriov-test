@@ -24,6 +24,7 @@ from sriov.common.utils import (
     verify_vf_address,
     vfs_created,
     no_zero_macs_pf,
+    bind_driver_with_dpdk
 )
 
 
@@ -47,7 +48,8 @@ def test_bind_driver(dut, settings):
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
     assert create_vfs(dut, pf_name, 1)
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
-    assert bind_driver(dut, vf_pci, "vfio-pci")
+    assert bind_driver_with_dpdk(settings, dut, vf_pci, "vfio-pci")
+
 
 
 def test_config_and_clear_interface(dut, trafficgen, settings, testdata):

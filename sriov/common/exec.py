@@ -293,3 +293,90 @@ class ShellHandler:
             print_out += self.name + ": "
         print_out += string
         print(print_out)
+
+    def executeWithSearch(self, cmd: str, assertOnStr: str, timeout: int = 5) \
+            -> Tuple[int,list, str]:  # noqa: C901
+        """Execute a command in the SSH session, designed for the command to be a podman/docker execution of a command in a container
+
+        Args:
+            self:          self
+            cmd (str):     the command to execute over SSH
+            timeout (int): timeout for command to run (default 5)
+
+        Returns:
+            exit_status (int): the exit status (0 on success, non-zero otherwise)
+            shout (list):      list of stdout lines
+            sherr :            the line where (if it is found) the assertOnStr string was found
+        """
+        cmd = cmd.strip("\n")
+
+        finish = "end of stdOUT buffer."
+        echo_cmd = ";echo {} ".format(finish)
+
+        #run the command and the echo in one shot
+        self.stdin.write(cmd + echo_cmd + "\n")
+        self.stdin.flush()
+
+        shout = []
+        sherr = []
+        signal.signal(signal.SIGALRM, self.timeout_handler)
+        signal.alarm(timeout)
+        exit_status = 0
+
+        try:
+            for line in self.stdout:
+                if  ShellHandler.debug_cmd_execute:
+                    print(f"Got line: {repr(line)}")
+                if str(line).endswith(cmd + "\r\n") or str(line).endswith(cmd + "\n"):
+                    #up for now filled with shell junk from stdin
+                    if ShellHandler.debug_cmd_execute:
+                        print("reset shout")
+                    #shout = []
+                    pass
+                if echo_cmd in str(line):
+                    if ShellHandler.debug_cmd_execute:
+                        print("skip line")
+                    continue
+                elif finish in str(line):
+                    break
+
+                else:
+                    # get rid of 'coloring and formatting' special characters
+                    shout.append(
+                        re.compile(r"(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]")
+                        .sub("", line)
+                        .replace("\b", "")
+                        .replace("\r", "")
+                    )
+                if ShellHandler.debug_cmd_execute:
+                    print(f"shout: {shout}")
+                    print(f"sherr: {sherr}")
+
+                # if passed a string to search in the output for
+                # check if present, if it is then break
+                if assertOnStr and assertOnStr in line:
+                    if ShellHandler.debug_cmd_execute:
+                        print(f"found string to asset on [{assertOnStr}] in: {line}")
+
+                    sherr = line
+                    exit_status = -1
+                    break
+
+        except Exception as err:
+            sherr.append(str(err))
+        finally:
+            signal.alarm(0)
+
+        # first and last lines of shout/sherr contain a prompt
+        if shout and echo_cmd in shout[-1]:
+            shout.pop()
+        if shout and shout[0].endswith(cmd + "\n"):
+            shout.pop(0)
+        if sherr and echo_cmd in sherr[-1]:
+            sherr.pop()
+        if sherr and sherr[0].endswith(cmd + "\n"):
+            sherr.pop(0)
+        if ShellHandler.debug_cmd_execute:
+            print(f"returning shout: {shout}")
+            print(f"returning sherr: {sherr}")
+        return exit_status,shout, sherr
