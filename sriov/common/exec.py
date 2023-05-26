@@ -295,8 +295,10 @@ class ShellHandler:
         print(print_out)
 
     def executeWithSearch(self, cmd: str, assertOnStr: str, timeout: int = 5) \
-            -> Tuple[int,list, str]:  # noqa: C901
-        """Execute a command in the SSH session, designed for the command to be a podman/docker execution of a command in a container
+            -> Tuple[int, list, list]:  # noqa: C901
+        """  Execute a command in the SSH session, designed for 
+             the command to be a podman/docker execution of a 
+             command in a container
 
         Args:
             self:          self
@@ -313,7 +315,7 @@ class ShellHandler:
         finish = "end of stdOUT buffer."
         echo_cmd = ";echo {} ".format(finish)
 
-        #run the command and the echo in one shot
+        # run the command and the echo in one shot
         self.stdin.write(cmd + echo_cmd + "\n")
         self.stdin.flush()
 
@@ -325,14 +327,14 @@ class ShellHandler:
 
         try:
             for line in self.stdout:
-                if  ShellHandler.debug_cmd_execute:
+                if ShellHandler.debug_cmd_execute:
                     print(f"Got line: {repr(line)}")
                 if str(line).endswith(cmd + "\r\n") or str(line).endswith(cmd + "\n"):
-                    #up for now filled with shell junk from stdin
+                    # up for now filled with shell junk from stdin
                     if ShellHandler.debug_cmd_execute:
                         print("reset shout")
-                    #shout = []
-                    pass
+                    shout = []
+
                 if echo_cmd in str(line):
                     if ShellHandler.debug_cmd_execute:
                         print("skip line")
@@ -379,4 +381,4 @@ class ShellHandler:
         if ShellHandler.debug_cmd_execute:
             print(f"returning shout: {shout}")
             print(f"returning sherr: {sherr}")
-        return exit_status,shout, sherr
+        return exit_status, shout, sherr

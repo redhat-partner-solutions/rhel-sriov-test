@@ -55,8 +55,8 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) 
             raise Exception(err)
     return True
 
-def bind_driver_with_dpdk(settings, ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) -> bool:
-    """Bind the PCI address to the driver using dpdk-devbind.py in the dpdk container
+def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) -> bool:
+    """ Bind the PCI address to the driver using dpdk-devbind.py in the dpdk container
 
     Args:
         ssh_obj:       ssh_obj to the remote host
@@ -70,26 +70,26 @@ def bind_driver_with_dpdk(settings, ssh_obj: ShellHandler, pci: str, driver: str
     Raises:
         Exception: command failure
     """
-    
+
     # use dpdk-devbind.py within the dpdk container to do the binding
-    dpdk_devbind_cmd=(
+    dpdk_devbind_cmd = (
             f"{settings.config['container_manager']} run -it --rm --privileged "
             f"{settings.config['container_volumes']} "
             f"{settings.config['dpdk_img']} dpdk-devbind.py -b {driver} {pci}\n"
         )
-    
+
     steps = [
-        ("modprobe {}".format(driver),None),
-        (dpdk_devbind_cmd,"Error")
+        ("modprobe {}".format(driver), None),
+        (dpdk_devbind_cmd, "Error")
     ]
 
-    for step,errorOnStr in steps:
+    for step, errorOnStr in steps:
         ssh_obj.log_str(step)
         # use executeWithSearch because you cannot get the errorcode
         # from the container, so we search stdout for a desired error string
-        code,out, err = ssh_obj.executeWithSearch(step, errorOnStr,timeout)
+        code, out, err = ssh_obj.executeWithSearch(step, errorOnStr, timeout)
         if code != 0:
-             raise Exception(err)
+            raise Exception(err)
     return True
 
 
