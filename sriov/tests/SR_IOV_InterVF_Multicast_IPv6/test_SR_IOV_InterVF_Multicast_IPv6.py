@@ -1,5 +1,3 @@
-import pytest
-import time
 from sriov.common.utils import (
     create_vfs,
     execute_and_assert,
@@ -17,7 +15,8 @@ def test_SR_IOV_InterVF_Multicast_IPv6(
     settings,
     testdata,
 ):
-    """Test and ensure that VFs on the same PF can receive IPv6 multicast neighbor discovery from trafficgen
+    """Test and ensure that VFs on the same PF can receive IPv6 multicast neighbor
+       discovery from trafficgen
 
     Args:
         dut:         ssh connection obj
