@@ -48,6 +48,13 @@ def test_bind_driver(dut, settings):
     pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
     assert create_vfs(dut, pf_name, 1)
     vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
+    assert bind_driver(dut, vf_pci, "vfio-pci")
+
+
+def test_bind_driver_using_dpdk(dut, settings):
+    pf_name = settings.config["dut"]["interface"]["pf1"]["name"]
+    assert create_vfs(dut, pf_name, 1)
+    vf_pci = settings.config["dut"]["interface"]["vf1"]["pci"]
     assert bind_driver_with_dpdk(settings, dut, vf_pci, "vfio-pci")
 
 
