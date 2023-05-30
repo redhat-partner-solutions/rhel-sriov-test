@@ -92,4 +92,4 @@ The optional "real" testing can be run by applying the "e2e-test" label to the P
 
 "e2e-test" label triggers end-to-end test execution using 810-series NIC ports. Alternatively, "e2e-test-710" label can be used for end-to-end test execution on 710-series NICs.
 
-e2e pytest html test result is preserved by upload-artifact action. You can find an archived results file at the bottom of the workflow summary page in the [dedicated section for artifacts](https://github.com/actions/upload-artifact#where-does-the-upload-go). The results archive will be preserved in the repositogy workspace for 30 days.
+e2e pytest html test result is preserved by upload-artifact action. You can find an archived results file at the bottom of the workflow summary page in the [dedicated section for artifacts](https://github.com/actions/upload-artifact#where-does-the-upload-go). The results archive will be preserved in the repository workspace for 30 days.
