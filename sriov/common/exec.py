@@ -303,6 +303,8 @@ class ShellHandler:
         Args:
             self:          self
             cmd (str):     the command to execute over SSH
+            assertOnStr(str): throws an assert if the output of the command
+                              contains this string
             timeout (int): timeout for command to run (default 5)
 
         Returns:
@@ -358,7 +360,7 @@ class ShellHandler:
                 # check if present, if it is then break
                 if assertOnStr and assertOnStr in line:
                     if ShellHandler.debug_cmd_execute:
-                        print(f"found string to asset on [{assertOnStr}] in: {line}")
+                        print(f"found string to assert on [{assertOnStr}] in: {line}")
 
                     sherr = line
                     exit_status = -1

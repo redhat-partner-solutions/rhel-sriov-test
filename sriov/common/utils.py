@@ -56,8 +56,10 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) 
     return True
 
 
-def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) -> bool:
-    """ Bind the PCI address to the driver using dpdk-devbind.py in the dpdk container
+def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str,
+                          driver: str, timeout: int = 5) -> bool:
+    """ Bind the PCI address to the driver using dpdk-devbind.py
+        in the dpdk container
 
     Args:
         ssh_obj:       ssh_obj to the remote host
