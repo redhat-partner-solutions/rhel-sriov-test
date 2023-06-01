@@ -296,8 +296,8 @@ class ShellHandler:
 
     def executeWithSearch(self, cmd: str, assertOnStr: str, timeout: int = 5) \
             -> Tuple[int, list, list]:  # noqa: C901
-        """  Execute a command in the SSH session, designed for 
-             the command to be a podman/docker execution of a 
+        """  Execute a command in the SSH session, designed for
+             the command to be a podman/docker execution of a
              command in a container
 
         Args:
