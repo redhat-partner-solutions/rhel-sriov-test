@@ -76,8 +76,7 @@ def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str, dri
     dpdk_devbind_cmd = (
             f"{settings.config['container_manager']} run -it --rm --privileged "
             f"{settings.config['container_volumes']} "
-            f"{settings.config['dpdk_img']} dpdk-devbind.py -b {driver} {pci}\n"
-        )
+            f"{settings.config['dpdk_img']} dpdk-devbind.py -b {driver} {pci}\n")
 
     steps = [
         ("modprobe {}".format(driver), None),
