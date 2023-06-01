@@ -310,7 +310,8 @@ class ShellHandler:
         Returns:
             exit_status (int): the exit status (0 on success, non-zero otherwise)
             shout (list):      list of stdout lines
-            sherr :            the line where (if it is found) the assertOnStr string was found
+            sherr :            the line where (if it is found) the
+                               assertOnStr string was found
         """
         cmd = cmd.strip("\n")
 
