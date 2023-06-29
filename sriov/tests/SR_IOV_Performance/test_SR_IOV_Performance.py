@@ -118,7 +118,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
     execute_and_assert(trafficgen, steps, 0)'''
     '''for pf in trafficgen_pfs_pci:
         assert bind_driver(trafficgen, pf, "vfio-pci")'''
-    for vf in trafficgen_vfs_pci:
+    for vf in trafficgen_pfs_pci:
         assert bind_driver(trafficgen, vf, "vfio-pci")
 
     # Start the testpmd auto
@@ -138,7 +138,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
     for cpu in trafficgen_cpus:
         trafficgen_cpus_string += str(cpu) + ","
     trafficgen_cpus_string = trafficgen_cpus_string[:-1]
-    trafficgen_cmd = [f"{settings.config['container_manager']} run -d --rm --privileged -p {settings.config['trafficgen_port']}:{settings.config['trafficgen_port']} -v /dev:/dev -v /sys:/sys -v /lib/modules:/lib/modules --cpuset-cpus {trafficgen_cpus_string} -e pci_list={trafficgen_vfs_pci[0]},{trafficgen_vfs_pci[1]} --ip={settings.config['trafficgen_ip']} {settings.config['trafficgen_img']}"]
+    trafficgen_cmd = [f"{settings.config['container_manager']} run -d --rm --privileged -p {settings.config['trafficgen_port']}:{settings.config['trafficgen_port']} -v /dev:/dev -v /sys:/sys -v /lib/modules:/lib/modules --cpuset-cpus {trafficgen_cpus_string} -e pci_list={trafficgen_pfs_pci[0]},{trafficgen_pfs_pci[1]} --ip={settings.config['trafficgen_ip']} {settings.config['trafficgen_img']}"]
     execute_and_assert(trafficgen, trafficgen_cmd, 0)
 
     client_cmd = [f"wget -O /tmp/client.py https://raw.githubusercontent.com/redhat-eets/netgauge/main/rfc2544/client.py"]
