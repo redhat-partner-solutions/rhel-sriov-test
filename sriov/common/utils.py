@@ -897,14 +897,13 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
 
     Args:
         ssh_obj (ShellHandler): ssh connection obj
-        type (str): type of hugepage, 1G or 2M
 
     Returns:
         list: The list of isolated CPUs
     """
     cmd = ["cat /sys/devices/system/cpu/isolated"]
     outs, errs = execute_and_assert(ssh_obj, cmd, 0)
-    isolated = outs[0][0]
+    isolated = outs[0][0].strip()
     isolated_cores = isolated.split(",")
     isolated_list = []
     for core in isolated_cores:
@@ -917,6 +916,27 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
 
     return isolated_list
 
+def get_isolated_cpus_numa(ssh_obj: ShellHandler, numa: int) -> list:
+    """Return a list of the isolated CPUs belonging to a NUMA node
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        numa (int): the numa node
+
+    Returns: 
+        list: The list of isolated CPUs belonging to numa
+    """
+    isolated_list = get_isolated_cpus(ssh_obj)
+
+    cmd = [f"lscpu | grep 'NUMA node{numa}'"]
+    outs, errs = execute_and_assert(ssh_obj, cmd, 0)
+    isolated_numa = outs[0][0]
+    isolated_numa_cores = isolated_numa.split(":")[1].strip().split(",")
+    isolated_numa_list = []
+    for core in isolated_numa_cores:
+        isolated_numa_list.append(int(core))
+
+    return list(set(isolated_list) & set(isolated_numa_list))
 
 def page_in_kb(type: str) -> str:
     """convert "1G" or "2M" to page size in KB
