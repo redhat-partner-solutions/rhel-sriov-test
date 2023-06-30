@@ -111,7 +111,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
     # Bind trafficgen PFs to vfio-pci
     for pf in trafficgen_pfs_pci:
         assert bind_driver(trafficgen, pf, "vfio-pci")
-    
+
     # Start the testpmd auto
     dut_cpus_string = ""
     for cpu in dut_cpus:
@@ -163,7 +163,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
 
     # Warmup
     client_cmd = [
-        f"python3 /tmp/client.py start --server-addr {settings.config['trafficgen_ip']} "
+        "python3 /tmp/client.py start "
+        f"--server-addr {settings.config['trafficgen_ip']} "
         f"--server-port {settings.config['trafficgen_port']} --timeout 60"
     ]
     execute_and_assert(
