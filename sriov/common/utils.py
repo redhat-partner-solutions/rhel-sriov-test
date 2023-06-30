@@ -802,7 +802,7 @@ def set_pipefail(ssh_obj: ShellHandler) -> bool:
 
 
 def execute_and_assert(
-    ssh_obj: ShellHandler, cmds: list, exit_code: int, timeout: int = 0
+    ssh_obj: ShellHandler, cmds: list, exit_code: int, timeout: int = 0, cmd_timeout: int = 5
 ) -> Tuple[list, list]:
     """Execute the list of commands, assert exit code, and return stdouts and stderrs
 
@@ -811,6 +811,7 @@ def execute_and_assert(
         cmds (list):     list of str commands to run
         exit_code (int): the code to assert
         timeout (int):   optional timeout between cmds (default 0)
+        cmd_timeout (int): optional timeout to wait for commands to complete (default 5)
 
     Returns:
         outs (list): list of lists of str stdout lines
@@ -820,7 +821,7 @@ def execute_and_assert(
     errs = []
     for cmd in cmds:
         ssh_obj.log_str(cmd)
-        code, out, err = ssh_obj.execute(cmd)
+        code, out, err = ssh_obj.execute(cmd, cmd_timeout)
         outs.append(out)
         errs.append(err)
         assert code == exit_code, "\nstdout:" + str(outs) + "\nstderr:" + str(errs)

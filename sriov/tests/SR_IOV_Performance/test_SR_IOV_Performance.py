@@ -1,4 +1,3 @@
-import time
 from sriov.common.utils import (
     execute_and_assert,
     execute_until_timeout,
@@ -8,8 +7,8 @@ from sriov.common.utils import (
     bind_driver,
     get_isolated_cpus_numa,
     get_hugepage_info,
-    allocate_hugepages
 )
+import json
 
 
 # Use pytest --iteration to adjust the execution_number parameter for desired amount
@@ -98,13 +97,6 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
 
     # Spoof off, trust on for trafficgen
     steps = ["modprobe vfio-pci"]
-    for pf in trafficgen_pfs:
-        # Create the 2 VFs
-        assert create_vfs(trafficgen, pf, 1)
-
-        steps.append(f"ip link set {pf}v0 down")
-        steps.append(f"ip link set {pf} vf 0 spoof off")
-        steps.append(f"ip link set {pf} vf 0 trust on")
     
     execute_and_assert(trafficgen, steps, 0)
 
@@ -114,12 +106,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
         assert bind_driver(dut, pci_pf_vf0, "vfio-pci")
     
     # Bind trafficgen PFs to vfio-pci
-    '''steps = ["modprobe vfio-pci"]
-    execute_and_assert(trafficgen, steps, 0)'''
-    '''for pf in trafficgen_pfs_pci:
-        assert bind_driver(trafficgen, pf, "vfio-pci")'''
-    for vf in trafficgen_pfs_pci:
-        assert bind_driver(trafficgen, vf, "vfio-pci")
+    for pf in trafficgen_pfs_pci:
+        assert bind_driver(trafficgen, pf, "vfio-pci")
 
     # Start the testpmd auto
     dut_cpus_string = ""
@@ -127,7 +115,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
         dut_cpus_string += str(cpu) + ","
     dut_cpus_string = dut_cpus_string[:-1]
     testpmd_cmd = [f"{settings.config['container_manager']} run -d --rm --privileged -p {settings.config['testpmd_port']}:{settings.config['testpmd_port']} -v /dev/hugepages:/dev/hugepages -v /sys/bus/pci/devices:/sys/bus/pci/devices -v /lib/firmware:/lib/firmware --cpuset-cpus {dut_cpus_string} {settings.config['testpmd_img']} --pci {dut_vfs_pci[0]} --pci {dut_vfs_pci[1]} --http-port {settings.config['testpmd_port']} --auto"]
-    execute_and_assert(dut, testpmd_cmd, 0)
+    outs, errs = execute_and_assert(dut, testpmd_cmd, 0)
+    testpmd_id = outs[0][0]
 
     # Check testpmd is running
     cmd = f"curl localhost:{settings.config['testpmd_port']}/testpmd/status"
@@ -139,13 +128,28 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata, execution_number)
         trafficgen_cpus_string += str(cpu) + ","
     trafficgen_cpus_string = trafficgen_cpus_string[:-1]
     trafficgen_cmd = [f"{settings.config['container_manager']} run -d --rm --privileged -p {settings.config['trafficgen_port']}:{settings.config['trafficgen_port']} -v /dev:/dev -v /sys:/sys -v /lib/modules:/lib/modules --cpuset-cpus {trafficgen_cpus_string} -e pci_list={trafficgen_pfs_pci[0]},{trafficgen_pfs_pci[1]} --ip={settings.config['trafficgen_ip']} {settings.config['trafficgen_img']}"]
-    execute_and_assert(trafficgen, trafficgen_cmd, 0)
+    outs, errs = execute_and_assert(trafficgen, trafficgen_cmd, 0)
+    trafficgen_id = outs[0][0]
 
     client_cmd = [f"wget -O /tmp/client.py https://raw.githubusercontent.com/redhat-eets/netgauge/main/rfc2544/client.py"]
     outs, errs = execute_and_assert(trafficgen, client_cmd, 0)
 
-    client_cmd = f"python3 /tmp/client.py auto --server-addr {settings.config['trafficgen_ip']} --server-port {settings.config['trafficgen_port']}"
-    outs, errs = execute_until_timeout(trafficgen, client_cmd)
-    # Compare trafficgen results to config
+    client_cmd = f"python3 /tmp/client.py status --server-addr {settings.config['trafficgen_ip']} --server-port {settings.config['trafficgen_port']}"
+    assert execute_until_timeout(trafficgen, client_cmd)
+
+    client_cmd = [f"python3 /tmp/client.py auto --server-addr {settings.config['trafficgen_ip']} --server-port {settings.config['trafficgen_port']}"]
+    outs, errs = execute_and_assert(trafficgen, client_cmd, 0, cmd_timeout=60*settings.config['trafficgen_timeout'])
+    results = json.loads(outs[0][0])
 
     # Clean up (delete containers, delete VFs, bind to kernel driver)
+    kill_testpmd = [f"{settings.config['container_manager']} kill {testpmd_id}"]
+    execute_and_assert(dut, kill_testpmd, 0)
+
+    kill_trafficgen = [f"{settings.config['container_manager']} kill {trafficgen_id}"]
+    execute_and_assert(trafficgen, kill_trafficgen, 0)
+
+    for pf in trafficgen_pfs_pci:
+        assert bind_driver(trafficgen, pf, "i40e")
+
+    # Compare trafficgen results to config
+    assert results['0']['rx_l1_bps'] >= settings.config['trafficgen_rx_bps_limit']
