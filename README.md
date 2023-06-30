@@ -67,10 +67,13 @@ dut:
   interface:
     pf1:
       name: "ens7f0"        # first PF interface name
+      pci: "0000:00:00.0"   # first PF PCI address
     pf2:
       name: "ens7f1"        # second PF interface name
+      pci: "0000:00:00.0"   # second PF PCI address
     vf1:
       name: "ens7f3v0"      # first VF interface name
+      pci: "0000:00:00.0"   # first VF PCI address
 trafficgen:
   host:                     # TrafficGen ip address
   username: root            # need root access
@@ -78,8 +81,10 @@ trafficgen:
   interface:
     pf1:
       name: "ens8f0"        # first PF interface name
+      pci: "0000:00:00.0"   # first PF PCI address
     pf2:
       name: "ens8f1"        # second PF interface name
+      pci: "0000:00:00.0"   # second PF PCI address
 ```
 
 If one chooses to run the test script from the TrafficGen, the trafficgen host will be `127.0.0.1`
@@ -108,7 +113,15 @@ container_volumes:                # the volume mapping to use with the container
                                   # example: "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules"
 vlan:                             # vlan tag used by the vlan tests, default is 10
 mtu:                              # MTU size; if unspecified, the script will derive it
-bonding_switch_delay              # Expected bonding switch over/back delay in second, default is 1
+bonding_switch_delay:             # Expected bonding switch over/back delay in second, default is 1
+# Below required for SR_IOV_Performance
+testpmd_img:                      # testpmd container image
+testpmd_port:                     # testpmd REST port
+trafficgen_img:                   # trafficgen container image
+trafficgen_port:                  # trafficgen REST port
+trafficgen_ip:                    # trafficgen REST IP address
+trafficgen_timeout:               # trafficgen command timeout (in minutes)
+trafficgen_rx_bps_limit:          # trafficgen baseline comparison (bps)
 ```
 
 A current version of Python is recommended to run the tests. As of writing the minimum version to avoid warnings would be 3.7. However, the tests have been successfully run up to version 3.11, the latest active release as of writing. The same is true of pip, which should be a current version (23.0 as of writing, but this should be upgraded in the following steps).

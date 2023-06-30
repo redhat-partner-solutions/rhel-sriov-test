@@ -11,3 +11,10 @@ container_volumes: "-v /sys:/sys -v /dev:/dev -v /lib/modules:/lib/modules"
 vlan: 10
 mtu: 1500
 bonding_switch_delay: 5
+testpmd_img: "testpmd:22.11.2"
+testpmd_port: 9000
+trafficgen_img: "trafficgen:latest"
+trafficgen_port: 8080
+trafficgen_ip: 10.88.0.88
+trafficgen_timeout: 12
+trafficgen_rx_bps_limit: 9990000000
