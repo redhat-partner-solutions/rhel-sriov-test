@@ -195,7 +195,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         cmd_timeout=60 * settings.config["trafficgen_timeout"],
     )
     results = json.loads(outs[0][0])
-    print(results)
+    print(json.dumps(results))
 
     # Compare trafficgen results to config
     assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
