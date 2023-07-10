@@ -54,9 +54,15 @@ def settings(dut, trafficgen) -> Config:
     settings = get_settings_obj()
     pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
     settings.config["dut"]["interface"]["pf1"]["pci"] = get_pci_address(dut, pf1_name)
-    settings.config["dut"]["interface"]["pf2"]["pci"] = get_pci_address(dut, settings.config["dut"]["interface"]["pf2"]["name"])
-    settings.config["trafficgen"]["interface"]["pf1"]["pci"] = get_pci_address(trafficgen, settings.config["trafficgen"]["interface"]["pf1"]["name"])
-    settings.config["trafficgen"]["interface"]["pf2"]["pci"] = get_pci_address(trafficgen, settings.config["trafficgen"]["interface"]["pf2"]["name"])
+    settings.config["dut"]["interface"]["pf2"]["pci"] = get_pci_address(
+        dut, settings.config["dut"]["interface"]["pf2"]["name"]
+    )
+    settings.config["trafficgen"]["interface"]["pf1"]["pci"] = get_pci_address(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    )
+    settings.config["trafficgen"]["interface"]["pf2"]["pci"] = get_pci_address(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf2"]["name"]
+    )
     create_vfs(dut, pf1_name, 1)
     vf1_name = settings.config["dut"]["interface"]["vf1"]["name"]
     settings.config["dut"]["interface"]["vf1"]["pci"] = get_pci_address(dut, vf1_name)
