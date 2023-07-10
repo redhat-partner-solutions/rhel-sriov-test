@@ -11,16 +11,16 @@ echo 0 > /sys/class/net/$PF/device/sriov_numvfs
 
 * Ensure the reset succeeds (or check no VF exists under the ```$PF``` by ensuring ```sriov_numvfs``` is 0
 
-* Ensure the trafficgen server ports are on the same numa node, repeat with the two testpmd server ports
+* Ensure the trafficgen server ports are on the same numa node, repeat with the two dut server ports
 ```
 cat /sys/bus/pci/devices/<pci_address>/numa_node
 ```
 
-* Ensure the trafficgen server has 2 1GB hugepages, repeat with the testpmd server
+* Ensure the trafficgen server has 2 1GB hugepages, repeat with the dut server
 
-* On the trafficgen, get 7 isolated CPUs from the numa node associated with the trafficgen ports, repeat on the testpmd server with 3 isolated CPUs
+* On the trafficgen, get 7 isolated CPUs from the numa node associated with the trafficgen ports, repeat on the dut server with 3 isolated CPUs
 
-* On the testpmd server, create 1 VF on each PF, setting spoof checking off and trust mode on, and bind to vfio-pci
+* On the dut server, create 1 VF on each PF, setting spoof checking off and trust mode on, and bind to vfio-pci
 ```
 echo 1 > /sys/class/net/$PF/device/sriov_numvfs
 ip link set $PF vf 0 spoof off
@@ -30,12 +30,12 @@ echo vfio-pci > /sys/bus/pci/devices/$VF_PCI/driver_override
 echo $VF_PCI > /sys/bus/pci/drivers/vfio-pci/bind
 ```
 
-* On the trafficgen server, start the prebuilt testpmd container
+* On the dut server, start the prebuilt testpmd container
 ```
 podman run -d --rm --privileged -p $PORT:$PORT -v /dev/hugepages:/dev/hugepages -v /sys/bus/pci/devices:/sys/bus/pci/devices -v /lib/firmware:/lib/firmware --cpuset-cpus $CPUs $testpmd_container --pci $VF1 --pci $VF2 --http-port $PORT --auto
 ```
 
-* On the testpmd server, ensure that testpmd has started using the REST API
+* On the dut server, ensure that testpmd has started using the REST API
 ```
 curl localhost:$PORT/testpmd/status
 ```
@@ -63,11 +63,11 @@ python3 /tmp/client.py auto --server-addr $IP --server-port $PORT
 * Compare the results bps to the baseline value
 
 ### Clean up
-* Kill containers on testpmd and trafficgen
+* Kill containers on dut and trafficgen
 
 * Reset PF driver on trafficgen
 
-* Remove VFs on testpmd
+* Remove VFs on dut
 ```
 echo 0 > /sys/class/net/$PF/device/sriov_numvfs
 ```
