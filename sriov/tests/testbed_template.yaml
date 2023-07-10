@@ -6,13 +6,10 @@ dut:
   interface:
     pf1:
       name: "ens7f0"
-      pci: "0000:00:00.0"
     pf2:
       name: "ens7f1"
-      pci: "0000:00:00.0"
     vf1:
       name: "ens7f0v0"
-      pci: "0000:00:00.0"
 trafficgen:
   host: "TrafficGen ip address"
   username: root
@@ -20,8 +17,6 @@ trafficgen:
   interface:
     pf1:
       name: "ens8f0"
-      pci: "0000:00:00.0"
     pf2:
       name: "ens8f1"
-      pci: "0000:00:00.0"
 

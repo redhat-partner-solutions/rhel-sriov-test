@@ -67,13 +67,10 @@ dut:
   interface:
     pf1:
       name: "ens7f0"        # first PF interface name
-      pci: "0000:00:00.0"   # first PF PCI address
     pf2:
       name: "ens7f1"        # second PF interface name
-      pci: "0000:00:00.0"   # second PF PCI address
     vf1:
       name: "ens7f3v0"      # first VF interface name
-      pci: "0000:00:00.0"   # first VF PCI address
 trafficgen:
   host:                     # TrafficGen ip address
   username: root            # need root access
@@ -81,10 +78,8 @@ trafficgen:
   interface:
     pf1:
       name: "ens8f0"        # first PF interface name
-      pci: "0000:00:00.0"   # first PF PCI address
     pf2:
       name: "ens8f1"        # second PF interface name
-      pci: "0000:00:00.0"   # second PF PCI address
 ```
 
 If one chooses to run the test script from the TrafficGen, the trafficgen host will be `127.0.0.1`

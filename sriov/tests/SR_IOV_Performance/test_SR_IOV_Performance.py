@@ -22,11 +22,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         testdata:         testdata obj
         execution_number: execution_number parameter
     """
-    pfs = list(testdata.pfs.keys())
-    dut_vfs_pci = [
-        settings.config["dut"]["interface"]["vf1"]["pci"],
-        settings.config["dut"]["interface"]["vf2"]["pci"],
-    ]
+    dut_pfs = list(testdata.pfs.keys())
 
     assert set_pipefail(dut)
 
@@ -88,7 +84,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
 
     # Spoof off, trust on for dut
     steps = ["modprobe vfio-pci"]
-    for pf in pfs:
+    for pf in dut_pfs:
         # Create the 2 VFs
         assert create_vfs(dut, testdata.pfs[pf]["name"], 1)
 
@@ -104,9 +100,11 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
     execute_and_assert(trafficgen, steps, 0)
 
     # Bind testpmd VFs to vfio-pci
-    for pf in pfs:
-        pci_pf_vf0 = get_pci_address(dut, testdata.pfs[pf]["name"] + "v0")
-        assert bind_driver(dut, pci_pf_vf0, "vfio-pci")
+    dut_vfs_pci = []
+    for pf in dut_pfs:
+        pci_pf_vf = get_pci_address(dut, testdata.pfs[pf]["name"] + "v0")
+        dut_vfs_pci.append(pci_pf_vf)
+        assert bind_driver(dut, pci_pf_vf, "vfio-pci")
 
     # Bind trafficgen PFs to vfio-pci
     for pf in trafficgen_pfs_pci:
