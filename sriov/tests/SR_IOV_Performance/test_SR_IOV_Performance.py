@@ -119,7 +119,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         f"{settings.config['container_manager']} run -d --rm --privileged "
         f"-p {settings.config['testpmd_port']}:{settings.config['testpmd_port']} "
         "-v /dev/hugepages:/dev/hugepages -v /sys/bus/pci/devices:/sys/bus/pci/devices "
-        f"-v /lib/firmware:/lib/firmware --cpuset-cpus {dut_cpus_string} "
+        f"--cpuset-cpus {dut_cpus_string} "
         f"{settings.config['testpmd_img']} --pci {dut_vfs_pci[0]} "
         f"--pci {dut_vfs_pci[1]} --http-port {settings.config['testpmd_port']} --auto"
     ]
