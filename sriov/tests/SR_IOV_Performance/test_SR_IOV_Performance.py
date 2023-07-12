@@ -141,7 +141,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         "-v /dev:/dev -v /sys:/sys -v /lib/modules:/lib/modules "
         f"--cpuset-cpus {trafficgen_cpus_string} "
         f"-e pci_list={trafficgen_pfs_pci[0]},{trafficgen_pfs_pci[1]} "
-        f"--ip={settings.config['trafficgen_ip']} {settings.config['trafficgen_img']}"
+        f"{settings.config['trafficgen_img']}"
     ]
     outs, errs = execute_and_assert(trafficgen, trafficgen_cmd, 0)
     testdata.trafficgen_id = outs[0][0]
@@ -154,7 +154,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
 
     client_cmd = (
         f"python3 /tmp/client.py status "
-        f"--server-addr {settings.config['trafficgen_ip']} "
+        "--server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     )
     assert execute_until_timeout(trafficgen, client_cmd)
@@ -162,7 +162,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
     # Warmup
     client_cmd = [
         "python3 /tmp/client.py start "
-        f"--server-addr {settings.config['trafficgen_ip']} "
+        "--server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']} --timeout 60"
     ]
     execute_and_assert(
@@ -172,7 +172,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         cmd_timeout=70,
     )
     client_cmd = [
-        f"python3 /tmp/client.py stop --server-addr {settings.config['trafficgen_ip']} "
+        "python3 /tmp/client.py stop --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     ]
     outs, errs = execute_and_assert(
@@ -183,7 +183,7 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
 
     # Actual test
     client_cmd = [
-        f"python3 /tmp/client.py auto --server-addr {settings.config['trafficgen_ip']} "
+        "python3 /tmp/client.py auto --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     ]
     outs, errs = execute_and_assert(
@@ -193,7 +193,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         cmd_timeout=60 * settings.config["trafficgen_timeout"],
     )
     results = json.loads(outs[0][0])
-    print(json.dumps(results))
+    if settings.config["log_performance"]:
+        print(json.dumps(results))
 
     # Compare trafficgen results to config
     assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]

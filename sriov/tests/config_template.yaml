@@ -15,6 +15,6 @@ testpmd_img: "testpmd:22.11.2"
 testpmd_port: 9000
 trafficgen_img: "trafficgen:latest"
 trafficgen_port: 8080
-trafficgen_ip: 10.88.0.88
 trafficgen_timeout: 12
 trafficgen_rx_bps_limit: 9990000000
+log_performance: false

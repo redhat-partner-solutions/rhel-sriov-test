@@ -114,9 +114,9 @@ testpmd_img:                      # testpmd container image
 testpmd_port:                     # testpmd REST port
 trafficgen_img:                   # trafficgen container image
 trafficgen_port:                  # trafficgen REST port
-trafficgen_ip:                    # trafficgen REST IP address
 trafficgen_timeout:               # trafficgen command timeout (in minutes)
 trafficgen_rx_bps_limit:          # trafficgen baseline comparison (bps)
+log_performance:                  # boolean, use false to omit performance test details in logs/result files (only pass or fail)
 ```
 
 A current version of Python is recommended to run the tests. As of writing the minimum version to avoid warnings would be 3.7. However, the tests have been successfully run up to version 3.11, the latest active release as of writing. The same is true of pip, which should be a current version (23.0 as of writing, but this should be upgraded in the following steps).
