@@ -70,7 +70,7 @@ jobs:
             pytest -v --html=report.html --self-contained-html SR_IOV_* common --ignore-glob="*test_SR_IOV_Performance.py"
             echo "generated=true" >> $GITHUB_ENV
           elif [[ ${#tests[@]} -ne 0 ]]; then
-            test_string="pytest -v --html=report.html --self-contained-html --ignore-glob="*test_SR_IOV_Performance.py"
+            test_string="pytest -v --html=report.html --self-contained-html --ignore-glob='*test_SR_IOV_Performance.py'"
             for testname in $(echo "${tests[@]}" | tr ' ' '\n' | sort -u); do
               test_string="${test_string} ${testname}"
               echo "Testing ${testname}"
