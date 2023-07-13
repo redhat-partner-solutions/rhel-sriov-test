@@ -855,7 +855,7 @@ def execute_until_timeout(
             return True
         count -= 1
         time.sleep(1)
-    print("\nstdout:" + str(out) + "\nstderr:" + str(err))
+    print("\nstdout:" + str(out) + "\nstderr:" + str(err) + "\ncode:" + str(code))
     return False
 
 

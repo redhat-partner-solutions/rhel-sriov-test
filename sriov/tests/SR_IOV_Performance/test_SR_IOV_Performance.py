@@ -146,23 +146,17 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
     outs, errs = execute_and_assert(trafficgen, trafficgen_cmd, 0)
     testdata.trafficgen_id = outs[0][0]
 
-    client_cmd = [
-        "wget -O /tmp/client.py "
-        "https://raw.githubusercontent.com/redhat-eets/netgauge/main/rfc2544/client.py"
-    ]
-    outs, errs = execute_and_assert(trafficgen, client_cmd, 0)
-
     client_cmd = (
-        f"python3 /tmp/client.py status "
-        "--server-addr localhost "
+        f"{settings.config['container_manager']} run --rm --privileged --net=host "
+        f"{settings.config['trafficgen_img']} client status --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     )
     assert execute_until_timeout(trafficgen, client_cmd)
 
     # Warmup
     client_cmd = [
-        "python3 /tmp/client.py start "
-        "--server-addr localhost "
+        f"{settings.config['container_manager']} run --rm --privileged --net=host "
+        f"{settings.config['trafficgen_img']} client start --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']} --timeout 60"
     ]
     execute_and_assert(
@@ -172,7 +166,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
         cmd_timeout=70,
     )
     client_cmd = [
-        "python3 /tmp/client.py stop --server-addr localhost "
+        f"{settings.config['container_manager']} run --rm --privileged --net=host "
+        f"{settings.config['trafficgen_img']} client stop --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     ]
     outs, errs = execute_and_assert(
@@ -183,7 +178,8 @@ def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
 
     # Actual test
     client_cmd = [
-        "python3 /tmp/client.py auto --server-addr localhost "
+        f"{settings.config['container_manager']} run --rm --privileged --net=host "
+        f"{settings.config['trafficgen_img']} client auto --server-addr localhost "
         f"--server-port {settings.config['trafficgen_port']}"
     ]
     outs, errs = execute_and_assert(
