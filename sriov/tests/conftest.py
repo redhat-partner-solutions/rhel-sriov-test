@@ -15,6 +15,8 @@ from sriov.common.utils import (
     get_intf_mac,
     create_vfs,
     destroy_vfs,
+    bind_driver,
+    execute_and_assert,
 )
 
 
@@ -52,12 +54,22 @@ def settings(dut, trafficgen) -> Config:
     settings = get_settings_obj()
     pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
     settings.config["dut"]["interface"]["pf1"]["pci"] = get_pci_address(dut, pf1_name)
+    settings.config["dut"]["interface"]["pf2"]["pci"] = get_pci_address(
+        dut, settings.config["dut"]["interface"]["pf2"]["name"]
+    )
+    settings.config["trafficgen"]["interface"]["pf1"]["pci"] = get_pci_address(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf1"]["name"]
+    )
+    settings.config["trafficgen"]["interface"]["pf2"]["pci"] = get_pci_address(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf2"]["name"]
+    )
     create_vfs(dut, pf1_name, 1)
     vf1_name = settings.config["dut"]["interface"]["vf1"]["name"]
     settings.config["dut"]["interface"]["vf1"]["pci"] = get_pci_address(dut, vf1_name)
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
-    settings.config["trafficgen"]["interface"]["pf1"]["mac"] = \
-        get_intf_mac(trafficgen, trafficgen_pf)
+    settings.config["trafficgen"]["interface"]["pf1"]["mac"] = get_intf_mac(
+        trafficgen, trafficgen_pf
+    )
     destroy_vfs(dut, pf1_name)
     return settings
 
@@ -65,7 +77,7 @@ def settings(dut, trafficgen) -> Config:
 @pytest.fixture
 def dut() -> ShellHandler:
     dut_obj = get_ssh_obj("dut")
-    assert (dut_obj)
+    assert dut_obj
     assert set_pipefail(dut_obj)
     return dut_obj
 
@@ -92,7 +104,7 @@ def reset_command(dut: ShellHandler, testdata) -> None:
 @pytest.fixture
 def trafficgen() -> ShellHandler:
     trafficgen_obj = get_ssh_obj("trafficgen")
-    assert (trafficgen_obj)
+    assert trafficgen_obj
 
     assert set_pipefail(trafficgen_obj)
     return trafficgen_obj
@@ -137,13 +149,37 @@ def _cleanup(
     for i in range(settings.config["randomly_terminate_max_vfs"]):
         stop_testpmd_in_tmux(dut, testdata.tmux_session_name + str(i))
 
+    # Clean up SR_IOV_Performance(delete containers and bind to kernel driver)
+    if testdata.testpmd_id:
+        kill_testpmd = [
+            f"{settings.config['container_manager']} kill {testdata.testpmd_id}"
+        ]
+        execute_and_assert(dut, kill_testpmd, 0)
+    if testdata.trafficgen_id:
+        kill_trafficgen = [
+            f"{settings.config['container_manager']} kill {testdata.trafficgen_id}"
+        ]
+        execute_and_assert(trafficgen, kill_trafficgen, 0)
+
+    trafficgen_pfs_pci = []
+    if "pf1" in settings.config["trafficgen"]["interface"]:
+        trafficgen_pfs_pci.append(
+            settings.config["trafficgen"]["interface"]["pf1"]["pci"]
+        )
+    if "pf2" in settings.config["trafficgen"]["interface"]:
+        trafficgen_pfs_pci.append(
+            settings.config["trafficgen"]["interface"]["pf2"]["pci"]
+        )
+    for pf in trafficgen_pfs_pci:
+        assert bind_driver(trafficgen, pf, "i40e")
+
     reset_command(dut, testdata)
 
 
 def pytest_configure(config: Config) -> None:
     ShellHandler.debug_cmd_execute = config.getoption("--debug-execute")
     dut = get_ssh_obj("dut")
-    assert (dut)
+    assert dut
     # Need to clear the terminal before the first command, there may be some
     # residual text from ssh
     cmd_clear = "clear"

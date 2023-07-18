@@ -55,3 +55,7 @@ class ConfigTestData:
         )
         self.ping = {}  # track ping test
         self.mtu = {}  # track mtu change
+
+        # track testpmd and trafficgen container IDs from SR_IOV_Performance for cleanup
+        self.testpmd_id = ""
+        self.trafficgen_id = ""

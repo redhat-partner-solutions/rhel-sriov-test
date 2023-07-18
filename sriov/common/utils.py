@@ -56,9 +56,10 @@ def bind_driver(ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5) 
     return True
 
 
-def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str,
-                          driver: str, timeout: int = 5) -> bool:
-    """ Bind the PCI address to the driver using dpdk-devbind.py
+def bind_driver_with_dpdk(
+    settings: object, ssh_obj: ShellHandler, pci: str, driver: str, timeout: int = 5
+) -> bool:
+    """Bind the PCI address to the driver using dpdk-devbind.py
         in the dpdk container
 
     Args:
@@ -78,12 +79,10 @@ def bind_driver_with_dpdk(settings: object, ssh_obj: ShellHandler, pci: str,
     dpdk_devbind_cmd = (
         f"{settings.config['container_manager']} run -it --rm --privileged "
         f"{settings.config['container_volumes']} "
-        f"{settings.config['dpdk_img']} dpdk-devbind.py -b {driver} {pci}\n")
+        f"{settings.config['dpdk_img']} dpdk-devbind.py -b {driver} {pci}\n"
+    )
 
-    steps = [
-        ("modprobe {}".format(driver), None),
-        (dpdk_devbind_cmd, "Error")
-    ]
+    steps = [("modprobe {}".format(driver), None), (dpdk_devbind_cmd, "Error")]
 
     for step, errorOnStr in steps:
         ssh_obj.log_str(step)
@@ -802,7 +801,11 @@ def set_pipefail(ssh_obj: ShellHandler) -> bool:
 
 
 def execute_and_assert(
-    ssh_obj: ShellHandler, cmds: list, exit_code: int, timeout: int = 0
+    ssh_obj: ShellHandler,
+    cmds: list,
+    exit_code: int,
+    timeout: int = 0,
+    cmd_timeout: int = 5,
 ) -> Tuple[list, list]:
     """Execute the list of commands, assert exit code, and return stdouts and stderrs
 
@@ -811,6 +814,7 @@ def execute_and_assert(
         cmds (list):     list of str commands to run
         exit_code (int): the code to assert
         timeout (int):   optional timeout between cmds (default 0)
+        cmd_timeout (int): optional timeout to wait for commands to complete (default 5)
 
     Returns:
         outs (list): list of lists of str stdout lines
@@ -820,7 +824,7 @@ def execute_and_assert(
     errs = []
     for cmd in cmds:
         ssh_obj.log_str(cmd)
-        code, out, err = ssh_obj.execute(cmd)
+        code, out, err = ssh_obj.execute(cmd, cmd_timeout)
         outs.append(out)
         errs.append(err)
         assert code == exit_code, "\nstdout:" + str(outs) + "\nstderr:" + str(errs)
@@ -851,7 +855,7 @@ def execute_until_timeout(
             return True
         count -= 1
         time.sleep(1)
-    print("\nstdout:" + str(out) + "\nstderr:" + str(err))
+    print("\nstdout:" + str(out) + "\nstderr:" + str(err) + "\ncode:" + str(code))
     return False
 
 
@@ -897,14 +901,13 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
 
     Args:
         ssh_obj (ShellHandler): ssh connection obj
-        type (str): type of hugepage, 1G or 2M
 
     Returns:
         list: The list of isolated CPUs
     """
     cmd = ["cat /sys/devices/system/cpu/isolated"]
     outs, errs = execute_and_assert(ssh_obj, cmd, 0)
-    isolated = outs[0][0]
+    isolated = outs[0][0].strip()
     isolated_cores = isolated.split(",")
     isolated_list = []
     for core in isolated_cores:
@@ -916,6 +919,29 @@ def get_isolated_cpus(ssh_obj: ShellHandler) -> list:
             isolated_list.extend(sub_list)
 
     return isolated_list
+
+
+def get_isolated_cpus_numa(ssh_obj: ShellHandler, numa: int) -> list:
+    """Return a list of the isolated CPUs belonging to a NUMA node
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        numa (int): the numa node
+
+    Returns:
+        list: The list of isolated CPUs belonging to numa
+    """
+    isolated_list = get_isolated_cpus(ssh_obj)
+
+    cmd = [f"lscpu | grep 'NUMA node{numa}'"]
+    outs, errs = execute_and_assert(ssh_obj, cmd, 0)
+    isolated_numa = outs[0][0]
+    isolated_numa_cores = isolated_numa.split(":")[1].strip().split(",")
+    isolated_numa_list = []
+    for core in isolated_numa_cores:
+        isolated_numa_list.append(int(core))
+
+    return list(set(isolated_list) & set(isolated_numa_list))
 
 
 def page_in_kb(type: str) -> str:
