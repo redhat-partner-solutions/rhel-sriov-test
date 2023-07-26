@@ -13,7 +13,7 @@ import json
 
 # Use pytest --iteration to adjust the execution_number parameter for desired amount
 # of repeated tests
-def test_SRIOVPerformance(dut, trafficgen, settings, testdata):
+def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
     """Test and ensure that VFs provision with MTU functions as intended
 
     Args:
