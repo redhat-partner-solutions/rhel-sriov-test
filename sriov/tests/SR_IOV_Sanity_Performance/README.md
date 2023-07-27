@@ -1,6 +1,6 @@
-# Test Case Name: SR-IOV.Performance
+# Test Case Name: SR-IOV.Sanity.Performance
 
-### Objective(s): A RFC2544 performance test to evaluate a system's (relative) performance when running DPDK workloads. This relies on a trafficgen client and containers built from [netgauge](https://github.com/redhat-eets/netgauge)
+### Objective(s): A RFC2544 sanity test to evaluate a system's (relative) performance when running DPDK workloads. This relies on a trafficgen client and containers built from [netgauge](https://github.com/redhat-eets/netgauge)
 
 ### Test procedure
 
