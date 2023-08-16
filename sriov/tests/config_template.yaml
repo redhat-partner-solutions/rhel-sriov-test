@@ -18,3 +18,9 @@ trafficgen_port: 8080
 trafficgen_timeout: 12
 trafficgen_rx_bps_limit: 9990000000
 log_performance: false
+log_performance_elastic: true
+elastic_host: 192.168.1.1
+elastic_port: 9200
+#elastic_ca_cert_path: "./http_ca.crt"
+elastic_username: "elastic"
+elastic_password: "PASSWORD"

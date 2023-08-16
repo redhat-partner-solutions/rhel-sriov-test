@@ -1,3 +1,5 @@
+from datetime import datetime
+from elasticsearch import Elasticsearch
 from sriov.common.utils import (
     execute_and_assert,
     execute_until_timeout,
@@ -191,6 +193,28 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
     results = json.loads(outs[0][0])
     if settings.config["log_performance"]:
         print(json.dumps(results))
+    if settings.config["log_performance_elastic"]:
+        log_elastic(settings, results)
 
     # Compare trafficgen results to config
     assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
+
+
+def log_elastic(settings, results):
+    es = Elasticsearch(
+        f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
+        verify_certs=False,
+        # ca_certs=settings.config["elastic_ca_cert_path"],
+        basic_auth=(
+            settings.config["elastic_username"],
+            settings.config["elastic_password"],
+        ),
+    )
+    es.info()
+
+    doc = {
+        "rx_l1_bps": results["0"]["rx_l1_bps"],
+        "timestamp": datetime.now(),
+    }
+    resp = es.index(index="test-perf-index", document=doc)
+    print(resp["result"])
