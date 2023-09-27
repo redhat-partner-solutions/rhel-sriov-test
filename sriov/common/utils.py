@@ -877,7 +877,7 @@ def wait_tmux_testpmd_ready(
         cmd = [f"tmux capture-pane -pt {tmux_session}"]
         outs, errs = execute_and_assert(ssh_obj, cmd, 0)
         for line in outs[0]:
-            if line.startswith("Press enter to exit") or line.startswith("testpmd>"):
+            if line.startswith("Press enter to exit") or line.startswith("testpmd>"): #"testpmd>" in line:
                 return True
     return False
 

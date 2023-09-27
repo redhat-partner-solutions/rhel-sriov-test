@@ -29,7 +29,7 @@ def test_SR_IOV_macAddress(dut, trafficgen, settings, testdata):
 
     create_vfs(dut, pf, 1)
 
-    execute_and_assert(dut, steps, 0, 0.1)
+    execute_and_assert(dut, steps, 0, 0.5)
 
     trafficgen_pf = settings.config["trafficgen"]["interface"]["pf1"]["name"]
     trafficgen_mac = settings.config["trafficgen"]["interface"]["pf1"]["mac"]

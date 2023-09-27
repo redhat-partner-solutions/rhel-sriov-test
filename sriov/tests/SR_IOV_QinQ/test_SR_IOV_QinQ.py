@@ -1,4 +1,5 @@
 import pytest
+import time
 from sriov.common.utils import (
     create_vfs,
     execute_and_assert,
@@ -23,6 +24,7 @@ def test_SR_IOV_QinQ(dut, trafficgen, settings, testdata):
     inside_tag = 20
     pf = settings.config["dut"]["interface"]["pf1"]["name"]
 
+    time.sleep(10)
     if "xxv710" in get_nic_model(dut, pf).lower():
         pytest.skip("QinQ unsupported on XXV710 NICs - skipping test.")
 

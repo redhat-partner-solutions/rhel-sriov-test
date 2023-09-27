@@ -54,7 +54,7 @@ def dut_setup(dut, settings, testdata, request) -> Bond:
         f"ip link set {pf2} vf 0 trust on",
     ]
 
-    execute_and_assert(dut, steps, 0, 0.1)
+    execute_and_assert(dut, steps, 0, 0.3)
 
     pci_pf1_vf0 = get_pci_address(dut, pf1 + "v0")
     assert bind_driver(dut, pci_pf1_vf0, "vfio-pci")

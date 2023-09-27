@@ -215,6 +215,7 @@ def pytest_configure(config: Config) -> None:
     cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
     dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
+    dut.log_str(str(code))
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
