@@ -1,3 +1,4 @@
+from elasticsearch import Elasticsearch
 import git
 import os
 import pytest
@@ -19,6 +20,10 @@ from sriov.common.utils import (
     execute_and_assert,
 )
 
+class elastic:
+    # track elastic results from SR_IOV_Sanity_Performance
+    elastic_index = None
+    elastic_doc = {}
 
 def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -175,6 +180,21 @@ def _cleanup(
 
     reset_command(dut, testdata)
 
+    if settings.config["log_performance_elastic"]:
+        es = Elasticsearch(
+            f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
+            verify_certs=False,
+            # ca_certs=settings.config["elastic_ca_cert_path"],
+            basic_auth=(
+                settings.config["elastic_username"],
+                settings.config["elastic_password"],
+            ),
+        )
+        es.info()
+        print("elastic index: ", elastic.elastic_index)
+        resp = es.index(index=elastic.elastic_index, document=testdata.elastic_doc)
+        print(resp["result"])
+
 
 def pytest_configure(config: Config) -> None:
     ShellHandler.debug_cmd_execute = config.getoption("--debug-execute")
@@ -215,6 +235,7 @@ def pytest_configure(config: Config) -> None:
     cmd = "cat /sys/bus/pci/drivers/iavf/module/version"
     dut.log_str(cmd)
     code, out, err = dut.execute(cmd)
+    dut.log_str(str(code))
     if code == 0:
         iavf_driver = out[0].strip()
     config._metadata["IAVF Driver"] = iavf_driver
@@ -240,7 +261,7 @@ def parse_file_for_field(file_path, field) -> str:
 
 
 @pytest.fixture(autouse=True)
-def _report_extras(extra, request, settings, monkeypatch) -> None:
+def _report_extras(extra, request, settings, testdata, monkeypatch) -> None:
     monkeypatch.chdir(request.fspath.dirname)
 
     try:
@@ -285,6 +306,13 @@ def _report_extras(extra, request, settings, monkeypatch) -> None:
                 case_name = "No tag or commit hash: No Link to"
                 link = "#"
 
+            if settings.config["log_performance_elastic"]:
+                elastic.elastic_doc["tag"] = None
+                if git_tag:
+                    elastic.elastic_doc["tag"] = str(git_tag)
+                elif sha:
+                    elastic.elastic_doc["tag"] = str(sha)
+
             extra.append(
                 extras.html(
                     '<p>Link to the test specification: <a href="'
@@ -324,6 +352,23 @@ def pytest_generate_tests(metafunc) -> None:
         if metafunc.config.getoption("iteration"):
             end = int(metafunc.config.option.iteration)
         metafunc.parametrize("execution_number", range(end))
+
+
+def elastic(settings, testdata):
+    if settings.config["log_performance_elastic"]:
+        es = Elasticsearch(
+            f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
+            verify_certs=False,
+            # ca_certs=settings.config["elastic_ca_cert_path"],
+            basic_auth=(
+                settings.config["elastic_username"],
+                settings.config["elastic_password"],
+            ),
+        )
+        es.info()
+        print(testdata.index)
+        resp = es.index(index=testdata.index, document=testdata.elastic_doc)
+        print(resp["result"])
 
 
 @pytest.fixture(scope="session")
