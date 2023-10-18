@@ -23,6 +23,8 @@ default_hugepagesz=2M hugepagesz=2M hugepages=16384 iommu=pt intel_iommu=on
 
 If the hugepage is not defined via the kernel boot parameter, the test script will try to allocate the hugepages at run time. The allocation may fail and lead to test failure if the continous memory region is not big enough.
 
+On some newer OS releases (first noticed on RHEL 9.2) command execution may fail due to [bracketed paste](https://en.wikipedia.org/wiki/Bracketed-paste). If failure due to `timeout` is noticed during a test's setup procedure, one should try disabling bracketed paste. This can be done at a session level or globally by adding `set enable-bracketed-paste off` to `/etc/inputrc`.
+
 
 ## Required Packages
 
