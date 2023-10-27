@@ -16,9 +16,9 @@ The DUT kernal boot parameters should at least include iommu setting, e.g.:
 intel_iommu=on iommu=pt
 ```
 
-Running DPDK test will also require hugepages on the DUT. It's recommended to pre-setup hugepages on the DUT via its kernal boot parameters. Here is a sample kernal parameter setting that will enable 2MB hugepages as well as iommu,
+Running DPDK test will also require hugepages on the DUT. It's recommended to pre-setup hugepages on the DUT via its kernal boot parameters. Here is a sample kernal parameter setting that will enable 1G hugepages as well as iommu,
 ```
-default_hugepagesz=2M hugepagesz=2M hugepages=16384 iommu=pt intel_iommu=on
+default_hugepagesz=1G hugepagesz=1G hugepages=16 iommu=pt intel_iommu=on
 ```  
 
 If the hugepage is not defined via the kernel boot parameter, the test script will try to allocate the hugepages at run time. The allocation may fail and lead to test failure if the continous memory region is not big enough.
@@ -36,7 +36,7 @@ To install,
 yum install -y tmux nmap podman
 ```
 
-One special test case, SR_IOV_OVS_IPv6, requires Open vSwitch. Without Open vSwitch installed, this test case will be skipped. To install an up to date Open vSwitch, install from the source tree is recommended. Alternatively, an out of date Open vSwitch version can be installed on RHEL just for the testing purpose,
+One special test case, SR_IOV_OVS_IPv6, requires Open vSwitch. Without Open vSwitch installed, this test case will be skipped. To install an up to date Open vSwitch, install from the source tree is recommended. Alternatively, an out of date Open vSwitch version can be installed just for the testing purpose. For example, in RHEL 8
 ```
 yum install -y https://rdoproject.org/repos/rdo-release.rpm
 yum install -y openvswitch
