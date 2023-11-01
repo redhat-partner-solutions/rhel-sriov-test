@@ -1,7 +1,11 @@
 from sriov.common.config import Config
+import json
 
 
 class ConfigTestData:
+    def to_json(self):
+        return json.dumps(self)
+    
     def __init__(self, settings: Config) -> None:
         """Init the testdata object
 

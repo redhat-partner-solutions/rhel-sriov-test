@@ -21,7 +21,7 @@ from sriov.common.utils import (
 )
 
 class elastic:
-    # track elastic results from SR_IOV_Sanity_Performance
+    # track elastic results (currently used in SR_IOV_Sanity_Performance)
     elastic_index = None
     elastic_doc = {}
 
@@ -181,7 +181,8 @@ def _cleanup(
     reset_command(dut, testdata)
 
     if settings.config["log_performance_elastic"]:
-        es = Elasticsearch(
+        elastic_push(settings, testdata)
+        '''es = Elasticsearch(
             f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
             verify_certs=False,
             # ca_certs=settings.config["elastic_ca_cert_path"],
@@ -192,8 +193,8 @@ def _cleanup(
         )
         es.info()
         print("elastic index: ", elastic.elastic_index)
-        resp = es.index(index=elastic.elastic_index, document=testdata.elastic_doc)
-        print(resp["result"])
+        resp = es.index(index=elastic.elastic_index, document=elastic.elastic_doc)
+        print(resp["result"])'''
 
 
 def pytest_configure(config: Config) -> None:
@@ -354,7 +355,7 @@ def pytest_generate_tests(metafunc) -> None:
         metafunc.parametrize("execution_number", range(end))
 
 
-def elastic(settings, testdata):
+def elastic_push(settings, testdata):
     if settings.config["log_performance_elastic"]:
         es = Elasticsearch(
             f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
@@ -366,8 +367,11 @@ def elastic(settings, testdata):
             ),
         )
         es.info()
-        print(testdata.index)
-        resp = es.index(index=testdata.index, document=testdata.elastic_doc)
+
+        #elastic.elastic_doc["testdata"] = testdata.to_json()
+        elastic.elastic_doc["settings"] = settings
+
+        resp = es.index(index=elastic.elastic_index, document=elastic.elastic_doc)
         print(resp["result"])
 
 

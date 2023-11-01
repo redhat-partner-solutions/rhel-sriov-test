@@ -194,16 +194,16 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):  # noqa:
     if settings.config["log_performance"]:
         print(json.dumps(results))
     if settings.config["log_performance_elastic"]:
-        log_elastic(settings, results)
+        log_elastic()
 
     # Compare trafficgen results to config
     #assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
 
 
-def log_elastic(testdata, results):
+def log_elastic():
     elastic.elastic_index = "test-perf-index"
     elastic.elastic_doc = {}
-    #testdata.elastic_doc["rx_l1_bps"] = results["0"]["rx_l1_bps"]
+    #elastic.elastic_doc["rx_l1_bps"] = results["0"]["rx_l1_bps"]
     elastic.elastic_doc["timestamp"] = datetime.now()
 
     print(elastic.elastic_index)
