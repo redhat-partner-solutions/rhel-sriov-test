@@ -50,7 +50,7 @@ jobs:
         run: |
           files=`git diff --name-only origin/main`
           echo "diff files: $files"
-          pyfiles="conftest.py config.py configtestdata.py utils.py exec.py macros.py"
+          pyfiles="conftest.py config.py configtestdata.py utils.py exec.py macros.py e2e.yaml"
           mode=""
           tests=()
           for f in ${files}; do
