@@ -150,8 +150,6 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
     outs, errs = execute_and_assert(trafficgen, trafficgen_cmd, 0)
     testdata.trafficgen_id = outs[0][0]
 
-
-
     client_cmd = (
         f"{settings.config['container_manager']} run --rm --privileged "
         f"{settings.config['trafficgen_img']} client status "
@@ -161,7 +159,7 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
     assert execute_until_timeout(trafficgen, client_cmd, 60)
 
     # Warmup
-    client_cmd = [ 
+    client_cmd = [
         f"{settings.config['container_manager']} run --rm --privileged "
         f"{settings.config['trafficgen_img']} client start "
         f"--server-addr {settings.config['trafficgen']['host']} "
