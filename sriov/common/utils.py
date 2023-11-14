@@ -1112,3 +1112,29 @@ def get_nic_model(ssh_obj: ShellHandler, pf: str) -> str:
     cmd = [f"lshw -C network -businfo | grep {pf}"]
     outs, _ = execute_and_assert(ssh_obj, cmd, 0)
     return re.split("\\s{2,}", outs[0][0])[-1].strip()
+
+
+def get_driver_pci(ssh_obj: ShellHandler, pci: str) -> str:
+    """Get the base driver (i40e or ice) by the PCI address
+
+    Args:
+        ssh_obj (ShellHandler): ssh connection obj
+        pci (str): pci address
+
+    Returns:
+        str: The driver this pci address is bound to
+    """
+    drivers = ["i40e", "ice"]
+    modprobe_cmds = []
+    cmds = []
+    for driver in drivers:
+        modprobe_cmds.append(f"modprobe {driver}")
+        cmds.append(f"find /sys/bus/pci/drivers/{driver}/ -name {pci}")
+    outs, _ = execute_and_assert(ssh_obj, modprobe_cmds, 0)
+    outs, _ = execute_and_assert(ssh_obj, cmds, 0)
+    if outs[0]:
+        return drivers[0]
+    elif outs[1]:
+        return drivers[1]
+    else:
+        assert Exception("Driver not in list: ", drivers)
