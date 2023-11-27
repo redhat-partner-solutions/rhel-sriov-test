@@ -17,6 +17,7 @@ from sriov.common.utils import (
     destroy_vfs,
     bind_driver,
     execute_and_assert,
+    get_driver_pci,
 )
 
 
@@ -54,14 +55,26 @@ def settings(dut, trafficgen) -> Config:
     settings = get_settings_obj()
     pf1_name = settings.config["dut"]["interface"]["pf1"]["name"]
     settings.config["dut"]["interface"]["pf1"]["pci"] = get_pci_address(dut, pf1_name)
+    settings.config["dut"]["interface"]["pf1"]["driver"] = get_driver_pci(
+        dut, settings.config["dut"]["interface"]["pf1"]["pci"]
+    )
     settings.config["dut"]["interface"]["pf2"]["pci"] = get_pci_address(
         dut, settings.config["dut"]["interface"]["pf2"]["name"]
+    )
+    settings.config["dut"]["interface"]["pf2"]["driver"] = get_driver_pci(
+        dut, settings.config["dut"]["interface"]["pf2"]["pci"]
     )
     settings.config["trafficgen"]["interface"]["pf1"]["pci"] = get_pci_address(
         trafficgen, settings.config["trafficgen"]["interface"]["pf1"]["name"]
     )
+    settings.config["trafficgen"]["interface"]["pf1"]["driver"] = get_driver_pci(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf1"]["pci"]
+    )
     settings.config["trafficgen"]["interface"]["pf2"]["pci"] = get_pci_address(
         trafficgen, settings.config["trafficgen"]["interface"]["pf2"]["name"]
+    )
+    settings.config["trafficgen"]["interface"]["pf2"]["driver"] = get_driver_pci(
+        trafficgen, settings.config["trafficgen"]["interface"]["pf2"]["pci"]
     )
     create_vfs(dut, pf1_name, 1)
     vf1_name = settings.config["dut"]["interface"]["vf1"]["name"]
@@ -161,17 +174,17 @@ def _cleanup(
         ]
         execute_and_assert(trafficgen, kill_trafficgen, 0)
 
-    trafficgen_pfs_pci = []
+    trafficgen_pfs_pci = {}
     if "pf1" in settings.config["trafficgen"]["interface"]:
-        trafficgen_pfs_pci.append(
+        trafficgen_pfs_pci[
             settings.config["trafficgen"]["interface"]["pf1"]["pci"]
-        )
+        ] = settings.config["trafficgen"]["interface"]["pf1"]["driver"]
     if "pf2" in settings.config["trafficgen"]["interface"]:
-        trafficgen_pfs_pci.append(
+        trafficgen_pfs_pci[
             settings.config["trafficgen"]["interface"]["pf2"]["pci"]
-        )
+        ] = settings.config["trafficgen"]["interface"]["pf2"]["driver"]
     for pf in trafficgen_pfs_pci:
-        assert bind_driver(trafficgen, pf, "i40e")
+        assert bind_driver(trafficgen, pf, trafficgen_pfs_pci[pf])
 
     reset_command(dut, testdata)
 
