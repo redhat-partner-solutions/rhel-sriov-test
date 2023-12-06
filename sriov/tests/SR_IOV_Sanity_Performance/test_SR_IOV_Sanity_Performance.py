@@ -206,4 +206,3 @@ def log_elastic(results):
     elastic.elastic_doc["timestamp"] = datetime.now()
 
     print(elastic.elastic_index)
-    

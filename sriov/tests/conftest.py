@@ -20,10 +20,12 @@ from sriov.common.utils import (
     execute_and_assert,
 )
 
+
 class elastic:
     # track elastic results (currently used in SR_IOV_Sanity_Performance)
     elastic_index = None
     elastic_doc = {}
+
 
 def get_settings_obj() -> Config:
     script_dir = os.path.dirname(os.path.realpath(__file__))
