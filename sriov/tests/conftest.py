@@ -347,7 +347,10 @@ def pytest_generate_tests(metafunc) -> None:
 def elastic_push(settings, testdata):
     if settings.config["log_performance_elastic"]:
         es = Elasticsearch(
-            f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
+            (
+                f'https://{settings.config["elastic_host"]}:'
+                + f'{settings.config["elastic_port"]}'
+            ),
             verify_certs=False,
             # ca_certs=settings.config["elastic_ca_cert_path"],
             basic_auth=(
