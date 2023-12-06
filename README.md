@@ -117,7 +117,8 @@ trafficgen_port:                  # trafficgen REST port
 trafficgen_timeout:               # trafficgen command timeout (in minutes)
 trafficgen_rx_bps_limit:          # trafficgen baseline comparison (bps)
 log_performance:                  # boolean, use false to omit sanity performance test details in logs/result files (only pass or fail)
-log_performance_elastic:          # boolean, use true to upload to bps to elastic node
+log_performance_elastic:          # boolean, use true to upload the sanity performance bps to elastic node
+# Below configures the SR_IOV_Sanity_Performance Elastic parameters, if log_performance_elastic is set
 elastic_host:                     # IP address or hostname of elastic
 elastic_port:                     # Port of elastic
 elastic_username:                 # Elastic username
@@ -186,7 +187,7 @@ The common code has its own test cases. The majority of the common code test cas
 
 A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover scenarios that are difficult to cover via the e2e tests. These tests must be run from the root of the repo, unless one sets the `PYTHONPATH` environment variable to include the root, in which case the mock tests may be run from another directory.
 
-## Debug Failed Test Case
+## Debug Failed Test Cases
 
 When a test case is failing, one may want to immediately stop the test run and keep the failed setup for manual debugging. This can not be achieved with the pytest `-x` option, as `-x` still allow the cleanup to happen. Instead, this can be done by using the `--skipclean` option.
 
