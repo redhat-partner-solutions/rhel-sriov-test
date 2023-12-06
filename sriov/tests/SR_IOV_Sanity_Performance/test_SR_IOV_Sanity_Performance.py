@@ -24,7 +24,7 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):  # noqa:
         testdata:         testdata obj
         execution_number: execution_number parameter
     """
-    '''dut_pfs = list(testdata.pfs.keys())
+    dut_pfs = list(testdata.pfs.keys())
 
     assert set_pipefail(dut)
 
@@ -189,21 +189,20 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):  # noqa:
         client_cmd,
         0,
         cmd_timeout=60 * settings.config["trafficgen_timeout"],
-    )'''
-    results = "" #json.loads(outs[0][0])
+    )
+    results = json.loads(outs[0][0])
     if settings.config["log_performance"]:
         print(json.dumps(results))
     if settings.config["log_performance_elastic"]:
-        log_elastic()
+        log_elastic(results)
 
     # Compare trafficgen results to config
-    #assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
+    assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
 
 
-def log_elastic():
+def log_elastic(results):
     elastic.elastic_index = "test-perf-index"
-    elastic.elastic_doc = {}
-    #elastic.elastic_doc["rx_l1_bps"] = results["0"]["rx_l1_bps"]
+    elastic.elastic_doc["rx_l1_bps"] = results["0"]["rx_l1_bps"]
     elastic.elastic_doc["timestamp"] = datetime.now()
 
     print(elastic.elastic_index)

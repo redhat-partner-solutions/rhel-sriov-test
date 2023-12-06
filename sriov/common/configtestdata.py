@@ -1,11 +1,7 @@
 from sriov.common.config import Config
-import json
 
 
 class ConfigTestData:
-    def to_json(self):
-        return json.dumps(self)
-    
     def __init__(self, settings: Config) -> None:
         """Init the testdata object
 
@@ -63,4 +59,3 @@ class ConfigTestData:
         # track testpmd and trafficgen container IDs from SR_IOV_Performance for cleanup
         self.testpmd_id = ""
         self.trafficgen_id = ""
-

@@ -182,19 +182,6 @@ def _cleanup(
 
     if settings.config["log_performance_elastic"]:
         elastic_push(settings, testdata)
-        '''es = Elasticsearch(
-            f'https://{settings.config["elastic_host"]}:{settings.config["elastic_port"]}',
-            verify_certs=False,
-            # ca_certs=settings.config["elastic_ca_cert_path"],
-            basic_auth=(
-                settings.config["elastic_username"],
-                settings.config["elastic_password"],
-            ),
-        )
-        es.info()
-        print("elastic index: ", elastic.elastic_index)
-        resp = es.index(index=elastic.elastic_index, document=elastic.elastic_doc)
-        print(resp["result"])'''
 
 
 def pytest_configure(config: Config) -> None:
@@ -312,7 +299,7 @@ def _report_extras(extra, request, settings, testdata, monkeypatch) -> None:
                 if git_tag:
                     elastic.elastic_doc["tag"] = str(git_tag)
                 elif sha:
-                    elastic.elastic_doc["tag"] = str(sha)
+                    elastic.elastic_doc["tag"] = str(sha.hexsha)
 
             extra.append(
                 extras.html(
@@ -367,9 +354,6 @@ def elastic_push(settings, testdata):
             ),
         )
         es.info()
-
-        #elastic.elastic_doc["testdata"] = testdata.to_json()
-        elastic.elastic_doc["settings"] = settings
 
         resp = es.index(index=elastic.elastic_index, document=elastic.elastic_doc)
         print(resp["result"])
