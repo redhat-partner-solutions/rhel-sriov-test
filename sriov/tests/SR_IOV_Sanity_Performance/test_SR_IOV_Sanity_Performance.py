@@ -1,3 +1,5 @@
+from datetime import datetime
+from sriov.tests.conftest import elastic
 from sriov.common.utils import (
     execute_and_assert,
     execute_until_timeout,
@@ -13,7 +15,7 @@ import json
 
 # Use pytest --iteration to adjust the execution_number parameter for desired amount
 # of repeated tests
-def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
+def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):  # noqa: C901
     """Test and ensure that VFs provision with MTU functions as intended
 
     Args:
@@ -199,6 +201,16 @@ def test_SRIOV_Sanity_Performance(dut, trafficgen, settings, testdata):
     results = json.loads(outs[0][0])
     if settings.config["log_performance"]:
         print(json.dumps(results))
+    if settings.config["log_performance_elastic"]:
+        log_elastic(results)
 
     # Compare trafficgen results to config
     assert results["0"]["rx_l1_bps"] >= settings.config["trafficgen_rx_bps_limit"]
+
+
+def log_elastic(results):
+    elastic.elastic_index = "test-perf-index"
+    elastic.elastic_doc["rx_l1_bps"] = results["0"]["rx_l1_bps"]
+    elastic.elastic_doc["timestamp"] = datetime.now()
+
+    print(elastic.elastic_index)

@@ -119,6 +119,12 @@ trafficgen_port:                  # trafficgen REST port
 trafficgen_timeout:               # trafficgen command timeout (in minutes)
 trafficgen_rx_bps_limit:          # trafficgen baseline comparison (bps)
 log_performance:                  # boolean, use false to omit sanity performance test details in logs/result files (only pass or fail)
+log_performance_elastic:          # boolean, use true to upload the sanity performance bps to elastic node
+# Below configures the SR_IOV_Sanity_Performance Elastic parameters, if log_performance_elastic is set
+elastic_host:                     # IP address or hostname of elastic
+elastic_port:                     # Port of elastic
+elastic_username:                 # Elastic username
+elastic_password:                 # Elastic password
 ```
 
 A current version of Python is recommended to run the tests. As of writing the minimum version to avoid warnings would be 3.7. However, the tests have been successfully run up to version 3.11, the latest active release as of writing. The same is true of pip, which should be a current version (23.0 as of writing, but this should be upgraded in the following steps).
@@ -183,7 +189,7 @@ The common code has its own test cases. The majority of the common code test cas
 
 A small portion of common code test cases are done using mock. These mock unit test cases are under the `sriov/common` folder, along with the common code itself. The purpose of the mock unit tests is to cover scenarios that are difficult to cover via the e2e tests. These tests must be run from the root of the repo, unless one sets the `PYTHONPATH` environment variable to include the root, in which case the mock tests may be run from another directory.
 
-## Debug Failed Test Case
+## Debug Failed Test Cases
 
 When a test case is failing, one may want to immediately stop the test run and keep the failed setup for manual debugging. This can not be achieved with the pytest `-x` option, as `-x` still allow the cleanup to happen. Instead, this can be done by using the `--skipclean` option.
 
@@ -194,8 +200,11 @@ The test execution will stop immediately without cleaning up, and one may access
 
 After the debug is complete, one has to manually clean up the setup.
 
-## Uncommon options
+## Uncommon Options
 
 The following test options are uncommon and meant to use under rare situations:
 + `--debug-execute`: debug command execution over the ssh session
 
+## Storing Test Results (Experimental)
+
+A natural extension of this testing framework involves storing results of tests for historical purposes, as well as to query the data afterwords. To this end we have implemented a (currently experimental/in development) integration allowing the results of `SR_IOV_Sanity_Performance` to be pushed to an Elasticsearch instance. To see config fields required for using Elastic, see the `Usage` section above. As noted, this is an initial implementation and further development is needed to flesh out features.

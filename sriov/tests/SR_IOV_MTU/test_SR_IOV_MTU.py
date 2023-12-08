@@ -9,6 +9,7 @@ from sriov.common.utils import (
     get_vf_mac,
     switch_detected,
 )
+import time
 
 
 def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
@@ -58,6 +59,7 @@ def test_SR_IOV_MTU(dut, trafficgen, settings, testdata):
     else:
         mtu = min(dut_mtu, trafficgen_mtu)
 
+    time.sleep(5)
     assert set_mtu(trafficgen, trafficgen_pf, dut, pf, 0, mtu, testdata)
 
     steps = [f"ip link set {pf}v0 up", f"ip add add {dut_ip}/24 dev {pf}v0"]
