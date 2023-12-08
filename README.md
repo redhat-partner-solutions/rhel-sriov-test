@@ -198,8 +198,11 @@ The test execution will stop immediately without cleaning up, and one may access
 
 After the debug is complete, one has to manually clean up the setup.
 
-## Uncommon options
+## Uncommon Options
 
 The following test options are uncommon and meant to use under rare situations:
 + `--debug-execute`: debug command execution over the ssh session
 
+## Storing Test Results (Experimental)
+
+A natural extension of this testing framework involves storing results of tests for historical purposes, as well as to query the data afterwords. To this end we have implemented a (currently experimental/in development) integration allowing the results of `SR_IOV_Sanity_Performance` to be pushed to an Elasticsearch instance. To see config fields required for using Elastic, see the `Usage` section above. As noted, this is an initial implementation and further development is needed to flesh out features.
